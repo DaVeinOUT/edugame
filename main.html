@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Mission Lecture : Max apprend l'Alphabet</title>
+<style>
+ @import url('https://fonts.googleapis.com/css2?family=Open+Dyslexic&display=swap');
+
+ body {
+   margin: 0; padding: 0;
+   background: linear-gradient(135deg, #fdf6e3, #ffe7c2);
+   font-family: 'Open Dyslexic', Arial, sans-serif;
+   color: #003e4f;
+   user-select: none;
+   overflow-x: hidden;
+ }
+ #app {
+   max-width: 600px;
+   margin: 0 auto;
+   padding: 20px;
+   text-align: center;
+ }
+ h1 {
+   font-size: 2.4rem;
+   margin-bottom: 0.2em;
+   text-shadow: 1px 1px 2px #fcd9a6;
+ }
+ #start-screen, #mission-screen, #end-screen {
+   display: none;
+ }
+ #start-screen.active, #mission-screen.active, #end-screen.active {
+   display: block;
+ }
+ button {
+   background: #ffaa00;
+   border: none;
+   padding: 15px 30px;
+   font-size: 1.5rem;
+   color: #003e4f;
+   font-weight: bold;
+   border-radius: 12px;
+   box-shadow: 0 5px #cc8800;
+   cursor: pointer;
+   transition: background 0.3s;
+   margin-top: 1em;
+ }
+ button:active {
+   box-shadow: none;
+   transform: translateY(3px);
+ }
+ .letter-button {
+   background: #fff3d1;
+   border-radius: 15px;
+   padding: 30px 40px;
+   margin: 15px 10px;
+   font-size: 4rem;
+   font-weight: 700;
+   cursor: pointer;
+   box-shadow: 0 5px 10px #f5c275;
+   display: inline-block;
+   user-select: none;
+   transition: background 0.3s;
+ }
+ .letter-button:hover {
+   background: #ffe8b0;
+ }
+ .correct {
+   animation: correctAnim 1s ease forwards;
+ }
+ .wrong {
+   animation: wrongAnim 1s ease forwards;
+ }
+ @keyframes correctAnim {
+   0% { background-color: #fff3d1; }
+   50% { background-color: #a8e6a1; }
+   100% { background-color: #fff3d1; }
+ }
+ @keyframes wrongAnim {
+   0% { background-color: #fff3d1; }
+   50% { background-color: #f7a8a8; }
+   100% { background-color: #fff3d1; }
+ }
+ #feedback {
+   font-size: 1.8rem;
+   margin-top: 20px;
+   min-height: 2.5em;
+   font-weight: bold;
+   text-shadow: 0 0 6px #fcd9a6;
+ }
+ #progress-bar {
+   margin: 25px auto 0 auto;
+   background: #fff0d5;
+   border-radius: 12px;
+   width: 90%;
+   height: 20px;
+   overflow: hidden;
+ }
+ #progress-fill {
+   height: 100%;
+   width: 0%;
+   background: #ffaa00aa;
+   border-radius: 12px 0 0 12px;
+   transition: width 0.5s ease;
+ }
+ #avatar {
+   margin: 15px auto;
+   width: 120px;
+   height: 120px;
+   background: url('https://i.imgur.com/QXuLZJo.png') no-repeat center/contain;
+   filter: drop-shadow(0 0 5px #ffaa00aa);
+ }
+ #toggle-sound {
+   margin-top: 15px;
+   background: #ffaa00;
+   border-radius: 20px;
+   padding: 8px 20px;
+   font-size: 1.1rem;
+   color: white;
+ }
+</style>
+</head>
+<body>
+<div id="app">
+  <div id="start-screen" class="active">
+    <h1>Mission Lecture : Max apprend l'Alphabet</h1>
+    <div id="avatar"></div>
+    <button onclick="startGame()">Commencer</button>
+    <button id="toggle-sound" onclick="toggleSound()">🔊 Son : Activé</button>
+  </div>
+
+  <div id="mission-screen">
+    <h2 id="instruction">Trouve la lettre :</h2>
+    <div id="target-letter">?</div>
+    <div id="letter-options"></div>
+    <div id="feedback"></div>
+    <div id="progress-bar"><div id="progress-fill"></div></div>
+  </div>
+
+  <div id="end-screen">
+    <h2>Bravo Max ! 🎉</h2>
+    <p>Tu as fini ta mission.</p>
+    <p id="score"></p>
+    <button onclick="startGame()">Rejouer</button>
+  </div>
+</div>
+<audio id="click-sound" src="https://www.soundjay.com/button/sounds/button-16.mp3" preload="auto"></audio>
+
+<script>
+const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
+let soundEnabled = true;
+let progress = [];
+let totalMistakes = 0;
+
+function shuffle(array) {
+  return array.slice().sort(() => Math.random() - 0.5);
+}
+
+function speak(text) {
+  if (soundEnabled && 'speechSynthesis' in window) {
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = 'fr-FR';
+    window.speechSynthesis.cancel();
+    window.speechSynthesis.speak(utterance);
+  }
+}
+
+function toggleSound() {
+  soundEnabled = !soundEnabled;
+  document.getElementById("toggle-sound").textContent = soundEnabled ? "🔊 Son : Activé" : "🔇 Son : Désactivé";
+}
+
+let remainingLetters;
+let currentTarget;
+
+function startGame() {
+  remainingLetters = shuffle(alphabet);
+  progress = [];
+  totalMistakes = 0;
+  document.getElementById("start-screen").classList.remove("active");
+  document.getElementById("end-screen").classList.remove("active");
+  document.getElementById("mission-screen").classList.add("active");
+  showNextLetter();
+}
+
+function showNextLetter() {
+  if (remainingLetters.length === 0) {
+    document.getElementById("mission-screen").classList.remove("active");
+    document.getElementById("end-screen").classList.add("active");
+    document.getElementById("score").textContent = `Tu as fait ${totalMistakes} faute${totalMistakes > 1 ? 's' : ''}.`;
+    return;
+  }
+
+  currentTarget = remainingLetters.shift();
+  document.getElementById("target-letter").textContent = '?';
+  setTimeout(() => speak(currentTarget), 400);
+
+  const options = shuffle([
+    currentTarget,
+    ...shuffle(alphabet.filter(l => l !== currentTarget)).slice(0, 2)
+  ]);
+
+  const optionsContainer = document.getElementById("letter-options");
+  optionsContainer.innerHTML = "";
+  options.forEach(letter => {
+    const btn = document.createElement("div");
+    btn.className = "letter-button";
+    btn.textContent = letter;
+    btn.onclick = () => selectLetter(letter);
+    optionsContainer.appendChild(btn);
+  });
+
+  document.getElementById("feedback").textContent = "";
+  updateProgress();
+}
+
+function selectLetter(letter) {
+  document.getElementById("click-sound").play();
+  const buttons = document.querySelectorAll(".letter-button");
+  buttons.forEach(btn => btn.classList.remove("correct", "wrong"));
+
+  if (letter === currentTarget) {
+    document.getElementById("feedback").textContent = "Bravo !";
+    speak("Bravo !");
+    buttons.forEach(btn => {
+      if (btn.textContent === letter) btn.classList.add("correct");
+    });
+    progress.push(true);
+    document.getElementById("target-letter").textContent = currentTarget;
+    setTimeout(showNextLetter, 1200);
+  } else {
+    document.getElementById("feedback").textContent = "Essaie encore.";
+    speak("Essaie encore.");
+    buttons.forEach(btn => {
+      if (btn.textContent === letter) btn.classList.add("wrong");
+    });
+    progress.push(false);
+    totalMistakes++;
+    updateProgress();
+  }
+}
+
+function updateProgress() {
+  const percent = (progress.length / alphabet.length) * 100;
+  document.getElementById("progress-fill").style.width = percent + "%";
+}
+</script>
+</body>
+</html>
