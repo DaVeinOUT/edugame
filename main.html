@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<<!DOCTYPE html>
 <html lang="fr">
 <head>
 <meta charset="UTF-8" />
@@ -26,10 +26,10 @@
    margin-bottom: 0.2em;
    text-shadow: 1px 1px 2px #fcd9a6;
  }
- #start-screen, #mission-screen, #end-screen {
+ #start-screen, #mission-screen, #end-screen, #difficulty-screen {
    display: none;
  }
- #start-screen.active, #mission-screen.active, #end-screen.active {
+ #start-screen.active, #mission-screen.active, #end-screen.active, #difficulty-screen.active {
    display: block;
  }
  button {
@@ -48,6 +48,11 @@
  button:active {
    box-shadow: none;
    transform: translateY(3px);
+ }
+ .difficulty-btn {
+   padding: 12px 25px;
+   font-size: 1.2rem;
+   margin: 10px;
  }
  .letter-button {
    background: #fff3d1;
@@ -72,14 +77,17 @@
    animation: wrongAnim 1s ease forwards;
  }
  @keyframes correctAnim {
-   0% { background-color: #fff3d1; }
-   50% { background-color: #a8e6a1; }
-   100% { background-color: #fff3d1; }
+   0% { background-color: #fff3d1; transform: scale(1); }
+   50% { background-color: #a8e6a1; transform: scale(1.1); }
+   100% { background-color: #fff3d1; transform: scale(1); }
  }
  @keyframes wrongAnim {
-   0% { background-color: #fff3d1; }
-   50% { background-color: #f7a8a8; }
-   100% { background-color: #fff3d1; }
+   0% { background-color: #fff3d1; transform: translateX(0); }
+   20% { transform: translateX(-10px); }
+   40% { transform: translateX(10px); }
+   60% { transform: translateX(-10px); }
+   80% { transform: translateX(10px); }
+   100% { background-color: #fff3d1; transform: translateX(0); }
  }
  #feedback {
    font-size: 1.8rem;
@@ -107,7 +115,7 @@
    margin: 15px auto;
    width: 120px;
    height: 120px;
-   background: url('https://i.imgur.com/QXuLZJo.png') no-repeat center/contain;
+   background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="40" r="25" fill="%23FFD166"/><circle cx="40" cy="35" r="3" fill="%23003E4F"/><circle cx="60" cy="35" r="3" fill="%23003E4F"/><path d="M45,50 Q50,55 55,50" fill="none" stroke="%23003E4F" stroke-width="2"/><circle cx="50" cy="70" r="30" fill="%23FFD166"/></svg>') no-repeat center/contain;
    filter: drop-shadow(0 0 5px #ffaa00aa);
  }
  #toggle-sound {
@@ -118,6 +126,31 @@
    font-size: 1.1rem;
    color: white;
  }
+ #target-letter {
+   font-size: 5rem;
+   margin: 20px 0;
+   cursor: pointer;
+   transition: transform 0.2s;
+ }
+ #target-letter:hover {
+   transform: scale(1.1);
+ }
+ .sticker {
+   font-size: 2rem;
+   margin: 5px;
+   display: inline-block;
+   animation: stickerPop 0.5s ease;
+ }
+ @keyframes stickerPop {
+   0% { transform: scale(0); }
+   80% { transform: scale(1.2); }
+   100% { transform: scale(1); }
+ }
+ .difficulty-indicator {
+   margin: 15px 0;
+   font-weight: bold;
+   color: #ff6b00;
+ }
 </style>
 </head>
 <body>
@@ -125,13 +158,23 @@
   <div id="start-screen" class="active">
     <h1>Mission Lecture : Max apprend l'Alphabet</h1>
     <div id="avatar"></div>
-    <button onclick="startGame()">Commencer</button>
+    <button onclick="showDifficultyScreen()">Commencer</button>
     <button id="toggle-sound" onclick="toggleSound()">🔊 Son : Activé</button>
   </div>
 
+  <div id="difficulty-screen">
+    <h2>Choisis la difficulté :</h2>
+    <button class="difficulty-btn" onclick="startGame('facile')">Facile (Majuscules)</button><br>
+    <button class="difficulty-btn" onclick="startGame('moyen')">Moyen (Minuscules)</button><br>
+    <button class="difficulty-btn" onclick="startGame('difficile')">Difficile (Majuscules + Minuscules)</button><br>
+    <button class="difficulty-btn" onclick="startGame('expert')">Expert (Ordre alphabétique)</button><br>
+    <button class="difficulty-btn" onclick="document.getElementById('difficulty-screen').classList.remove('active'); document.getElementById('start-screen').classList.add('active');">Retour</button>
+  </div>
+
   <div id="mission-screen">
+    <div class="difficulty-indicator" id="difficulty-indicator"></div>
     <h2 id="instruction">Trouve la lettre :</h2>
-    <div id="target-letter">?</div>
+    <div id="target-letter" onclick="repeatLetter()">?</div>
     <div id="letter-options"></div>
     <div id="feedback"></div>
     <div id="progress-bar"><div id="progress-fill"></div></div>
@@ -141,16 +184,28 @@
     <h2>Bravo Max ! 🎉</h2>
     <p>Tu as fini ta mission.</p>
     <p id="score"></p>
-    <button onclick="startGame()">Rejouer</button>
+    <div id="stickers"></div>
+    <button onclick="showDifficultyScreen()">Nouvelle partie</button>
   </div>
 </div>
-<audio id="click-sound" src="https://www.soundjay.com/button/sounds/button-16.mp3" preload="auto"></audio>
+<audio id="click-sound" src="https://www.soundjay.com/buttons/sounds/button-09.mp3" preload="auto"></audio>
+<audio id="success-sound" src="https://www.soundjay.com/buttons/sounds/button-21.mp3" preload="auto"></audio>
+<audio id="error-sound" src="https://www.soundjay.com/buttons/sounds/button-10.mp3" preload="auto"></audio>
 
 <script>
-const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
+const alphabetUpper = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
+const alphabetLower = 'abcdefghijklmnopqrstuvwxyz'.split('');
+const stickers = ['⭐', '🏆', '🎯', '🌈', '✨', '🎁', '🏅', '👏', '👍', '💯'];
 let soundEnabled = true;
 let progress = [];
 let totalMistakes = 0;
+let difficulty = '';
+let currentMode = '';
+let remainingLetters = [];
+let currentTarget = '';
+let timeLimit = 0;
+let timer = null;
+let timeLeft = 0;
 
 function shuffle(array) {
   return array.slice().sort(() => Math.random() - 0.5);
@@ -160,6 +215,7 @@ function speak(text) {
   if (soundEnabled && 'speechSynthesis' in window) {
     const utterance = new SpeechSynthesisUtterance(text);
     utterance.lang = 'fr-FR';
+    utterance.rate = 0.9;
     window.speechSynthesis.cancel();
     window.speechSynthesis.speak(utterance);
   }
@@ -170,14 +226,47 @@ function toggleSound() {
   document.getElementById("toggle-sound").textContent = soundEnabled ? "🔊 Son : Activé" : "🔇 Son : Désactivé";
 }
 
-let remainingLetters;
-let currentTarget;
+function showDifficultyScreen() {
+  document.getElementById("start-screen").classList.remove("active");
+  document.getElementById("end-screen").classList.remove("active");
+  document.getElementById("difficulty-screen").classList.add("active");
+}
 
-function startGame() {
-  remainingLetters = shuffle(alphabet);
+function startGame(selectedDifficulty) {
+  difficulty = selectedDifficulty;
+  remainingLetters = [];
   progress = [];
   totalMistakes = 0;
-  document.getElementById("start-screen").classList.remove("active");
+  
+  // Configurer le jeu selon la difficulté
+  switch(difficulty) {
+    case 'facile':
+      currentMode = 'upper';
+      remainingLetters = shuffle(alphabetUpper.slice());
+      document.getElementById("difficulty-indicator").textContent = "Mode : Facile";
+      timeLimit = 0;
+      break;
+    case 'moyen':
+      currentMode = 'lower';
+      remainingLetters = shuffle(alphabetLower.slice());
+      document.getElementById("difficulty-indicator").textContent = "Mode : Moyen";
+      timeLimit = 0;
+      break;
+    case 'difficile':
+      currentMode = 'mixed';
+      remainingLetters = shuffle([...alphabetUpper, ...alphabetLower]);
+      document.getElementById("difficulty-indicator").textContent = "Mode : Difficile";
+      timeLimit = 10; // 10 secondes par lettre
+      break;
+    case 'expert':
+      currentMode = 'order';
+      remainingLetters = alphabetUpper.slice();
+      document.getElementById("difficulty-indicator").textContent = "Mode : Expert";
+      timeLimit = 8; // 8 secondes par lettre
+      break;
+  }
+
+  document.getElementById("difficulty-screen").classList.remove("active");
   document.getElementById("end-screen").classList.remove("active");
   document.getElementById("mission-screen").classList.add("active");
   showNextLetter();
@@ -185,23 +274,56 @@ function startGame() {
 
 function showNextLetter() {
   if (remainingLetters.length === 0) {
-    document.getElementById("mission-screen").classList.remove("active");
-    document.getElementById("end-screen").classList.add("active");
-    document.getElementById("score").textContent = `Tu as fait ${totalMistakes} faute${totalMistakes > 1 ? 's' : ''}.`;
+    endGame();
     return;
   }
 
-  currentTarget = remainingLetters.shift();
+  // Mode expert: lettres dans l'ordre mais options mélangées
+  if (difficulty === 'expert') {
+    currentTarget = remainingLetters.shift();
+  } 
+  // Autres modes: lettres mélangées
+  else {
+    currentTarget = remainingLetters.shift();
+  }
+
   document.getElementById("target-letter").textContent = '?';
-  setTimeout(() => speak(currentTarget), 400);
+  setTimeout(() => {
+    speak(currentTarget);
+    document.getElementById("target-letter").textContent = currentTarget;
+    startTimer();
+  }, 400);
 
-  const options = shuffle([
-    currentTarget,
-    ...shuffle(alphabet.filter(l => l !== currentTarget)).slice(0, 2)
-  ]);
+  generateOptions();
+  document.getElementById("feedback").textContent = "";
+  updateProgress();
+}
 
+function generateOptions() {
+  let options = [];
   const optionsContainer = document.getElementById("letter-options");
   optionsContainer.innerHTML = "";
+
+  if (difficulty === 'expert') {
+    // Pour le mode expert, trouver la lettre suivante dans l'alphabet
+    const currentIndex = alphabetUpper.indexOf(currentTarget.toUpperCase());
+    let nextIndex = currentIndex + 1;
+    if (nextIndex >= alphabetUpper.length) nextIndex = 0;
+    
+    const correctNextLetter = alphabetUpper[nextIndex];
+    options = shuffle([
+      correctNextLetter,
+      ...shuffle(alphabetUpper.filter(l => l !== correctNextLetter)).slice(0, 2)
+    ]);
+  } 
+  else {
+    // Pour les autres modes
+    options = shuffle([
+      currentTarget,
+      ...shuffle(getAllPossibleLetters().filter(l => l !== currentTarget)).slice(0, 2)
+    ]);
+  }
+
   options.forEach(letter => {
     const btn = document.createElement("div");
     btn.className = "letter-button";
@@ -209,40 +331,171 @@ function showNextLetter() {
     btn.onclick = () => selectLetter(letter);
     optionsContainer.appendChild(btn);
   });
+}
 
-  document.getElementById("feedback").textContent = "";
-  updateProgress();
+function getAllPossibleLetters() {
+  switch(currentMode) {
+    case 'upper': return alphabetUpper;
+    case 'lower': return alphabetLower;
+    case 'mixed': return [...alphabetUpper, ...alphabetLower];
+    case 'order': return alphabetUpper;
+    default: return alphabetUpper;
+  }
+}
+
+function repeatLetter() {
+  if (currentTarget) {
+    speak(currentTarget);
+  }
 }
 
 function selectLetter(letter) {
   document.getElementById("click-sound").play();
+  clearTimer();
+  
   const buttons = document.querySelectorAll(".letter-button");
   buttons.forEach(btn => btn.classList.remove("correct", "wrong"));
 
-  if (letter === currentTarget) {
-    document.getElementById("feedback").textContent = "Bravo !";
-    speak("Bravo !");
+  if (
+    (difficulty !== 'expert' && letter === currentTarget) ||
+    (difficulty === 'expert' && isCorrectNextLetter(letter))
+  ) {
+    // Bonne réponse
+    document.getElementById("success-sound").play();
+    const feedbacks = ["Super !", "Génial !", "Parfait !", "Excellent !", "Bravo !"];
+    const randomFeedback = feedbacks[Math.floor(Math.random() * feedbacks.length)];
+    document.getElementById("feedback").textContent = randomFeedback;
+    speak(randomFeedback);
+    
     buttons.forEach(btn => {
       if (btn.textContent === letter) btn.classList.add("correct");
     });
-    progress.push(true);
-    document.getElementById("target-letter").textContent = currentTarget;
+    
+    progress.push({correct: true, time: timeLeft});
     setTimeout(showNextLetter, 1200);
   } else {
-    document.getElementById("feedback").textContent = "Essaie encore.";
-    speak("Essaie encore.");
+    // Mauvaise réponse
+    document.getElementById("error-sound").play();
+    const feedbacks = ["Essaie encore", "Presque !", "Oups !", "Attention !", "Regarde bien"];
+    const randomFeedback = feedbacks[Math.floor(Math.random() * feedbacks.length)];
+    document.getElementById("feedback").textContent = randomFeedback;
+    speak(randomFeedback);
+    
     buttons.forEach(btn => {
       if (btn.textContent === letter) btn.classList.add("wrong");
     });
-    progress.push(false);
+    
+    progress.push({correct: false, time: timeLeft});
     totalMistakes++;
     updateProgress();
+    
+    // En mode difficile/expert, on ne passe pas à la lettre suivante automatiquement
+    if (difficulty === 'facile' || difficulty === 'moyen') {
+      setTimeout(() => {
+        document.getElementById("target-letter").textContent = currentTarget;
+      }, 800);
+    }
+  }
+}
+
+function isCorrectNextLetter(letter) {
+  const currentIndex = alphabetUpper.indexOf(currentTarget.toUpperCase());
+  let nextIndex = currentIndex + 1;
+  if (nextIndex >= alphabetUpper.length) nextIndex = 0;
+  return letter === alphabetUpper[nextIndex];
+}
+
+function startTimer() {
+  if (timeLimit <= 0) return;
+  
+  timeLeft = timeLimit;
+  updateTimerDisplay();
+  
+  timer = setInterval(() => {
+    timeLeft--;
+    updateTimerDisplay();
+    
+    if (timeLeft <= 0) {
+      clearTimer();
+      timeOut();
+    }
+  }, 1000);
+}
+
+function clearTimer() {
+  if (timer) {
+    clearInterval(timer);
+    timer = null;
+  }
+}
+
+function updateTimerDisplay() {
+  const targetElement = document.getElementById("target-letter");
+  if (timeLeft > 0) {
+    targetElement.style.color = timeLeft <= 5 ? '#ff0000' : '#003e4f';
+    targetElement.title = `Temps restant: ${timeLeft}s`;
+  } else {
+    targetElement.style.color = '#003e4f';
+    targetElement.removeAttribute('title');
+  }
+}
+
+function timeOut() {
+  document.getElementById("error-sound").play();
+  document.getElementById("feedback").textContent = "Temps écoulé !";
+  speak("Temps écoulé !");
+  
+  progress.push({correct: false, time: 0});
+  totalMistakes++;
+  updateProgress();
+  
+  if (difficulty === 'facile' || difficulty === 'moyen') {
+    document.getElementById("target-letter").textContent = currentTarget;
+    setTimeout(showNextLetter, 1500);
   }
 }
 
 function updateProgress() {
-  const percent = (progress.length / alphabet.length) * 100;
+  const percent = (progress.length / (currentMode === 'mixed' ? 52 : 26)) * 100;
   document.getElementById("progress-fill").style.width = percent + "%";
+}
+
+function endGame() {
+  clearTimer();
+  document.getElementById("mission-screen").classList.remove("active");
+  document.getElementById("end-screen").classList.add("active");
+  
+  const perfect = totalMistakes === 0;
+  let scoreMessage = '';
+  
+  if (perfect) {
+    scoreMessage = "Parfait ! Aucune erreur ! 🎉";
+  } else if (totalMistakes <= 3) {
+    scoreMessage = `Excellent ! Seulement ${totalMistakes} erreur${totalMistakes > 1 ? 's' : ''}.`;
+  } else if (totalMistakes <= 8) {
+    scoreMessage = `Bien joué ! ${totalMistakes} erreur${totalMistakes > 1 ? 's' : ''}.`;
+  } else {
+    scoreMessage = `${totalMistakes} erreurs. Tu peux t'améliorer !`;
+  }
+  
+  document.getElementById("score").textContent = scoreMessage;
+  
+  // Ajouter des stickers en récompense
+  const stickersContainer = document.getElementById("stickers");
+  stickersContainer.innerHTML = "";
+  
+  const stickersCount = Math.max(1, 5 - Math.floor(totalMistakes / 2));
+  for (let i = 0; i < stickersCount; i++) {
+    const sticker = document.createElement("span");
+    sticker.className = "sticker";
+    sticker.textContent = stickers[Math.floor(Math.random() * stickers.length)];
+    sticker.style.animationDelay = `${i * 0.2}s`;
+    stickersContainer.appendChild(sticker);
+  }
+  
+  if (perfect) {
+    document.getElementById("success-sound").play();
+  }
 }
 </script>
 </body>
