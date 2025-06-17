@@ -1,4 +1,4 @@
-<<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="fr">
 <head>
 <meta charset="UTF-8" />
@@ -131,6 +131,7 @@
    margin: 20px 0;
    cursor: pointer;
    transition: transform 0.2s;
+   min-height: 90px;
  }
  #target-letter:hover {
    transform: scale(1.1);
@@ -150,6 +151,17 @@
    margin: 15px 0;
    font-weight: bold;
    color: #ff6b00;
+ }
+ .hidden-letter {
+   color: transparent;
+   text-shadow: 0 0 8px rgba(0,62,79,0.5);
+ }
+ .revealed-letter {
+   animation: revealAnim 0.5s ease;
+ }
+ @keyframes revealAnim {
+   0% { opacity: 0; transform: scale(0.5); }
+   100% { opacity: 1; transform: scale(1); }
  }
 </style>
 </head>
@@ -174,7 +186,7 @@
   <div id="mission-screen">
     <div class="difficulty-indicator" id="difficulty-indicator"></div>
     <h2 id="instruction">Trouve la lettre :</h2>
-    <div id="target-letter" onclick="repeatLetter()">?</div>
+    <div id="target-letter" onclick="repeatLetter()" class="hidden-letter">?</div>
     <div id="letter-options"></div>
     <div id="feedback"></div>
     <div id="progress-bar"><div id="progress-fill"></div></div>
@@ -206,6 +218,7 @@ let currentTarget = '';
 let timeLimit = 0;
 let timer = null;
 let timeLeft = 0;
+let foundLetters = [];
 
 function shuffle(array) {
   return array.slice().sort(() => Math.random() - 0.5);
@@ -237,6 +250,7 @@ function startGame(selectedDifficulty) {
   remainingLetters = [];
   progress = [];
   totalMistakes = 0;
+  foundLetters = [];
   
   // Configurer le jeu selon la difficulté
   switch(difficulty) {
@@ -287,10 +301,12 @@ function showNextLetter() {
     currentTarget = remainingLetters.shift();
   }
 
-  document.getElementById("target-letter").textContent = '?';
+  const targetElement = document.getElementById("target-letter");
+  targetElement.textContent = '?';
+  targetElement.className = 'hidden-letter';
+  
   setTimeout(() => {
     speak(currentTarget);
-    document.getElementById("target-letter").textContent = currentTarget;
     startTimer();
   }, 400);
 
@@ -367,10 +383,16 @@ function selectLetter(letter) {
     document.getElementById("feedback").textContent = randomFeedback;
     speak(randomFeedback);
     
+    // Afficher la lettre trouvée
+    const targetElement = document.getElementById("target-letter");
+    targetElement.textContent = currentTarget;
+    targetElement.className = 'revealed-letter';
+    
     buttons.forEach(btn => {
       if (btn.textContent === letter) btn.classList.add("correct");
     });
     
+    foundLetters.push(currentTarget);
     progress.push({correct: true, time: timeLeft});
     setTimeout(showNextLetter, 1200);
   } else {
@@ -389,10 +411,12 @@ function selectLetter(letter) {
     totalMistakes++;
     updateProgress();
     
-    // En mode difficile/expert, on ne passe pas à la lettre suivante automatiquement
+    // En mode facile/moyen, montrer la lettre après une erreur
     if (difficulty === 'facile' || difficulty === 'moyen') {
       setTimeout(() => {
-        document.getElementById("target-letter").textContent = currentTarget;
+        const targetElement = document.getElementById("target-letter");
+        targetElement.textContent = currentTarget;
+        targetElement.className = 'revealed-letter';
       }, 800);
     }
   }
@@ -445,14 +469,16 @@ function timeOut() {
   document.getElementById("feedback").textContent = "Temps écoulé !";
   speak("Temps écoulé !");
   
+  // Afficher la lettre qu'il fallait trouver
+  const targetElement = document.getElementById("target-letter");
+  targetElement.textContent = currentTarget;
+  targetElement.className = 'revealed-letter';
+  
   progress.push({correct: false, time: 0});
   totalMistakes++;
   updateProgress();
   
-  if (difficulty === 'facile' || difficulty === 'moyen') {
-    document.getElementById("target-letter").textContent = currentTarget;
-    setTimeout(showNextLetter, 1500);
-  }
+  setTimeout(showNextLetter, 1500);
 }
 
 function updateProgress() {
