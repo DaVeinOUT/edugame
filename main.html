@@ -1,528 +1,2180 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Mission Lecture : Max apprend l'Alphabet</title>
-<style>
- @import url('https://fonts.googleapis.com/css2?family=Open+Dyslexic&display=swap');
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mission Lecture : Max apprend l'Alphabet</title>
+    <style>
+        /* === POLICES ET VARIABLES CSS === */
+        @import url('https://fonts.googleapis.com/css2?family=OpenDyslexic:wght@400;700&display=swap');
+        
+        :root {
+            /* Palette de couleurs accessibles */
+            --primary-color: #4A90E2;
+            --secondary-color: #FFD93D;
+            --success-color: #6BCF7F;
+            --error-color: #FF6B6B;
+            --background-gradient: linear-gradient(135deg, #F8F9FF 0%, #E8F4FD 100%);
+            --text-color: #2C3E50;
+            --card-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            
+            /* Espacements responsives */
+            --spacing-xs: 0.5rem;
+            --spacing-sm: 1rem;
+            --spacing-md: 1.5rem;
+            --spacing-lg: 2rem;
+            --spacing-xl: 3rem;
+        }
 
- body {
-   margin: 0; padding: 0;
-   background: linear-gradient(135deg, #fdf6e3, #ffe7c2);
-   font-family: 'Open Dyslexic', Arial, sans-serif;
-   color: #003e4f;
-   user-select: none;
-   overflow-x: hidden;
- }
- #app {
-   max-width: 600px;
-   margin: 0 auto;
-   padding: 20px;
-   text-align: center;
- }
- h1 {
-   font-size: 2.4rem;
-   margin-bottom: 0.2em;
-   text-shadow: 1px 1px 2px #fcd9a6;
- }
- #start-screen, #mission-screen, #end-screen, #difficulty-screen {
-   display: none;
- }
- #start-screen.active, #mission-screen.active, #end-screen.active, #difficulty-screen.active {
-   display: block;
- }
- button {
-   background: #ffaa00;
-   border: none;
-   padding: 15px 30px;
-   font-size: 1.5rem;
-   color: #003e4f;
-   font-weight: bold;
-   border-radius: 12px;
-   box-shadow: 0 5px #cc8800;
-   cursor: pointer;
-   transition: background 0.3s;
-   margin-top: 1em;
- }
- button:active {
-   box-shadow: none;
-   transform: translateY(3px);
- }
- .difficulty-btn {
-   padding: 12px 25px;
-   font-size: 1.2rem;
-   margin: 10px;
- }
- .letter-button {
-   background: #fff3d1;
-   border-radius: 15px;
-   padding: 30px 40px;
-   margin: 15px 10px;
-   font-size: 4rem;
-   font-weight: 700;
-   cursor: pointer;
-   box-shadow: 0 5px 10px #f5c275;
-   display: inline-block;
-   user-select: none;
-   transition: background 0.3s;
- }
- .letter-button:hover {
-   background: #ffe8b0;
- }
- .correct {
-   animation: correctAnim 1s ease forwards;
- }
- .wrong {
-   animation: wrongAnim 1s ease forwards;
- }
- @keyframes correctAnim {
-   0% { background-color: #fff3d1; transform: scale(1); }
-   50% { background-color: #a8e6a1; transform: scale(1.1); }
-   100% { background-color: #fff3d1; transform: scale(1); }
- }
- @keyframes wrongAnim {
-   0% { background-color: #fff3d1; transform: translateX(0); }
-   20% { transform: translateX(-10px); }
-   40% { transform: translateX(10px); }
-   60% { transform: translateX(-10px); }
-   80% { transform: translateX(10px); }
-   100% { background-color: #fff3d1; transform: translateX(0); }
- }
- #feedback {
-   font-size: 1.8rem;
-   margin-top: 20px;
-   min-height: 2.5em;
-   font-weight: bold;
-   text-shadow: 0 0 6px #fcd9a6;
- }
- #progress-bar {
-   margin: 25px auto 0 auto;
-   background: #fff0d5;
-   border-radius: 12px;
-   width: 90%;
-   height: 20px;
-   overflow: hidden;
- }
- #progress-fill {
-   height: 100%;
-   width: 0%;
-   background: #ffaa00aa;
-   border-radius: 12px 0 0 12px;
-   transition: width 0.5s ease;
- }
- #avatar {
-   margin: 15px auto;
-   width: 120px;
-   height: 120px;
-   background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="40" r="25" fill="%23FFD166"/><circle cx="40" cy="35" r="3" fill="%23003E4F"/><circle cx="60" cy="35" r="3" fill="%23003E4F"/><path d="M45,50 Q50,55 55,50" fill="none" stroke="%23003E4F" stroke-width="2"/><circle cx="50" cy="70" r="30" fill="%23FFD166"/></svg>') no-repeat center/contain;
-   filter: drop-shadow(0 0 5px #ffaa00aa);
- }
- #toggle-sound {
-   margin-top: 15px;
-   background: #ffaa00;
-   border-radius: 20px;
-   padding: 8px 20px;
-   font-size: 1.1rem;
-   color: white;
- }
- #target-letter {
-   font-size: 5rem;
-   margin: 20px 0;
-   cursor: pointer;
-   transition: transform 0.2s;
-   min-height: 90px;
- }
- #target-letter:hover {
-   transform: scale(1.1);
- }
- .sticker {
-   font-size: 2rem;
-   margin: 5px;
-   display: inline-block;
-   animation: stickerPop 0.5s ease;
- }
- @keyframes stickerPop {
-   0% { transform: scale(0); }
-   80% { transform: scale(1.2); }
-   100% { transform: scale(1); }
- }
- .difficulty-indicator {
-   margin: 15px 0;
-   font-weight: bold;
-   color: #ff6b00;
- }
- .hidden-letter {
-   color: transparent;
-   text-shadow: 0 0 8px rgba(0,62,79,0.5);
- }
- .revealed-letter {
-   animation: revealAnim 0.5s ease;
- }
- @keyframes revealAnim {
-   0% { opacity: 0; transform: scale(0.5); }
-   100% { opacity: 1; transform: scale(1); }
- }
-</style>
+        /* === RESET ET BASE === */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'OpenDyslexic', Arial, sans-serif;
+            background: var(--background-gradient);
+            color: var(--text-color);
+            min-height: 100vh;
+            overflow-x: hidden;
+            user-select: none;
+        }
+
+        /* === LAYOUT PRINCIPAL === */
+        .game-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: var(--spacing-md);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* === HEADER AVEC AVATAR === */
+        .game-header {
+            text-align: center;
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .game-title {
+            font-size: clamp(1.8rem, 4vw, 2.8rem);
+            color: var(--primary-color);
+            margin-bottom: var(--spacing-sm);
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .max-avatar {
+            width: 120px;
+            height: 120px;
+            margin: var(--spacing-md) auto;
+            border-radius: 50%;
+            background: radial-gradient(circle, #FFD93D 0%, #FFA500 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            box-shadow: var(--card-shadow);
+            transition: transform 0.3s ease;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .max-avatar:hover {
+            transform: scale(1.1) rotate(5deg);
+        }
+
+        .max-avatar::before {
+            content: '👦';
+            font-size: 3.5rem;
+        }
+
+        /* Système de badges sur l'avatar */
+        .avatar-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: var(--success-color);
+            border-radius: 50%;
+            width: 35px;
+            height: 35px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            border: 3px solid white;
+            animation: badgePulse 2s infinite;
+        }
+
+        @keyframes badgePulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        /* === ECRANS DE JEU === */
+        .screen {
+            display: none;
+            width: 100%;
+            max-width: 600px;
+            background: white;
+            border-radius: 20px;
+            padding: var(--spacing-lg);
+            box-shadow: var(--card-shadow);
+            text-align: center;
+            animation: slideIn 0.5s ease;
+        }
+
+        .screen.active {
+            display: block;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* === BOUTONS === */
+        .btn {
+            background: var(--secondary-color);
+            border: none;
+            padding: var(--spacing-md) var(--spacing-lg);
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: var(--text-color);
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(255, 217, 61, 0.4);
+            font-family: inherit;
+            margin: var(--spacing-xs);
+            min-width: 120px;
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(255, 217, 61, 0.6);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn-primary {
+            background: var(--primary-color);
+            color: white;
+            box-shadow: 0 4px 15px rgba(74, 144, 226, 0.4);
+        }
+
+        .btn-success {
+            background: var(--success-color);
+            color: white;
+        }
+
+        .btn-small {
+            padding: var(--spacing-sm);
+            font-size: 1rem;
+            min-width: auto;
+        }
+
+        /* === SELECTION DE DIFFICULTE === */
+        .difficulty-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: var(--spacing-md);
+            margin: var(--spacing-lg) 0;
+        }
+
+        .difficulty-card {
+            background: white;
+            border: 3px solid transparent;
+            border-radius: 15px;
+            padding: var(--spacing-lg);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .difficulty-card:hover {
+            border-color: var(--primary-color);
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(74, 144, 226, 0.2);
+        }
+
+        .difficulty-title {
+            font-size: 1.4rem;
+            color: var(--primary-color);
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .difficulty-description {
+            font-size: 1rem;
+            opacity: 0.8;
+            line-height: 1.4;
+        }
+
+        /* === ZONE DE JEU === */
+        .game-area {
+            min-height: 400px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .level-indicator {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--spacing-md);
+            padding: var(--spacing-sm);
+            background: rgba(74, 144, 226, 0.1);
+            border-radius: 10px;
+        }
+
+        .level-info {
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+
+        .timer-display {
+            background: var(--error-color);
+            color: white;
+            padding: var(--spacing-xs) var(--spacing-sm);
+            border-radius: 20px;
+            font-weight: bold;
+            min-width: 60px;
+        }
+
+        /* === ZONE DE LA LETTRE CIBLE === */
+        .target-section {
+            margin: var(--spacing-lg) 0;
+        }
+
+        .instruction-text {
+            font-size: 1.5rem;
+            margin-bottom: var(--spacing-md);
+            color: var(--text-color);
+        }
+
+        .target-letter-container {
+            position: relative;
+            margin: var(--spacing-md) 0;
+        }
+
+        .target-letter {
+            font-size: clamp(4rem, 8vw, 6rem);
+            font-weight: bold;
+            color: var(--primary-color);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+            min-height: 120px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .target-letter:hover {
+            transform: scale(1.1);
+            color: var(--secondary-color);
+        }
+
+        .target-letter.hidden {
+            color: transparent;
+            text-shadow: 0 0 20px var(--primary-color);
+        }
+
+        .target-letter.revealed {
+            animation: letterReveal 0.8s ease;
+        }
+
+        @keyframes letterReveal {
+            0% { 
+                opacity: 0; 
+                transform: scale(0.5) rotate(180deg); 
+            }
+            50% { 
+                transform: scale(1.2) rotate(0deg); 
+            }
+            100% { 
+                opacity: 1; 
+                transform: scale(1) rotate(0deg); 
+            }
+        }
+
+        /* Image associée à la lettre */
+        .letter-image {
+            width: 80px;
+            height: 80px;
+            border-radius: 15px;
+            margin: var(--spacing-sm) auto;
+            background: var(--secondary-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        /* === OPTIONS DE LETTRES === */
+        .options-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: var(--spacing-md);
+            margin: var(--spacing-lg) 0;
+            max-width: 500px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .letter-option {
+            background: white;
+            border: 3px solid var(--primary-color);
+            border-radius: 15px;
+            padding: var(--spacing-lg);
+            font-size: clamp(2rem, 4vw, 3rem);
+            font-weight: bold;
+            color: var(--primary-color);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            min-height: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .letter-option:hover {
+            background: var(--primary-color);
+            color: white;
+            transform: translateY(-5px) scale(1.05);
+        }
+
+        .letter-option:active {
+            transform: scale(0.95);
+        }
+
+        .letter-option.correct {
+            animation: correctAnswer 1s ease;
+            background: var(--success-color);
+            color: white;
+            border-color: var(--success-color);
+        }
+
+        .letter-option.incorrect {
+            animation: incorrectAnswer 0.6s ease;
+            background: var(--error-color);
+            color: white;
+            border-color: var(--error-color);
+        }
+
+        @keyframes correctAnswer {
+            0% { transform: scale(1); }
+            50% { 
+                transform: scale(1.2);
+                box-shadow: 0 0 30px var(--success-color);
+            }
+            100% { transform: scale(1); }
+        }
+
+        @keyframes incorrectAnswer {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px) rotate(-5deg); }
+            75% { transform: translateX(10px) rotate(5deg); }
+        }
+
+        /* === FEEDBACK === */
+        .feedback-container {
+            min-height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+        }
+
+        .feedback-text {
+            font-size: 1.6rem;
+            font-weight: bold;
+            margin-bottom: var(--spacing-sm);
+            opacity: 0;
+            transition: all 0.3s ease;
+        }
+
+        .feedback-text.show {
+            opacity: 1;
+            transform: scale(1.1);
+        }
+
+        .feedback-text.success {
+            color: var(--success-color);
+            animation: successPulse 0.5s ease;
+        }
+
+        .feedback-text.error {
+            color: var(--error-color);
+            animation: errorShake 0.5s ease;
+        }
+
+        @keyframes successPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+        }
+
+        @keyframes errorShake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+
+        /* === BARRE DE PROGRESSION === */
+        .progress-container {
+            margin: var(--spacing-lg) 0;
+        }
+
+        .progress-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: var(--spacing-sm);
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 15px;
+            background: rgba(74, 144, 226, 0.2);
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary-color) 0%, var(--success-color) 100%);
+            border-radius: 10px;
+            transition: width 0.5s ease;
+            position: relative;
+        }
+
+        .progress-fill::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.4) 50%, transparent 100%);
+            animation: progressShine 2s infinite;
+        }
+
+        @keyframes progressShine {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        /* === STATISTIQUES === */
+        .stats-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: var(--spacing-md);
+            margin: var(--spacing-lg) 0;
+        }
+
+        .stat-card {
+            background: white;
+            padding: var(--spacing-md);
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            opacity: 0.7;
+            margin-top: var(--spacing-xs);
+        }
+
+        /* === SYSTEME DE RECOMPENSES === */
+        .rewards-container {
+            margin: var(--spacing-lg) 0;
+        }
+
+        .stars-container {
+            display: flex;
+            justify-content: center;
+            gap: var(--spacing-sm);
+            margin: var(--spacing-md) 0;
+        }
+
+        .star {
+            font-size: 2rem;
+            opacity: 0.3;
+            transition: all 0.3s ease;
+        }
+
+        .star.earned {
+            opacity: 1;
+            animation: starEarn 0.8s ease;
+        }
+
+        @keyframes starEarn {
+            0% { 
+                transform: scale(0) rotate(0deg); 
+                opacity: 0; 
+            }
+            50% { 
+                transform: scale(1.3) rotate(180deg); 
+                opacity: 1; 
+            }
+            100% { 
+                transform: scale(1) rotate(360deg); 
+                opacity: 1; 
+            }
+        }
+
+        .badges-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: var(--spacing-sm);
+            margin: var(--spacing-md) 0;
+        }
+
+        .badge {
+            background: var(--secondary-color);
+            padding: var(--spacing-sm);
+            border-radius: 25px;
+            font-size: 1.5rem;
+            min-width: 50px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(255, 217, 61, 0.4);
+            animation: badgeAppear 0.6s ease;
+        }
+
+        @keyframes badgeAppear {
+            0% { 
+                transform: scale(0) translateY(-20px); 
+                opacity: 0; 
+            }
+            100% { 
+                transform: scale(1) translateY(0); 
+                opacity: 1; 
+            }
+        }
+
+        /* === CONTROLES === */
+        .controls-container {
+            display: flex;
+            justify-content: center;
+            gap: var(--spacing-md);
+            margin: var(--spacing-lg) 0;
+            flex-wrap: wrap;
+        }
+
+        /* === ACCESSIBILITE === */
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border: 0;
+        }
+
+        /* Focus visible pour navigation clavier */
+        .btn:focus,
+        .letter-option:focus,
+        .difficulty-card:focus {
+            outline: 3px solid var(--primary-color);
+            outline-offset: 3px;
+        }
+
+        /* === RESPONSIVE === */
+        @media (max-width: 768px) {
+            .game-container {
+                padding: var(--spacing-sm);
+            }
+            
+            .screen {
+                padding: var(--spacing-md);
+            }
+            
+            .options-container {
+                grid-template-columns: repeat(2, 1fr);
+                gap: var(--spacing-sm);
+            }
+            
+            .difficulty-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .controls-container {
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .letter-option {
+                padding: var(--spacing-md);
+                font-size: 1.8rem;
+                min-height: 80px;
+            }
+            
+            .target-letter {
+                font-size: 3.5rem;
+            }
+        }
+
+        /* === ANIMATIONS GLOBALES === */
+        .fade-in {
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .bounce-in {
+            animation: bounceIn 0.6s ease;
+        }
+
+        @keyframes bounceIn {
+            0% { 
+                transform: scale(0.3); 
+                opacity: 0; 
+            }
+            50% { 
+                transform: scale(1.1); 
+                opacity: 1; 
+            }
+            100% { 
+                transform: scale(1); 
+                opacity: 1; 
+            }
+        }
+
+        /* === THEME SOMBRE (option future) === */
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --background-gradient: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+                --text-color: #ffffff;
+            }
+            
+            .screen {
+                background: rgba(255, 255, 255, 0.1);
+                backdrop-filter: blur(10px);
+            }
+        }
+    </style>
 </head>
 <body>
-<div id="app">
-  <div id="start-screen" class="active">
-    <h1>Mission Lecture : Max apprend l'Alphabet</h1>
-    <div id="avatar"></div>
-    <button onclick="showDifficultyScreen()">Commencer</button>
-    <button id="toggle-sound" onclick="toggleSound()">🔊 Son : Activé</button>
-  </div>
+    <div class="game-container">
+        <div class="game-header">
+            <h1 class="game-title">Mission Lecture : Max apprend l'Alphabet</h1>
+            <div class="max-avatar" id="maxAvatar" role="button" aria-label="Avatar de Max" tabindex="0">
+                <div class="avatar-badge" id="avatarBadge" style="display: none;">🏆</div>
+            </div>
+        </div>
 
-  <div id="difficulty-screen">
-    <h2>Choisis la difficulté :</h2>
-    <button class="difficulty-btn" onclick="startGame('facile')">Facile (Majuscules)</button><br>
-    <button class="difficulty-btn" onclick="startGame('moyen')">Moyen (Minuscules)</button><br>
-    <button class="difficulty-btn" onclick="startGame('difficile')">Difficile (Majuscules + Minuscules)</button><br>
-    <button class="difficulty-btn" onclick="startGame('expert')">Expert (Ordre alphabétique)</button><br>
-    <button class="difficulty-btn" onclick="document.getElementById('difficulty-screen').classList.remove('active'); document.getElementById('start-screen').classList.add('active');">Retour</button>
-  </div>
+        <!-- ÉCRAN D'ACCUEIL -->
+        <div class="screen active" id="welcomeScreen">
+            <h2>Bienvenue dans l'aventure de Max !</h2>
+            <p>Aide Max à apprendre toutes les lettres de l'alphabet.</p>
+            <div class="controls-container">
+                <button class="btn btn-primary" onclick="showDifficultyScreen()" id="startButton">
+                    🚀 Commencer l'aventure
+                </button>
+                <button class="btn btn-small" onclick="toggleSound()" id="soundToggle">
+                    🔊 Son : Activé
+                </button>
+                <button class="btn btn-small" onclick="showStatsScreen()">
+                    📊 Mes statistiques
+                </button>
+            </div>
+        </div>
 
-  <div id="mission-screen">
-    <div class="difficulty-indicator" id="difficulty-indicator"></div>
-    <h2 id="instruction">Trouve la lettre :</h2>
-    <div id="target-letter" onclick="repeatLetter()" class="hidden-letter">?</div>
-    <div id="letter-options"></div>
-    <div id="feedback"></div>
-    <div id="progress-bar"><div id="progress-fill"></div></div>
-  </div>
+        <!-- ÉCRAN DE SÉLECTION DE DIFFICULTÉ -->
+        <div class="screen" id="difficultyScreen">
+            <h2>Choisis ton niveau d'aventure</h2>
+            <div class="difficulty-grid">
+                <div class="difficulty-card" onclick="startGame('easy')" tabindex="0" role="button">
+                    <div class="difficulty-title">🌟 Explorateur</div>
+                    <div class="difficulty-description">Lettres majuscules<br>Parfait pour commencer !</div>
+                </div>
+                <div class="difficulty-card" onclick="startGame('medium')" tabindex="0" role="button">
+                    <div class="difficulty-title">⚡ Aventurier</div>
+                    <div class="difficulty-description">Lettres minuscules<br>Un peu plus challengeant</div>
+                </div>
+                <div class="difficulty-card" onclick="startGame('hard')" tabindex="0" role="button">
+                    <div class="difficulty-title">🔥 Expert</div>
+                    <div class="difficulty-description">Majuscules et minuscules<br>Pour les champions !</div>
+                </div>
+                <div class="difficulty-card" onclick="startGame('master')" tabindex="0" role="button">
+                    <div class="difficulty-title">🏆 Maître</div>
+                    <div class="difficulty-description">Ordre alphabétique<br>Le défi ultime !</div>
+                </div>
+            </div>
+            <div class="controls-container">
+                <button class="btn" onclick="showWelcomeScreen()">← Retour</button>
+            </div>
+        </div>
 
-  <div id="end-screen">
-    <h2>Bravo Max ! 🎉</h2>
-    <p>Tu as fini ta mission.</p>
-    <p id="score"></p>
-    <div id="stickers"></div>
-    <button onclick="showDifficultyScreen()">Nouvelle partie</button>
-  </div>
-</div>
-<audio id="click-sound" src="https://www.soundjay.com/buttons/sounds/button-09.mp3" preload="auto"></audio>
-<audio id="success-sound" src="https://www.soundjay.com/buttons/sounds/button-21.mp3" preload="auto"></audio>
-<audio id="error-sound" src="https://www.soundjay.com/buttons/sounds/button-10.mp3" preload="auto"></audio>
+        <!-- ÉCRAN DE JEU PRINCIPAL -->
+        <div class="screen" id="gameScreen">
+            <div class="level-indicator">
+                <span class="level-info" id="levelInfo">Niveau : Explorateur</span>
+                <div class="timer-display" id="timerDisplay" style="display: none;">⏱️ <span id="timeLeft">10</span>s</div>
+            </div>
+            
+            <div class="game-area">
+                <div class="target-section">
+                    <div class="instruction-text" id="instructionText">Écoute bien et trouve la lettre :</div>
+                    <div class="target-letter-container">
+                        <div class="target-letter hidden" id="targetLetter" onclick="repeatSound()" 
+                             role="button" aria-label="Cliquer pour répéter le son" tabindex="0">
+                            ?
+                        </div>
+                        <div class="letter-image" id="letterImage" style="display: none;">
+                            🍎
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="options-container" id="optionsContainer">
+                    <!-- Les options seront générées dynamiquement -->
+                </div>
+                
+                <div class="feedback-container">
+                    <div class="feedback-text" id="feedbackText"></div>
+                </div>
+                
+                <div class="progress-container">
+                    <div class="progress-label">
+                        <span>Progression</span>
+                        <span id="progressText">0/26</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progressFill"></div>
+                    </div>
+                </div>
+                
+                <div class="controls-container">
+                    <button class="btn" onclick="pauseGame()" id="pauseBtn">⏸️ Pause</button>
+                    <button class="btn btn-small" onclick="getHint()" id="hintBtn">💡 Indice</button>
+                </div>
+            </div>
+        </div>
 
-<script>
-const alphabetUpper = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
-const alphabetLower = 'abcdefghijklmnopqrstuvwxyz'.split('');
-const stickers = ['⭐', '🏆', '🎯', '🌈', '✨', '🎁', '🏅', '👏', '👍', '💯'];
-let soundEnabled = true;
-let progress = [];
-let totalMistakes = 0;
-let difficulty = '';
-let currentMode = '';
-let remainingLetters = [];
-let currentTarget = '';
-let timeLimit = 0;
-let timer = null;
-let timeLeft = 0;
-let foundLetters = [];
+        <!-- ÉCRAN DE RÉSULTATS -->
+        <div class="screen" id="resultsScreen">
+            <h2>🎉 Bravo Max ! Mission accomplie !</h2>
+            
+            <div class="stars-container" id="starsContainer">
+                <span class="star">⭐</span>
+                <span class="star">⭐</span>
+                <span class="star">⭐</span>
+            </div>
+            
+            <div class="stats-container" id="resultsStats">
+                <div class="stat-card">
+                    <div class="stat-value" id="finalScore">0</div>
+                    <div class="stat-label">Points</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="correctAnswers">0</div>
+                    <div class="stat-label">Bonnes réponses</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="totalTime">0s</div>
+                    <div class="stat-label">Temps total</div>
+                </div>
+            </div>
+            
+            <div class="badges-container" id="badgesContainer">
+                <!-- Les badges seront ajoutés dynamiquement -->
+            </div>
+            
+            <div class="controls-container">
+                <button class="btn btn-primary" onclick="showDifficultyScreen()">🔄 Rejouer</button>
+                <button class="btn" onclick="reviewMistakes()" id="reviewBtn">📝 Revoir mes erreurs</button>
+                <button class="btn" onclick="showWelcomeScreen()">🏠 Accueil</button>
+            </div>
+        </div>
 
-function shuffle(array) {
-  return array.slice().sort(() => Math.random() - 0.5);
-}
+        <!-- ÉCRAN DES STATISTIQUES -->
+        <div class="screen" id="statsScreen">
+            <h2>📊 Mes statistiques</h2>
+            <div class="stats-container" id="globalStats">
+                <!-- Statistiques globales -->
+            </div>
+            <button class="btn" onclick="showWelcomeScreen()">← Retour</button>
+        </div>
 
-function speak(text) {
-  if (soundEnabled && 'speechSynthesis' in window) {
-    const utterance = new SpeechSynthesisUtterance(text);
-    utterance.lang = 'fr-FR';
-    utterance.rate = 0.9;
-    window.speechSynthesis.cancel();
-    window.speechSynthesis.speak(utterance);
-  }
-}
+        <!-- ÉCRAN DE RÉVISION -->
+        <div class="screen" id="reviewScreen">
+            <h2>📝 Révision des lettres difficiles</h2>
+            <p>Révisons ensemble les lettres que tu as trouvées difficiles :</p>
+            <div id="reviewContent">
+                <!-- Contenu de révision -->
+            </div>
+            <div class="controls-container">
+                <button class="btn btn-primary" onclick="startReview()">▶️ Commencer la révision</button>
+                <button class="btn" onclick="showResultsScreen()">← Retour</button>
+            </div>
+        </div>
+    </div>
 
-function toggleSound() {
-  soundEnabled = !soundEnabled;
-  document.getElementById("toggle-sound").textContent = soundEnabled ? "🔊 Son : Activé" : "🔇 Son : Désactivé";
-}
+    <script>
+        /**
+         * === CLASSE PRINCIPALE DU JEU ===
+         * Architecture orientée objet pour une meilleure organisation
+         */
+        class AlphabetGame {
+            constructor() {
+                // Configuration du jeu
+                this.config = {
+                    letters: {
+                        uppercase: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split(''),
+                        lowercase: 'abcdefghijklmnopqrstuvwxyz'.split('')
+                    },
+                    difficulties: {
+                        easy: { name: 'Explorateur', letters: 'uppercase', timer: false, options: 3 },
+                        medium: { name: 'Aventurier', letters: 'lowercase', timer: false, options: 3 },
+                        hard: { name: 'Expert', letters: 'mixed', timer: true, timeLimit: 15, options: 4 },
+                        master: { name: 'Maître', letters: 'order', timer: true, timeLimit: 12, options: 4 }
+                    },
+                    sounds: {
+                        success: ['Magnifique !', 'Excellent !', 'Super Max !', 'Parfait !', 'Bravo !'],
+                        error: ['Essaie encore !', 'Presque !', 'Continue !', 'Tu peux y arriver !'],
+                        encouragement: ['Courage !', 'Tu progresses !', 'Encore un effort !']
+                    },
+                    badges: {
+                        perfectRound: '🏆',
+                        speedster: '⚡',
+                        persistent: '💪',
+                        scholar: '🎓',
+                        rookie: '🌟'
+                    },
+                    letterAssociations: {
+                        'A': { image: '🍎', word: 'Avion' },
+                        'B': { image: '🎈', word: 'Ballon' },
+                        'C': { image: '🐱', word: 'Chat' },
+                        'D': { image: '🦕', word: 'Dinosaure' },
+                        'E': { image: '🐘', word: 'Éléphant' },
+                        'F': { image: '🌸', word: 'Fleur' },
+                        'G': { image: '🎸', word: 'Guitare' },
+                        'H': { image: '🏠', word: 'Maison' },
+                        'I': { image: '🏝️', word: 'Île' },
+                        'J': { image: '🎯', word: 'Jeu' },
+                        'K': { image: '🥝', word: 'Kiwi' },
+                        'L': { image: '🦁', word: 'Lion' },
+                        'M': { image: '🌙', word: 'Lune' },
+                        'N': { image: '🥜', word: 'Noix' },
+                        'O': { image: '🐻', word: 'Ours' },
+                        'P': { image: '🍕', word: 'Pizza' },
+                        'Q': { image: '👑', word: 'Roi' },
+                        'R': { image: '🌈', word: 'Arc-en-ciel' },
+                        'S': { image: '☀️', word: 'Soleil' },
+                        'T': { image: '🚂', word: 'Train' },
+                        'U': { image: '🦄', word: 'Licorne' },
+                        'V': { image: '🚗', word: 'Voiture' },
+                        'W': { image: '🌊', word: 'Vague' },
+                        'X': { image: '❌', word: 'Croix' },
+                        'Y': { image: '🧘', word: 'Yoga' },
+                        'Z': { image: '🦓', word: 'Zèbre' }
+                    }
+                };
 
-function showDifficultyScreen() {
-  document.getElementById("start-screen").classList.remove("active");
-  document.getElementById("end-screen").classList.remove("active");
-  document.getElementById("difficulty-screen").classList.add("active");
-}
+                // État du jeu
+                this.gameState = {
+                    currentDifficulty: '',
+                    currentLetters: [],
+                    currentIndex: 0,
+                    score: 0,
+                    mistakes: [],
+                    correctAnswers: 0,
+                    startTime: null,
+                    timer: null,
+                    timeLeft: 0,
+                    soundEnabled: true,
+                    hintsUsed: 0,
+                    isPaused: false
+                };
 
-function startGame(selectedDifficulty) {
-  difficulty = selectedDifficulty;
-  remainingLetters = [];
-  progress = [];
-  totalMistakes = 0;
-  foundLetters = [];
-  
-  // Configurer le jeu selon la difficulté
-  switch(difficulty) {
-    case 'facile':
-      currentMode = 'upper';
-      remainingLetters = shuffle(alphabetUpper.slice());
-      document.getElementById("difficulty-indicator").textContent = "Mode : Facile";
-      timeLimit = 0;
-      break;
-    case 'moyen':
-      currentMode = 'lower';
-      remainingLetters = shuffle(alphabetLower.slice());
-      document.getElementById("difficulty-indicator").textContent = "Mode : Moyen";
-      timeLimit = 0;
-      break;
-    case 'difficile':
-      currentMode = 'mixed';
-      remainingLetters = shuffle([...alphabetUpper, ...alphabetLower]);
-      document.getElementById("difficulty-indicator").textContent = "Mode : Difficile";
-      timeLimit = 10; // 10 secondes par lettre
-      break;
-    case 'expert':
-      currentMode = 'order';
-      remainingLetters = alphabetUpper.slice();
-      document.getElementById("difficulty-indicator").textContent = "Mode : Expert";
-      timeLimit = 8; // 8 secondes par lettre
-      break;
-  }
+                // Statistiques persistantes
+                this.stats = this.loadStats();
+                
+                // Initialisation
+                this.init();
+            }
 
-  document.getElementById("difficulty-screen").classList.remove("active");
-  document.getElementById("end-screen").classList.remove("active");
-  document.getElementById("mission-screen").classList.add("active");
-  showNextLetter();
-}
+            /**
+             * Initialisation du jeu
+             */
+            init() {
+                this.setupEventListeners();
+                this.updateSoundButton();
+                this.updateAvatar();
+                console.log('🎮 Alphabet Game initialisé !');
+            }
 
-function showNextLetter() {
-  if (remainingLetters.length === 0) {
-    endGame();
-    return;
-  }
+            /**
+             * Configuration des écouteurs d'événements
+             */
+            setupEventListeners() {
+                // Navigation clavier
+                document.addEventListener('keydown', (e) => this.handleKeyboard(e));
+                
+                // Clic sur l'avatar
+                document.getElementById('maxAvatar').addEventListener('click', () => this.avatarInteraction());
+                
+                // Accessibilité - Enter et Espace sur les éléments focusables
+                document.querySelectorAll('[tabindex="0"]').forEach(element => {
+                    element.addEventListener('keydown', (e) => {
+                        if (e.key === 'Enter' || e.key === ' ') {
+                            e.preventDefault();
+                            element.click();
+                        }
+                    });
+                });
+            }
 
-  // Mode expert: lettres dans l'ordre mais options mélangées
-  if (difficulty === 'expert') {
-    currentTarget = remainingLetters.shift();
-  } 
-  // Autres modes: lettres mélangées
-  else {
-    currentTarget = remainingLetters.shift();
-  }
+            /**
+             * Gestion des interactions clavier
+             */
+            handleKeyboard(event) {
+                const currentScreen = document.querySelector('.screen.active').id;
+                
+                switch (currentScreen) {
+                    case 'gameScreen':
+                        this.handleGameKeyboard(event);
+                        break;
+                    case 'welcomeScreen':
+                        if (event.key === 'Enter') {
+                            this.showDifficultyScreen();
+                        }
+                        break;
+                }
+            }
 
-  const targetElement = document.getElementById("target-letter");
-  targetElement.textContent = '?';
-  targetElement.className = 'hidden-letter';
-  
-  setTimeout(() => {
-    speak(currentTarget);
-    startTimer();
-  }, 400);
+            /**
+             * Gestion clavier pendant le jeu
+             */
+            handleGameKeyboard(event) {
+                const key = event.key.toUpperCase();
+                
+                // Touches spéciales
+                switch (event.key) {
+                    case ' ':
+                        event.preventDefault();
+                        this.repeatSound();
+                        break;
+                    case 'h':
+                    case 'H':
+                        this.getHint();
+                        break;
+                    case 'Escape':
+                        this.pauseGame();
+                        break;
+                }
+                
+                // Réponse directe par clavier
+                if (this.config.letters.uppercase.includes(key) || this.config.letters.lowercase.includes(event.key)) {
+                    this.selectLetter(event.key);
+                }
+            }
 
-  generateOptions();
-  document.getElementById("feedback").textContent = "";
-  updateProgress();
-}
+            /**
+             * Interaction avec l'avatar de Max
+             */
+            avatarInteraction() {
+                const avatar = document.getElementById('maxAvatar');
+                avatar.style.transform = 'scale(1.2) rotate(10deg)';
+                setTimeout(() => {
+                    avatar.style.transform = '';
+                }, 300);
+                
+                this.speak('Salut ! Je suis Max !');
+            }
 
-function generateOptions() {
-  let options = [];
-  const optionsContainer = document.getElementById("letter-options");
-  optionsContainer.innerHTML = "";
+            /**
+             * === GESTION DES ÉCRANS ===
+             */
+            
+            showScreen(screenId) {
+                document.querySelectorAll('.screen').forEach(screen => {
+                    screen.classList.remove('active');
+                });
+                document.getElementById(screenId).classList.add('active');
+                
+                // Focus management pour l'accessibilité
+                const activeScreen = document.getElementById(screenId);
+                const firstFocusable = activeScreen.querySelector('button, [tabindex="0"]');
+                if (firstFocusable) {
+                    setTimeout(() => firstFocusable.focus(), 100);
+                }
+            }
 
-  if (difficulty === 'expert') {
-    // Pour le mode expert, trouver la lettre suivante dans l'alphabet
-    const currentIndex = alphabetUpper.indexOf(currentTarget.toUpperCase());
-    let nextIndex = currentIndex + 1;
-    if (nextIndex >= alphabetUpper.length) nextIndex = 0;
-    
-    const correctNextLetter = alphabetUpper[nextIndex];
-    options = shuffle([
-      correctNextLetter,
-      ...shuffle(alphabetUpper.filter(l => l !== correctNextLetter)).slice(0, 2)
-    ]);
-  } 
-  else {
-    // Pour les autres modes
-    options = shuffle([
-      currentTarget,
-      ...shuffle(getAllPossibleLetters().filter(l => l !== currentTarget)).slice(0, 2)
-    ]);
-  }
+            showWelcomeScreen() {
+                this.showScreen('welcomeScreen');
+            }
 
-  options.forEach(letter => {
-    const btn = document.createElement("div");
-    btn.className = "letter-button";
-    btn.textContent = letter;
-    btn.onclick = () => selectLetter(letter);
-    optionsContainer.appendChild(btn);
-  });
-}
+            showDifficultyScreen() {
+                this.showScreen('difficultyScreen');
+            }
 
-function getAllPossibleLetters() {
-  switch(currentMode) {
-    case 'upper': return alphabetUpper;
-    case 'lower': return alphabetLower;
-    case 'mixed': return [...alphabetUpper, ...alphabetLower];
-    case 'order': return alphabetUpper;
-    default: return alphabetUpper;
-  }
-}
+            showGameScreen() {
+                this.showScreen('gameScreen');
+            }
 
-function repeatLetter() {
-  if (currentTarget) {
-    speak(currentTarget);
-  }
-}
+            showResultsScreen() {
+                this.calculateResults();
+                this.showScreen('resultsScreen');
+            }
 
-function selectLetter(letter) {
-  document.getElementById("click-sound").play();
-  clearTimer();
-  
-  const buttons = document.querySelectorAll(".letter-button");
-  buttons.forEach(btn => btn.classList.remove("correct", "wrong"));
+            showStatsScreen() {
+                this.updateGlobalStats();
+                this.showScreen('statsScreen');
+            }
 
-  if (
-    (difficulty !== 'expert' && letter === currentTarget) ||
-    (difficulty === 'expert' && isCorrectNextLetter(letter))
-  ) {
-    // Bonne réponse
-    document.getElementById("success-sound").play();
-    const feedbacks = ["Super !", "Génial !", "Parfait !", "Excellent !", "Bravo !"];
-    const randomFeedback = feedbacks[Math.floor(Math.random() * feedbacks.length)];
-    document.getElementById("feedback").textContent = randomFeedback;
-    speak(randomFeedback);
-    
-    // Afficher la lettre trouvée
-    const targetElement = document.getElementById("target-letter");
-    targetElement.textContent = currentTarget;
-    targetElement.className = 'revealed-letter';
-    
-    buttons.forEach(btn => {
-      if (btn.textContent === letter) btn.classList.add("correct");
-    });
-    
-    foundLetters.push(currentTarget);
-    progress.push({correct: true, time: timeLeft});
-    setTimeout(showNextLetter, 1200);
-  } else {
-    // Mauvaise réponse
-    document.getElementById("error-sound").play();
-    const feedbacks = ["Essaie encore", "Presque !", "Oups !", "Attention !", "Regarde bien"];
-    const randomFeedback = feedbacks[Math.floor(Math.random() * feedbacks.length)];
-    document.getElementById("feedback").textContent = randomFeedback;
-    speak(randomFeedback);
-    
-    buttons.forEach(btn => {
-      if (btn.textContent === letter) btn.classList.add("wrong");
-    });
-    
-    progress.push({correct: false, time: timeLeft});
-    totalMistakes++;
-    updateProgress();
-    
-    // En mode facile/moyen, montrer la lettre après une erreur
-    if (difficulty === 'facile' || difficulty === 'moyen') {
-      setTimeout(() => {
-        const targetElement = document.getElementById("target-letter");
-        targetElement.textContent = currentTarget;
-        targetElement.className = 'revealed-letter';
-      }, 800);
-    }
-  }
-}
+            showReviewScreen() {
+                this.setupReviewScreen();
+                this.showScreen('reviewScreen');
+            }
 
-function isCorrectNextLetter(letter) {
-  const currentIndex = alphabetUpper.indexOf(currentTarget.toUpperCase());
-  let nextIndex = currentIndex + 1;
-  if (nextIndex >= alphabetUpper.length) nextIndex = 0;
-  return letter === alphabetUpper[nextIndex];
-}
+            /**
+             * === LOGIQUE DE JEU PRINCIPALE ===
+             */
 
-function startTimer() {
-  if (timeLimit <= 0) return;
-  
-  timeLeft = timeLimit;
-  updateTimerDisplay();
-  
-  timer = setInterval(() => {
-    timeLeft--;
-    updateTimerDisplay();
-    
-    if (timeLeft <= 0) {
-      clearTimer();
-      timeOut();
-    }
-  }, 1000);
-}
+            startGame(difficulty) {
+                this.gameState.currentDifficulty = difficulty;
+                this.gameState.startTime = Date.now();
+                this.gameState.score = 0;
+                this.gameState.correctAnswers = 0;
+                this.gameState.mistakes = [];
+                this.gameState.hintsUsed = 0;
+                this.gameState.currentIndex = 0;
 
-function clearTimer() {
-  if (timer) {
-    clearInterval(timer);
-    timer = null;
-  }
-}
+                // Configuration selon la difficulté
+                const config = this.config.difficulties[difficulty];
+                this.setupGameLetters(config);
+                
+                // Mise à jour de l'interface
+                document.getElementById('levelInfo').textContent = `Niveau : ${config.name}`;
+                
+                // Affichage du timer si nécessaire
+                if (config.timer) {
+                    document.getElementById('timerDisplay').style.display = 'block';
+                    this.gameState.timeLeft = config.timeLimit;
+                } else {
+                    document.getElementById('timerDisplay').style.display = 'none';
+                }
 
-function updateTimerDisplay() {
-  const targetElement = document.getElementById("target-letter");
-  if (timeLeft > 0) {
-    targetElement.style.color = timeLeft <= 5 ? '#ff0000' : '#003e4f';
-    targetElement.title = `Temps restant: ${timeLeft}s`;
-  } else {
-    targetElement.style.color = '#003e4f';
-    targetElement.removeAttribute('title');
-  }
-}
+                this.showGameScreen();
+                this.nextQuestion();
+                
+                console.log(`🎯 Jeu démarré - Difficulté: ${config.name}`);
+            }
 
-function timeOut() {
-  document.getElementById("error-sound").play();
-  document.getElementById("feedback").textContent = "Temps écoulé !";
-  speak("Temps écoulé !");
-  
-  // Afficher la lettre qu'il fallait trouver
-  const targetElement = document.getElementById("target-letter");
-  targetElement.textContent = currentTarget;
-  targetElement.className = 'revealed-letter';
-  
-  progress.push({correct: false, time: 0});
-  totalMistakes++;
-  updateProgress();
-  
-  setTimeout(showNextLetter, 1500);
-}
+            setupGameLetters(config) {
+                switch (config.letters) {
+                    case 'uppercase':
+                        this.gameState.currentLetters = this.shuffleArray([...this.config.letters.uppercase]);
+                        break;
+                    case 'lowercase':
+                        this.gameState.currentLetters = this.shuffleArray([...this.config.letters.lowercase]);
+                        break;
+                    case 'mixed':
+                        this.gameState.currentLetters = this.shuffleArray([
+                            ...this.config.letters.uppercase,
+                            ...this.config.letters.lowercase
+                        ]);
+                        break;
+                    case 'order':
+                        this.gameState.currentLetters = [...this.config.letters.uppercase];
+                        break;
+                }
+            }
 
-function updateProgress() {
-  const percent = (progress.length / (currentMode === 'mixed' ? 52 : 26)) * 100;
-  document.getElementById("progress-fill").style.width = percent + "%";
-}
+            nextQuestion() {
+                if (this.gameState.currentIndex >= this.gameState.currentLetters.length) {
+                    this.endGame();
+                    return;
+                }
 
-function endGame() {
-  clearTimer();
-  document.getElementById("mission-screen").classList.remove("active");
-  document.getElementById("end-screen").classList.add("active");
-  
-  const perfect = totalMistakes === 0;
-  let scoreMessage = '';
-  
-  if (perfect) {
-    scoreMessage = "Parfait ! Aucune erreur ! 🎉";
-  } else if (totalMistakes <= 3) {
-    scoreMessage = `Excellent ! Seulement ${totalMistakes} erreur${totalMistakes > 1 ? 's' : ''}.`;
-  } else if (totalMistakes <= 8) {
-    scoreMessage = `Bien joué ! ${totalMistakes} erreur${totalMistakes > 1 ? 's' : ''}.`;
-  } else {
-    scoreMessage = `${totalMistakes} erreurs. Tu peux t'améliorer !`;
-  }
-  
-  document.getElementById("score").textContent = scoreMessage;
-  
-  // Ajouter des stickers en récompense
-  const stickersContainer = document.getElementById("stickers");
-  stickersContainer.innerHTML = "";
-  
-  const stickersCount = Math.max(1, 5 - Math.floor(totalMistakes / 2));
-  for (let i = 0; i < stickersCount; i++) {
-    const sticker = document.createElement("span");
-    sticker.className = "sticker";
-    sticker.textContent = stickers[Math.floor(Math.random() * stickers.length)];
-    sticker.style.animationDelay = `${i * 0.2}s`;
-    stickersContainer.appendChild(sticker);
-  }
-  
-  if (perfect) {
-    document.getElementById("success-sound").play();
-  }
-}
-</script>
+                const currentLetter = this.gameState.currentLetters[this.gameState.currentIndex];
+                this.displayQuestion(currentLetter);
+                this.updateProgress();
+                
+                // Démarrer le timer si nécessaire
+                const config = this.config.difficulties[this.gameState.currentDifficulty];
+                if (config.timer) {
+                    this.startTimer();
+                }
+            }
+
+            displayQuestion(letter) {
+                // Lettre cible
+                const targetLetter = document.getElementById('targetLetter');
+                targetLetter.textContent = '?';
+                targetLetter.classList.add('hidden');
+                targetLetter.classList.remove('revealed');
+
+                // Image associée (si disponible)
+                const letterImage = document.getElementById('letterImage');
+                const association = this.config.letterAssociations[letter.toUpperCase()];
+                if (association && this.gameState.currentDifficulty !== 'master') {
+                    letterImage.textContent = association.image;
+                    letterImage.style.display = 'flex';
+                } else {
+                    letterImage.style.display = 'none';
+                }
+
+                // Générer les options
+                this.generateOptions(letter);
+                
+                // Prononcer la lettre après un délai
+                setTimeout(() => {
+                    this.speak(letter);
+                }, 500);
+
+                // Réinitialiser le feedback
+                this.clearFeedback();
+            }
+
+            generateOptions(correctLetter) {
+                const config = this.config.difficulties[this.gameState.currentDifficulty];
+                const optionsCount = config.options;
+                
+                // Obtenir les lettres possibles selon le mode
+                let possibleLetters = this.getPossibleLetters();
+                
+                // Pour le mode maître, on demande la lettre suivante
+                if (this.gameState.currentDifficulty === 'master') {
+                    const currentIndex = this.config.letters.uppercase.indexOf(correctLetter);
+                    correctLetter = this.config.letters.uppercase[(currentIndex + 1) % this.config.letters.uppercase.length];
+                }
+                
+                // Créer les options
+                let options = [correctLetter];
+                let wrongOptions = possibleLetters.filter(letter => letter !== correctLetter);
+                wrongOptions = this.shuffleArray(wrongOptions);
+                
+                // Ajouter les mauvaises réponses
+                for (let i = 0; i < optionsCount - 1 && i < wrongOptions.length; i++) {
+                    options.push(wrongOptions[i]);
+                }
+                
+                options = this.shuffleArray(options);
+                
+                // Afficher les options
+                this.displayOptions(options, correctLetter);
+            }
+
+            getPossibleLetters() {
+                const config = this.config.difficulties[this.gameState.currentDifficulty];
+                switch (config.letters) {
+                    case 'uppercase':
+                    case 'order':
+                        return this.config.letters.uppercase;
+                    case 'lowercase':
+                        return this.config.letters.lowercase;
+                    case 'mixed':
+                        return [...this.config.letters.uppercase, ...this.config.letters.lowercase];
+                    default:
+                        return this.config.letters.uppercase;
+                }
+            }
+
+            displayOptions(options, correctAnswer) {
+                const container = document.getElementById('optionsContainer');
+                container.innerHTML = '';
+                
+                options.forEach((letter, index) => {
+                    const option = document.createElement('div');
+                    option.className = 'letter-option';
+                    option.textContent = letter;
+                    option.setAttribute('tabindex', '0');
+                    option.setAttribute('role', 'button');
+                    option.setAttribute('aria-label', `Lettre ${letter}`);
+                    
+                    option.addEventListener('click', () => this.selectLetter(letter, correctAnswer));
+                    option.addEventListener('keydown', (e) => {
+                        if (e.key === 'Enter' || e.key === ' ') {
+                            e.preventDefault();
+                            this.selectLetter(letter, correctAnswer);
+                        }
+                    });
+                    
+                    container.appendChild(option);
+                });
+            }
+
+            selectLetter(selectedLetter, correctAnswer = null) {
+                if (this.gameState.isPaused) return;
+                
+                // Déterminer la bonne réponse
+                if (!correctAnswer) {
+                    const currentLetter = this.gameState.currentLetters[this.gameState.currentIndex];
+                    if (this.gameState.currentDifficulty === 'master') {
+                        const currentIndex = this.config.letters.uppercase.indexOf(currentLetter);
+                        correctAnswer = this.config.letters.uppercase[(currentIndex + 1) % this.config.letters.uppercase.length];
+                    } else {
+                        correctAnswer = currentLetter;
+                    }
+                }
+                
+                this.clearTimer();
+                
+                // Vérifier la réponse
+                const isCorrect = selectedLetter === correctAnswer;
+                this.processAnswer(selectedLetter, correctAnswer, isCorrect);
+            }
+
+            processAnswer(selectedLetter, correctAnswer, isCorrect) {
+                const options = document.querySelectorAll('.letter-option');
+                
+                // Marquer visuellement la réponse sélectionnée
+                options.forEach(option => {
+                    if (option.textContent === selectedLetter) {
+                        option.classList.add(isCorrect ? 'correct' : 'incorrect');
+                    }
+                });
+                
+                if (isCorrect) {
+                    this.handleCorrectAnswer();
+                } else {
+                    this.handleIncorrectAnswer(selectedLetter, correctAnswer);
+                }
+                
+                // Révéler la lettre cible
+                this.revealTargetLetter();
+                
+                // Passer à la question suivante
+                setTimeout(() => {
+                    this.gameState.currentIndex++;
+                    this.nextQuestion();
+                }, 2000);
+            }
+
+            handleCorrectAnswer() {
+                this.gameState.correctAnswers++;
+                this.gameState.score += this.calculateQuestionScore();
+                
+                const feedback = this.getRandomFeedback('success');
+                this.showFeedback(feedback, 'success');
+                this.speak(feedback);
+                
+                // Animation de réussite
+                this.triggerSuccessAnimation();
+                
+                console.log('✅ Bonne réponse !');
+            }
+
+            handleIncorrectAnswer(selectedLetter, correctAnswer) {
+                // Enregistrer l'erreur
+                const currentLetter = this.gameState.currentLetters[this.gameState.currentIndex];
+                this.gameState.mistakes.push({
+                    letter: currentLetter,
+                    selectedLetter: selectedLetter,
+                    correctAnswer: correctAnswer,
+                    timestamp: Date.now()
+                });
+                
+                const feedback = this.getRandomFeedback('error');
+                this.showFeedback(feedback, 'error');
+                this.speak(feedback);
+                
+                console.log(`❌ Erreur: ${selectedLetter} au lieu de ${correctAnswer}`);
+            }
+
+            revealTargetLetter() {
+                const currentLetter = this.gameState.currentLetters[this.gameState.currentIndex];
+                const targetLetter = document.getElementById('targetLetter');
+                
+                targetLetter.textContent = currentLetter;
+                targetLetter.classList.remove('hidden');
+                targetLetter.classList.add('revealed');
+            }
+
+            calculateQuestionScore() {
+                let baseScore = 10;
+                
+                // Bonus selon la difficulté
+                switch (this.gameState.currentDifficulty) {
+                    case 'medium': baseScore *= 1.5; break;
+                    case 'hard': baseScore *= 2; break;
+                    case 'master': baseScore *= 3; break;
+                }
+                
+                // Bonus de vitesse (si timer activé)
+                const config = this.config.difficulties[this.gameState.currentDifficulty];
+                if (config.timer && this.gameState.timeLeft > config.timeLimit / 2) {
+                    baseScore *= 1.5;
+                }
+                
+                // Malus pour les indices
+                if (this.gameState.hintsUsed > 0) {
+                    baseScore *= 0.8;
+                }
+                
+                return Math.round(baseScore);
+            }
+
+            /**
+             * === SYSTÈME DE TIMER ===
+             */
+            
+            startTimer() {
+                const config = this.config.difficulties[this.gameState.currentDifficulty];
+                if (!config.timer) return;
+                
+                this.gameState.timeLeft = config.timeLimit;
+                this.updateTimerDisplay();
+                
+                this.gameState.timer = setInterval(() => {
+                    this.gameState.timeLeft--;
+                    this.updateTimerDisplay();
+                    
+                    if (this.gameState.timeLeft <= 0) {
+                        this.handleTimeOut();
+                    }
+                }, 1000);
+            }
+
+            clearTimer() {
+                if (this.gameState.timer) {
+                    clearInterval(this.gameState.timer);
+                    this.gameState.timer = null;
+                }
+            }
+
+            updateTimerDisplay() {
+                const timeDisplay = document.getElementById('timeLeft');
+                const timerDisplay = document.getElementById('timerDisplay');
+                
+                if (timeDisplay) {
+                    timeDisplay.textContent = this.gameState.timeLeft;
+                    
+                    // Changer la couleur selon le temps restant
+                    if (this.gameState.timeLeft <= 5) {
+                        timerDisplay.style.background = 'var(--error-color)';
+                        timerDisplay.style.animation = 'pulse 0.5s infinite alternate';
+                    } else {
+                        timerDisplay.style.background = 'var(--primary-color)';
+                        timerDisplay.style.animation = 'none';
+                    }
+                }
+            }
+
+            handleTimeOut() {
+                this.clearTimer();
+                
+                // Traiter comme une mauvaise réponse
+                const currentLetter = this.gameState.currentLetters[this.gameState.currentIndex];
+                this.gameState.mistakes.push({
+                    letter: currentLetter,
+                    selectedLetter: 'TIMEOUT',
+                    correctAnswer: currentLetter,
+                    timestamp: Date.now()
+                });
+                
+                this.showFeedback('Temps écoulé !', 'error');
+                this.speak('Temps écoulé ! Essaie de répondre plus vite.');
+                this.revealTargetLetter();
+                
+                setTimeout(() => {
+                    this.gameState.currentIndex++;
+                    this.nextQuestion();
+                }, 2000);
+            }
+
+            /**
+             * === SYSTÈME D'AIDE ET D'INDICES ===
+             */
+            
+            getHint() {
+                if (this.gameState.isPaused) return;
+                
+                this.gameState.hintsUsed++;
+                const currentLetter = this.gameState.currentLetters[this.gameState.currentIndex];
+                const association = this.config.letterAssociations[currentLetter.toUpperCase()];
+                
+                let hint = `La lettre ${currentLetter} comme dans ${association ? association.word : 'mot'}`;
+                
+                this.showFeedback(`💡 ${hint}`, 'info');
+                this.speak(hint);
+                
+                // Réduire le score pour utilisation d'indice
+                this.gameState.score = Math.max(0, this.gameState.score - 5);
+            }
+
+            repeatSound() {
+                if (this.gameState.isPaused) return;
+                
+                const currentLetter = this.gameState.currentLetters[this.gameState.currentIndex];
+                this.speak(currentLetter);
+                
+                // Animation sur la lettre cible
+                const targetLetter = document.getElementById('targetLetter');
+                targetLetter.style.transform = 'scale(1.1)';
+                setTimeout(() => {
+                    targetLetter.style.transform = '';
+                }, 200);
+            }
+
+            /**
+             * === GESTION DU SON ===
+             */
+            
+            toggleSound() {
+                this.gameState.soundEnabled = !this.gameState.soundEnabled;
+                this.updateSoundButton();
+                
+                if (this.gameState.soundEnabled) {
+                    this.speak('Son activé');
+                }
+            }
+
+            updateSoundButton() {
+                const button = document.getElementById('soundToggle');
+                if (button) {
+                    button.textContent = this.gameState.soundEnabled ? '🔊 Son : Activé' : '🔇 Son : Désactivé';
+                }
+            }
+
+            speak(text) {
+                if (!this.gameState.soundEnabled || !('speechSynthesis' in window)) return;
+                
+                // Annuler toute synthèse en cours
+                window.speechSynthesis.cancel();
+                
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.lang = 'fr-FR';
+                utterance.rate = 0.8;
+                utterance.pitch = 1.1; // Voix plus aiguë pour Max
+                utterance.volume = 0.8;
+                
+                // Attendre un peu avant de parler pour éviter les conflits
+                setTimeout(() => {
+                    window.speechSynthesis.speak(utterance);
+                }, 100);
+            }
+
+            /**
+             * === FEEDBACK ET ANIMATIONS ===
+             */
+            
+            showFeedback(message, type) {
+                const feedbackText = document.getElementById('feedbackText');
+                feedbackText.textContent = message;
+                feedbackText.className = `feedback-text show ${type}`;
+                
+                // Masquer après un délai
+                setTimeout(() => {
+                    feedbackText.classList.remove('show');
+                }, 2000);
+            }
+
+            clearFeedback() {
+                const feedbackText = document.getElementById('feedbackText');
+                feedbackText.classList.remove('show');
+                feedbackText.textContent = '';
+            }
+
+            getRandomFeedback(type) {
+                const feedbacks = this.config.sounds[type];
+                return feedbacks[Math.floor(Math.random() * feedbacks.length)];
+            }
+
+            triggerSuccessAnimation() {
+                // Animation de l'avatar
+                const avatar = document.getElementById('maxAvatar');
+                avatar.style.animation = 'bounce 0.6s ease';
+                setTimeout(() => {
+                    avatar.style.animation = '';
+                }, 600);
+                
+                // Particules de succès (simulation)
+                this.createSuccessParticles();
+            }
+
+            createSuccessParticles() {
+                const particles = ['⭐', '✨', '🎉', '👏'];
+                const container = document.getElementById('gameScreen');
+                
+                for (let i = 0; i < 5; i++) {
+                    setTimeout(() => {
+                        const particle = document.createElement('div');
+                        particle.textContent = particles[Math.floor(Math.random() * particles.length)];
+                        particle.style.position = 'absolute';
+                        particle.style.fontSize = '2rem';
+                        particle.style.left = Math.random() * 100 + '%';
+                        particle.style.top = '20%';
+                        particle.style.animation = 'particleFall 2s ease forwards';
+                        particle.style.pointerEvents = 'none';
+                        particle.style.zIndex = '1000';
+                        
+                        container.appendChild(particle);
+                        
+                        setTimeout(() => {
+                            particle.remove();
+                        }, 2000);
+                    }, i * 100);
+                }
+            }
+
+            /**
+             * === PROGRESSION ET STATISTIQUES ===
+             */
+            
+            updateProgress() {
+                const current = this.gameState.currentIndex;
+                const total = this.gameState.currentLetters.length;
+                
+                document.getElementById('progressText').textContent = `${current}/${total}`;
+                
+                const percentage = (current / total) * 100;
+                document.getElementById('progressFill').style.width = percentage + '%';
+            }
+
+            updateAvatar() {
+                const totalGamesPlayed = this.stats.gamesPlayed || 0;
+                const badge = document.getElementById('avatarBadge');
+                
+                if (totalGamesPlayed >= 10) {
+                    badge.textContent = this.config.badges.scholar;
+                    badge.style.display = 'flex';
+                } else if (totalGamesPlayed >= 5) {
+                    badge.textContent = this.config.badges.persistent;
+                    badge.style.display = 'flex';
+                } else if (totalGamesPlayed >= 1) {
+                    badge.textContent = this.config.badges.rookie;
+                    badge.style.display = 'flex';
+                }
+            }
+
+            /**
+             * === GESTION DE PAUSE ===
+             */
+            
+            pauseGame() {
+                this.gameState.isPaused = !this.gameState.isPaused;
+                const pauseBtn = document.getElementById('pauseBtn');
+                
+                if (this.gameState.isPaused) {
+                    this.clearTimer();
+                    pauseBtn.textContent = '▶️ Reprendre';
+                    this.showFeedback('Jeu en pause', 'info');
+                } else {
+                    pauseBtn.textContent = '⏸️ Pause';
+                    this.clearFeedback();
+                    
+                    // Redémarrer le timer si nécessaire
+                    const config = this.config.difficulties[this.gameState.currentDifficulty];
+                    if (config.timer) {
+                        this.startTimer();
+                    }
+                }
+            }
+
+            /**
+             * === FIN DE JEU ET RÉSULTATS ===
+             */
+            
+            endGame() {
+                this.clearTimer();
+                
+                // Calculer le temps total
+                const totalTime = Math.round((Date.now() - this.gameState.startTime) / 1000);
+                
+                // Sauvegarder les statistiques
+                this.updateStats(totalTime);
+                
+                this.showResultsScreen();
+            }
+
+            calculateResults() {
+                const totalQuestions = this.gameState.currentLetters.length;
+                const correctAnswers = this.gameState.correctAnswers;
+                const totalTime = Math.round((Date.now() - this.gameState.startTime) / 1000);
+                const accuracy = (correctAnswers / totalQuestions) * 100;
+                
+                // Mise à jour des statistiques affichées
+                document.getElementById('finalScore').textContent = this.gameState.score;
+                document.getElementById('correctAnswers').textContent = `${correctAnswers}/${totalQuestions}`;
+                document.getElementById('totalTime').textContent = `${totalTime}s`;
+                
+                // Système d'étoiles
+                this.updateStarsDisplay(accuracy);
+                
+                // Attribution de badges
+                this.awardBadges(accuracy, totalTime);
+                
+                // Bouton de révision
+                const reviewBtn = document.getElementById('reviewBtn');
+                reviewBtn.style.display = this.gameState.mistakes.length > 0 ? 'block' : 'none';
+            }
+
+            updateStarsDisplay(accuracy) {
+                const stars = document.querySelectorAll('.star');
+                let starsEarned = 0;
+                
+                if (accuracy >= 90) starsEarned = 3;
+                else if (accuracy >= 70) starsEarned = 2;
+                else if (accuracy >= 50) starsEarned = 1;
+                
+                stars.forEach((star, index) => {
+                    setTimeout(() => {
+                        if (index < starsEarned) {
+                            star.classList.add('earned');
+                        } else {
+                            star.classList.remove('earned');
+                        }
+                    }, index * 300);
+                });
+            }
+
+            awardBadges(accuracy, totalTime) {
+                const badges = [];
+                
+                if (accuracy === 100) {
+                    badges.push(this.config.badges.perfectRound);
+                }
+                
+                if (totalTime < 60) {
+                    badges.push(this.config.badges.speedster);
+                }
+                
+                if (this.gameState.currentDifficulty === 'master') {
+                    badges.push(this.config.badges.scholar);
+                }
+                
+                if (this.gameState.mistakes.length === 0) {
+                    badges.push(this.config.badges.perfectRound);
+                }
+                
+                this.displayBadges(badges);
+            }
+
+            displayBadges(badges) {
+                const container = document.getElementById('badgesContainer');
+                container.innerHTML = '';
+                
+                badges.forEach((badge, index) => {
+                    setTimeout(() => {
+                        const badgeElement = document.createElement('div');
+                        badgeElement.className = 'badge';
+                        badgeElement.textContent = badge;
+                        container.appendChild(badgeElement);
+                    }, index * 200);
+                });
+            }
+
+            /**
+             * === SYSTÈME DE RÉVISION ===
+             */
+            
+            setupReviewScreen() {
+                if (this.gameState.mistakes.length === 0) return;
+                
+                const content = document.getElementById('reviewContent');
+                content.innerHTML = '';
+                
+                const mistakesList = document.createElement('div');
+                mistakesList.className = 'mistakes-list';
+                
+                this.gameState.mistakes.forEach(mistake => {
+                    const mistakeCard = document.createElement('div');
+                    mistakeCard.className = 'mistake-card';
+                    mistakeCard.innerHTML = `
+                        <div class="mistake-letter">${mistake.letter}</div>
+                        <div class="mistake-info">
+                            Tu as choisi: <strong>${mistake.selectedLetter}</strong><br>
+                            La bonne réponse était: <strong>${mistake.correctAnswer}</strong>
+                        </div>
+                    `;
+                    mistakesList.appendChild(mistakeCard);
+                });
+                
+                content.appendChild(mistakesList);
+            }
+
+            startReview() {
+                // Créer un mini-jeu avec seulement les lettres ratées
+                if (this.gameState.mistakes.length === 0) return;
+                
+                const mistakeLetters = [...new Set(this.gameState.mistakes.map(m => m.letter))];
+                this.gameState.currentLetters = this.shuffleArray(mistakeLetters);
+                this.gameState.currentIndex = 0;
+                this.gameState.mistakes = [];
+                this.gameState.correctAnswers = 0;
+                this.gameState.startTime = Date.now();
+                
+                this.showGameScreen();
+                this.nextQuestion();
+            }
+
+            reviewMistakes() {
+                this.showReviewScreen();
+            }
+
+            /**
+             * === GESTION DES STATISTIQUES PERSISTANTES ===
+             */
+            
+            loadStats() {
+                try {
+                    const saved = localStorage.getItem('maxAlphabetStats');
+                    return saved ? JSON.parse(saved) : this.getDefaultStats();
+                } catch (e) {
+                    console.warn('Impossible de charger les statistiques:', e);
+                    return this.getDefaultStats();
+                }
+            }
+
+            getDefaultStats() {
+                return {
+                    gamesPlayed: 0,
+                    totalScore: 0,
+                    bestScore: 0,
+                    totalTime: 0,
+                    averageAccuracy: 0,
+                    difficultiesCompleted: {
+                        easy: 0,
+                        medium: 0,
+                        hard: 0,
+                        master: 0
+                    },
+                    badgesEarned: [],
+                    totalLettersLearned: 0,
+                    mistakesHistory: {}
+                };
+            }
+
+            updateStats(totalTime) {
+                this.stats.gamesPlayed++;
+                this.stats.totalScore += this.gameState.score;
+                this.stats.bestScore = Math.max(this.stats.bestScore, this.gameState.score);
+                this.stats.totalTime += totalTime;
+                this.stats.difficultiesCompleted[this.gameState.currentDifficulty]++;
+                this.stats.totalLettersLearned += this.gameState.correctAnswers;
+                
+                // Calculer la précision moyenne
+                const accuracy = (this.gameState.correctAnswers / this.gameState.currentLetters.length) * 100;
+                this.stats.averageAccuracy = (this.stats.averageAccuracy * (this.stats.gamesPlayed - 1) + accuracy) / this.stats.gamesPlayed;
+                
+                // Enregistrer les erreurs fréquentes
+                this.gameState.mistakes.forEach(mistake => {
+                    const letter = mistake.letter.toUpperCase();
+                    if (!this.stats.mistakesHistory[letter]) {
+                        this.stats.mistakesHistory[letter] = 0;
+                    }
+                    this.stats.mistakesHistory[letter]++;
+                });
+                
+                this.saveStats();
+                this.updateAvatar();
+            }
+
+            saveStats() {
+                try {
+                    localStorage.setItem('maxAlphabetStats', JSON.stringify(this.stats));
+                } catch (e) {
+                    console.warn('Impossible de sauvegarder les statistiques:', e);
+                }
+            }
+
+            updateGlobalStats() {
+                const container = document.getElementById('globalStats');
+                if (!container) return;
+                
+                container.innerHTML = `
+                    <div class="stat-card">
+                        <div class="stat-value">${this.stats.gamesPlayed}</div>
+                        <div class="stat-label">Parties jouées</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">${this.stats.bestScore}</div>
+                        <div class="stat-label">Meilleur score</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">${Math.round(this.stats.averageAccuracy)}%</div>
+                        <div class="stat-label">Précision moyenne</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">${this.stats.totalLettersLearned}</div>
+                        <div class="stat-label">Lettres apprises</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">${Math.round(this.stats.totalTime / 60)}min</div>
+                        <div class="stat-label">Temps total</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">${this.stats.difficultiesCompleted.master}</div>
+                        <div class="stat-label">Niveaux maître</div>
+                    </div>
+                `;
+            }
+
+            /**
+             * === UTILITAIRES ===
+             */
+            
+            shuffleArray(array) {
+                const newArray = [...array];
+                for (let i = newArray.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
+                }
+                return newArray;
+            }
+
+            /**
+             * === MÉTHODES PUBLIQUES POUR L'INTERFACE ===
+             */
+            
+            // Ces méthodes sont appelées par les boutons HTML
+            startGamePublic(difficulty) {
+                this.startGame(difficulty);
+            }
+
+            showWelcomeScreenPublic() {
+                this.showWelcomeScreen();
+            }
+
+            showDifficultyScreenPublic() {
+                this.showDifficultyScreen();
+            }
+
+            showStatsScreenPublic() {
+                this.showStatsScreen();
+            }
+
+            toggleSoundPublic() {
+                this.toggleSound();
+            }
+
+            pauseGamePublic() {
+                this.pauseGame();
+            }
+
+            getHintPublic() {
+                this.getHint();
+            }
+
+            repeatSoundPublic() {
+                this.repeatSound();
+            }
+
+            reviewMistakesPublic() {
+                this.reviewMistakes();
+            }
+
+            startReviewPublic() {
+                this.startReview();
+            }
+
+            showResultsScreenPublic() {
+                this.showResultsScreen();
+            }
+        }
+
+        /**
+         * === INITIALISATION GLOBALE ===
+         */
+        
+        // Instance globale du jeu
+        let game;
+
+        // Initialisation quand le DOM est prêt
+        document.addEventListener('DOMContentLoaded', () => {
+            game = new AlphabetGame();
+            console.log('🎮 Jeu Max Alphabet initialisé avec succès !');
+        });
+
+        /**
+         * === FONCTIONS GLOBALES POUR L'INTERFACE ===
+         * Ces fonctions font le pont entre les boutons HTML et la classe du jeu
+         */
+
+        function startGame(difficulty) {
+            if (game) game.startGamePublic(difficulty);
+        }
+
+        function showWelcomeScreen() {
+            if (game) game.showWelcomeScreenPublic();
+        }
+
+        function showDifficultyScreen() {
+            if (game) game.showDifficultyScreenPublic();
+        }
+
+        function showStatsScreen() {
+            if (game) game.showStatsScreenPublic();
+        }
+
+        function toggleSound() {
+            if (game) game.toggleSoundPublic();
+        }
+
+        function pauseGame() {
+            if (game) game.pauseGamePublic();
+        }
+
+        function getHint() {
+            if (game) game.getHintPublic();
+        }
+
+        function repeatSound() {
+            if (game) game.repeatSoundPublic();
+        }
+
+        function reviewMistakes() {
+            if (game) game.reviewMistakesPublic();
+        }
+
+        function startReview() {
+            if (game) game.startReviewPublic();
+        }
+
+        function showResultsScreen() {
+            if (game) game.showResultsScreenPublic();
+        }
+
+        /**
+         * === CSS ANIMATIONS SUPPLÉMENTAIRES ===
+         */
+        
+        // Ajout des styles CSS pour les nouvelles fonctionnalités
+        const additionalStyles = document.createElement('style');
+        additionalStyles.textContent = `
+            /* Animations pour les particules */
+            @keyframes particleFall {
+                0% {
+                    transform: translateY(0) scale(1) rotate(0deg);
+                    opacity: 1;
+                }
+                100% {
+                    transform: translateY(200px) scale(0.5) rotate(360deg);
+                    opacity: 0;
+                }
+            }
+
+            /* Animation de pulsation pour le timer urgent */
+            @keyframes pulse {
+                0% { transform: scale(1); }
+                100% { transform: scale(1.05); }
+            }
+
+            /* Cartes d'erreurs pour la révision */
+            .mistakes-list {
+                display: grid;
+                gap: var(--spacing-md);
+                margin: var(--spacing-lg) 0;
+            }
+
+            .mistake-card {
+                display: flex;
+                align-items: center;
+                background: white;
+                border-left: 5px solid var(--error-color);
+                border-radius: 10px;
+                padding: var(--spacing-md);
+                box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            }
+
+            .mistake-letter {
+                font-size: 3rem;
+                font-weight: bold;
+                color: var(--primary-color);
+                margin-right: var(--spacing-md);
+                min-width: 80px;
+                text-align: center;
+            }
+
+            .mistake-info {
+                flex: 1;
+                line-height: 1.6;
+            }
+
+            /* Amélioration des cartes de statistiques */
+            .stat-card:hover {
+                transform: translateY(-5px);
+                box-shadow: 0 8px 25px rgba(74, 144, 226, 0.2);
+            }
+
+            /* Animation de rebond pour l'avatar */
+            @keyframes bounce {
+                0%, 100% {
+                    transform: translateY(0);
+                }
+                50% {
+                    transform: translateY(-20px);
+                }
+            }
+
+            /* Effet de brillance sur les boutons */
+            .btn-primary::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: -100%;
+                width: 100%;
+                height: 100%;
+                background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+                transition: left 0.5s;
+            }
+
+            .btn-primary:hover::before {
+                left: 100%;
+            }
+
+            /* Responsive pour les cartes d'erreurs */
+            @media (max-width: 768px) {
+                .mistake-card {
+                    flex-direction: column;
+                    text-align: center;
+                }
+
+                .mistake-letter {
+                    margin-right: 0;
+                    margin-bottom: var(--spacing-sm);
+                }
+            }
+
+            /* Animation d'apparition pour les écrans */
+            .screen.active {
+                animation: slideInUp 0.5s ease;
+            }
+
+            @keyframes slideInUp {
+                from {
+                    opacity: 0;
+                    transform: translateY(30px);
+                }
+                to {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
+            }
+
+            /* Effet de survol amélioré pour les options */
+            .letter-option {
+                position: relative;
+                overflow: hidden;
+            }
+
+            .letter-option::before {
+                content: '';
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                width: 0;
+                height: 0;
+                background: rgba(74, 144, 226, 0.2);
+                border-radius: 50%;
+                transform: translate(-50%, -50%);
+                transition: width 0.3s, height 0.3s;
+            }
+
+            .letter-option:hover::before {
+                width: 200%;
+                height: 200%;
+            }
+
+            /* Indicateur de progression amélioré */
+            .progress-fill {
+                background: linear-gradient(90deg, 
+                    var(--primary-color) 0%, 
+                    var(--secondary-color) 50%, 
+                    var(--success-color) 100%);
+                background-size: 200% 100%;
+                animation: progressGradient 3s ease infinite;
+            }
+
+            @keyframes progressGradient {
+                0% { background-position: 200% 0; }
+                100% { background-position: -200% 0; }
+            }
+        `;
+        
+        document.head.appendChild(additionalStyles);
+
+        /**
+         * === EASTER EGGS ET FONCTIONNALITÉS BONUS ===
+         */
+        
+        // Séquence de touches secrète pour débloquer le mode développeur
+        let secretSequence = [];
+        const secretCode = ['m', 'a', 'x'];
+        
+        document.addEventListener('keydown', (e) => {
+            secretSequence.push(e.key.toLowerCase());
+            if (secretSequence.length > secretCode.length) {
+                secretSequence.shift();
+            }
+            
+            if (JSON.stringify(secretSequence) === JSON.stringify(secretCode)) {
+                console.log('🎉 Mode développeur activé !');
+                if (game) {
+                    game.speak('Mode secret activé ! Tu es un vrai champion !');
+                    // Débloquer tous les badges
+                    const avatar = document.getElementById('maxAvatar');
+                    avatar.style.background = 'linear-gradient(45deg, gold, orange)';
+                }
+                secretSequence = [];
+            }
+        });
+
+        /**
+         * === SERVICE WORKER POUR LA MISE EN CACHE (optionnel) ===
+         */
+        
+        // Enregistrement du service worker pour une utilisation hors ligne
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                // Note: Un vrai service worker nécessiterait un fichier séparé
+                console.log('💾 Application prête pour une utilisation hors ligne');
+            });
+        }
+
+        /**
+         * === GESTION DES ERREURS GLOBALES ===
+         */
+        
+        window.addEventListener('error', (e) => {
+            console.error('❌ Erreur dans le jeu:', e.error);
+            // En cas d'erreur critique, sauvegarder l'état et recharger
+            if (game && game.gameState.currentIndex > 0) {
+                game.saveStats();
+            }
+        });
+
+        // Protection contre la fermeture accidentelle pendant une partie
+        window.addEventListener('beforeunload', (e) => {
+            if (game && game.gameState.currentIndex > 0 && game.gameState.currentIndex < game.gameState.currentLetters.length) {
+                e.preventDefault();
+                e.returnValue = 'Tu es en cours de partie ! Veux-tu vraiment quitter ?';
+            }
+        });
+
+        console.log('🎮 Système de jeu Max Alphabet chargé avec succès !');
+    </script>
 </body>
 </html>
