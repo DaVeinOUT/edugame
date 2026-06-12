@@ -1,0 +1,357 @@
+/* ============================================================
+   GAME.CSS — Mini-jeux : Lettres + Constructeur
+   ============================================================ */
+
+/* === GAME HEADER === */
+.game-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.6rem 0;
+  margin-bottom: 1rem;
+}
+.game-topbar-title { font-weight:900; font-size:1.1rem; }
+.game-score {
+  background: rgba(245,158,11,0.2);
+  border: 1px solid rgba(245,158,11,0.4);
+  border-radius:50px;
+  padding:0.3rem 1rem;
+  font-weight:900;
+  color: var(--secondary);
+}
+.timer-badge {
+  background: rgba(239,68,68,0.2);
+  border:1px solid rgba(239,68,68,0.4);
+  border-radius:50px;
+  padding:0.3rem 1rem;
+  font-weight:900;
+  color:#FCA5A5;
+  min-width:70px;
+  text-align:center;
+}
+.timer-badge.urgent { animation:timerPulse 0.5s infinite alternate; }
+@keyframes timerPulse {
+  from { background:rgba(239,68,68,0.2); }
+  to   { background:rgba(239,68,68,0.5); }
+}
+
+/* === LETTRE CIBLE === */
+.target-zone {
+  text-align:center;
+  padding:1.5rem 0 1rem;
+  position:relative;
+}
+/* Bouton "réécouter" — toujours visible, l'oreille avant les yeux */
+.speak-btn {
+  position:absolute;
+  top:0.4rem;
+  right:0;
+  width:52px;
+  height:52px;
+  border-radius:50%;
+  background:rgba(124,58,237,0.25);
+  border:2px solid rgba(124,58,237,0.6);
+  font-size:1.4rem;
+  cursor:pointer;
+  transition:transform 0.15s;
+}
+.speak-btn:active { transform:scale(0.9); }
+.target-label { font-size:0.9rem; color:#CBD5E1; margin-bottom:0.5rem; }
+.target-letter {
+  font-size: 5rem;
+  font-weight: 900;
+  color: white;
+  cursor: pointer;
+  transition: transform 0.2s;
+  display: inline-block;
+  line-height: 1;
+  text-shadow: 0 0 40px rgba(124,58,237,0.8);
+}
+/* Mode audio : la cible affiche 🔊 et pulse — écoute, puis trouve */
+.target-letter.audio-mode {
+  text-shadow: none;
+  animation: speakPulse 1.6s ease-in-out infinite;
+}
+@keyframes speakPulse {
+  0%,100% { transform:scale(1); }
+  50%     { transform:scale(1.12); }
+}
+.target-letter:active { transform:scale(0.92); }
+.letter-word-hint {
+  font-size:1.1rem;
+  color:#CBD5E1;
+  margin-top:0.5rem;
+}
+.hint-emoji {
+  display:block;
+  font-size:2.4rem;
+  line-height:1.25;
+}
+
+/* === OPTIONS === */
+.options-grid {
+  display:grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap:0.8rem;
+  margin:1rem 0;
+}
+.option-btn {
+  background: rgba(255,255,255,0.08);
+  border: 2px solid rgba(255,255,255,0.15);
+  border-radius: var(--radius);
+  padding:1.2rem;
+  font-family:'Nunito',sans-serif;
+  font-size:2.2rem;
+  font-weight:900;
+  color:white;
+  cursor:pointer;
+  transition:all 0.2s;
+  text-align:center;
+}
+.option-btn:hover {
+  background:rgba(124,58,237,0.25);
+  border-color:var(--primary);
+  transform:scale(1.04);
+}
+.option-btn.correct {
+  background:rgba(16,185,129,0.3);
+  border-color:var(--success);
+  animation:correctPop 0.4s ease;
+}
+.option-btn.wrong {
+  background:rgba(239,68,68,0.3);
+  border-color:var(--danger);
+  animation:wrongShake 0.4s ease;
+}
+.option-btn:disabled { cursor:default; }
+/* La bonne réponse s'illumine après une erreur : on apprend en se trompant */
+.option-btn.reveal {
+  background:rgba(16,185,129,0.25);
+  border-color:var(--success);
+  animation:revealPulse 0.8s ease 2;
+}
+/* Icônes en plus des couleurs (daltonisme) — hors du texte lu par le JS */
+.option-btn.correct::after { content:' ✓'; }
+.option-btn.wrong::after   { content:' ✗'; }
+.option-btn.reveal::after  { content:' ★'; }
+@keyframes revealPulse {
+  0%,100% { box-shadow:0 0 0 rgba(16,185,129,0); }
+  50%     { box-shadow:0 0 20px rgba(16,185,129,0.7); }
+}
+@keyframes correctPop {
+  0%   { transform:scale(1); }
+  50%  { transform:scale(1.15); }
+  100% { transform:scale(1); }
+}
+@keyframes wrongShake {
+  0%,100% { transform:translateX(0); }
+  25%     { transform:translateX(-8px); }
+  75%     { transform:translateX(8px); }
+}
+
+/* === FEEDBACK TOAST === */
+.feedback-toast {
+  text-align:center;
+  font-size:1.4rem;
+  font-weight:900;
+  min-height:40px;
+  transition:opacity 0.3s;
+}
+.feedback-toast.success { color:var(--success); }
+.feedback-toast.error   { color:var(--danger); }
+.feedback-toast.hidden  { opacity:0; }
+
+/* === CONSTRUCTEUR === */
+.builder-word-display {
+  text-align:center;
+  font-size:2.2rem;
+  font-weight:900;
+  padding:0.8rem 0 0.4rem;
+  letter-spacing:3px;
+  text-shadow:0 0 30px rgba(124,58,237,0.6);
+  cursor:pointer;
+}
+
+/* Cases du mot à construire */
+.builder-slots {
+  display:flex;
+  justify-content:center;
+  gap:0.4rem;
+  flex-wrap:wrap;
+  margin:0.6rem 0;
+}
+.slot {
+  width:48px;
+  height:56px;
+  border-radius:12px;
+  border:2px dashed rgba(255,255,255,0.3);
+  background:rgba(255,255,255,0.05);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:1.7rem;
+  font-weight:900;
+}
+.slot.filled {
+  border-style:solid;
+  border-color:var(--success);
+  background:rgba(16,185,129,0.18);
+  animation:correctPop 0.3s ease;
+}
+
+/* Tuiles-lettres : pas besoin de clavier */
+.builder-bank {
+  display:flex;
+  justify-content:center;
+  gap:0.5rem;
+  flex-wrap:wrap;
+  margin:0.8rem 0;
+}
+.tile {
+  min-width:56px;
+  height:60px;
+  border-radius:14px;
+  background:rgba(255,255,255,0.1);
+  border:2px solid rgba(255,255,255,0.25);
+  color:white;
+  font-family:'Nunito',sans-serif;
+  font-size:1.8rem;
+  font-weight:900;
+  cursor:pointer;
+  transition:transform 0.15s, opacity 0.2s;
+  touch-action:manipulation;
+}
+.tile:active { transform:scale(0.92); }
+.tile.used  { opacity:0.18; pointer-events:none; }
+.tile.shake { animation:wrongShake 0.4s ease; border-color:var(--danger); }
+.builder-world {
+  min-height:100px;
+  background:rgba(255,255,255,0.04);
+  border:1px dashed rgba(255,255,255,0.15);
+  border-radius:var(--radius);
+  padding:0.8rem;
+  display:flex;
+  flex-wrap:wrap;
+  gap:0.4rem;
+  align-content:flex-start;
+  margin:0.8rem 0;
+}
+.world-block {
+  padding:0.4rem 0.8rem;
+  border-radius:8px;
+  font-weight:900;
+  font-size:0.9rem;
+  animation:blockDrop 0.3s ease;
+}
+@keyframes blockDrop {
+  from { transform:translateY(-20px) scale(0.8); opacity:0; }
+  to   { transform:translateY(0) scale(1); opacity:1; }
+}
+
+/* === RESULTS === */
+.results-stars {
+  display:flex;
+  justify-content:center;
+  gap:0.5rem;
+  font-size:2.5rem;
+  margin:1rem 0;
+}
+.results-star {
+  font-size: 2rem;
+  opacity: 0.15;
+  transition: all 0.4s;
+  color: #F59E0B;
+  font-family: 'Orbitron', monospace;
+}
+.results-star.earned {
+  opacity: 1;
+  filter: drop-shadow(0 0 10px #F59E0B);
+}
+
+.results-stats {
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:0.8rem;
+  margin:1rem 0;
+}
+.stat-box {
+  background:rgba(255,255,255,0.06);
+  border-radius:var(--radius);
+  padding:0.8rem;
+  text-align:center;
+}
+.stat-val   { font-size:1.6rem; font-weight:900; color:var(--secondary); }
+.stat-label { font-size:0.75rem; color:#A7B4C9; margin-top:0.2rem; }
+
+/* === DIFFICULTY SCREEN === */
+.diff-grid {
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:0.8rem;
+  margin:1rem 0;
+}
+.diff-card {
+  background:rgba(255,255,255,0.06);
+  border:1px solid rgba(255,255,255,0.12);
+  border-radius:var(--radius);
+  padding:1.2rem 1rem;
+  cursor:pointer;
+  transition:all 0.25s;
+  text-align:center;
+  position:relative;
+}
+/* Niveau conseillé selon l'âge de l'enfant */
+.diff-card.recommended {
+  border-color:var(--secondary);
+  box-shadow:0 0 16px rgba(245,158,11,0.25);
+}
+.diff-card.recommended::after {
+  content:'⭐ Pour toi';
+  position:absolute;
+  top:-10px;
+  right:8px;
+  background:linear-gradient(135deg,#F59E0B,#FBBF24);
+  color:#0F172A;
+  font-size:0.65rem;
+  font-weight:900;
+  padding:2px 8px;
+  border-radius:50px;
+}
+.diff-card:hover {
+  background:rgba(124,58,237,0.2);
+  border-color:var(--primary);
+  transform:translateY(-3px);
+}
+.diff-icon  { font-size:2rem; margin-bottom:0.4rem; }
+.diff-lvl {
+  font-family: 'Orbitron', monospace;
+  font-size: 1.1rem !important;
+  font-weight: 900;
+  color: var(--primary);
+  letter-spacing: 0.1em;
+}
+.diff-title { font-weight:900; font-size:0.95rem; }
+.diff-desc  { font-size:0.8rem; color:#A7B4C9; margin-top:0.3rem; }
+
+/* === CHOIX DE LA VOIX (écran Stats) === */
+.voice-btn { width:100%; }
+.voice-btn.voice-active {
+  border-color: var(--secondary);
+  color: var(--secondary);
+  background: rgba(245,158,11,0.12);
+}
+
+/* === PARTICLES === */
+@keyframes particleFly {
+  to { transform:translateY(-100px) scale(0); opacity:0; }
+}
+.particle {
+  position: absolute;
+  pointer-events: none;
+  animation: particleFly 0.8s ease forwards;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--secondary);
+  box-shadow: 0 0 8px var(--secondary);
+}

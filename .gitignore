@@ -1,0 +1,7 @@
+# Dossiers de travail (outils d'assistance, sessions) — jamais sur GitHub
+.claude/
+_bmad/
+_bmad-output/
+
+# Fichiers système macOS
+.DS_Store

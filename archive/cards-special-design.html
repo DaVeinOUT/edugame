@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EDUCA — Exploits, Héros & Légendes</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Rajdhani:wght@500;700&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: #080810;
+    font-family: 'Rajdhani', sans-serif;
+    padding: 40px;
+  }
+
+  .section-title {
+    font-family: 'Orbitron', monospace;
+    font-size: 10px;
+    letter-spacing: 0.35em;
+    text-transform: uppercase;
+    text-align: center;
+    margin: 48px 0 24px;
+    position: relative;
+  }
+  .section-title::before, .section-title::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    width: 80px;
+    height: 0.5px;
+  }
+  .section-title::before { right: calc(50% + 100px); }
+  .section-title::after  { left:  calc(50% + 100px); }
+
+  .title-commun  { color: rgba(160,100,255,0.7); }
+  .title-commun::before, .title-commun::after { background: rgba(160,100,255,0.3); }
+  .title-rare    { color: rgba(26,223,204,0.8); }
+  .title-rare::before, .title-rare::after { background: rgba(26,223,204,0.3); }
+  .title-epic    { color: rgba(255,184,48,0.9); }
+  .title-epic::before, .title-epic::after { background: rgba(255,184,48,0.35); }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, 200px);
+    gap: 28px;
+    justify-content: center;
+  }
+
+  .card {
+    width: 200px;
+    height: 280px;
+    border-radius: 18px;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    cursor: pointer;
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+  }
+  .card:hover {
+    transform: translateY(-10px) rotate(-1deg) scale(1.04);
+    z-index: 10;
+  }
+
+  /* COMMUN — purple */
+  .commun {
+    background: linear-gradient(160deg, #0e060f 0%, #1a0d1e 60%, #0e060f 100%);
+    border: 1.5px solid #7030b0;
+  }
+  .commun .card-glow { box-shadow: inset 0 0 50px rgba(112,48,176,0.22); }
+  .commun .cat-tag   { background: rgba(112,48,176,0.3); color: #b87aff; border: 0.5px solid rgba(112,48,176,0.5); }
+  .commun .corner-tl, .commun .corner-br { border-color: rgba(160,96,255,0.5); }
+  .commun .divider   { background: #7030b0; }
+  .commun .dot-on    { background: #a060ff; }
+  .clr-commun        { color: #a060ff; }
+
+  /* RARE — teal */
+  .rare {
+    background: linear-gradient(160deg, #060f0e 0%, #0a1e1c 60%, #060f0e 100%);
+    border: 1.5px solid #0f7a6a;
+  }
+  .rare .card-glow { box-shadow: inset 0 0 50px rgba(15,122,106,0.25); }
+  .rare .cat-tag   { background: rgba(15,122,106,0.3); color: #4addc8; border: 0.5px solid rgba(15,122,106,0.5); }
+  .rare .corner-tl, .rare .corner-br { border-color: rgba(26,223,204,0.5); }
+  .rare .divider   { background: #0f7a6a; }
+  .rare .dot-on    { background: #1adfcc; }
+  .clr-rare        { color: #1adfcc; }
+
+  /* EPIC — amber/gold */
+  .epic {
+    background: linear-gradient(160deg, #0f0a02 0%, #1e1408 60%, #0f0a02 100%);
+    border: 1.5px solid #c07800;
+  }
+  .epic .card-glow { box-shadow: inset 0 0 60px rgba(192,120,0,0.28); }
+  .epic .cat-tag   { background: rgba(192,120,0,0.3); color: #ffcc5a; border: 0.5px solid rgba(192,120,0,0.5); }
+  .epic .corner-tl, .epic .corner-br { border-color: rgba(255,184,48,0.6); }
+  .epic .divider   { background: #c07800; }
+  .epic .dot-on    { background: #ffb830; }
+  .clr-epic        { color: #ffb830; }
+
+  .card-glow, .corner-tl, .corner-br { position: absolute; pointer-events: none; }
+  .card-glow { inset: 0; border-radius: inherit; }
+  .corner-tl { top: 6px; left: 6px; width: 14px; height: 14px;
+    border-top: 1.5px solid; border-left: 1.5px solid; border-radius: 4px 0 0 0; }
+  .corner-br { bottom: 6px; right: 6px; width: 14px; height: 14px;
+    border-bottom: 1.5px solid; border-right: 1.5px solid; border-radius: 0 0 4px 0; }
+
+  .card-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 12px 0;
+  }
+  .cat-tag {
+    font-family: 'Orbitron', monospace;
+    font-size: 7px;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    padding: 3px 8px;
+    border-radius: 20px;
+  }
+  .card-num {
+    font-family: 'Orbitron', monospace;
+    font-size: 8px;
+    font-weight: 700;
+    color: rgba(255,255,255,0.25);
+  }
+
+  .art-zone {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+  }
+  .art-svg { width: 140px; height: 130px; }
+  .art-placeholder {
+    position: absolute;
+    bottom: 8px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 8px;
+    color: rgba(255,255,255,0.12);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    font-family: 'Orbitron', monospace;
+  }
+
+  .divider { height: 0.5px; margin: 0 12px; opacity: 0.3; }
+
+  .card-bottom { padding: 8px 12px 10px; }
+  .card-name {
+    font-family: 'Orbitron', monospace;
+    font-size: 11px;
+    font-weight: 900;
+    color: #fff;
+    letter-spacing: 0.03em;
+    line-height: 1.2;
+  }
+  .card-desc {
+    font-size: 10px;
+    font-weight: 500;
+    color: rgba(255,255,255,0.38);
+    margin-top: 3px;
+    letter-spacing: 0.03em;
+  }
+  .card-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 7px;
+  }
+  .rarity { display: flex; gap: 4px; align-items: center; }
+  .dot { width: 7px; height: 7px; border-radius: 50%; }
+  .dot-off { background: rgba(255,255,255,0.12); }
+  .xp-badge {
+    font-family: 'Orbitron', monospace;
+    font-size: 8px;
+    font-weight: 700;
+    color: rgba(255,255,255,0.28);
+  }
+  .xp-badge span { color: rgba(255,255,255,0.65); }
+  .pwr-badge {
+    font-family: 'Orbitron', monospace;
+    font-size: 8px;
+    font-weight: 700;
+    color: rgba(255,255,255,0.25);
+  }
+
+  .epic .card-name { text-shadow: 0 0 14px rgba(255,184,48,0.45); }
+  .rare .card-name  { text-shadow: 0 0 14px rgba(26,223,204,0.35); }
+  .commun .card-name{ text-shadow: 0 0 14px rgba(160,96,255,0.35); }
+
+  .epic:hover   { box-shadow: 0 0 30px rgba(255,184,48,0.3), 0 20px 40px rgba(0,0,0,0.5); }
+  .rare:hover   { box-shadow: 0 0 30px rgba(26,223,204,0.25), 0 20px 40px rgba(0,0,0,0.5); }
+  .commun:hover { box-shadow: 0 0 30px rgba(160,96,255,0.25), 0 20px 40px rgba(0,0,0,0.5); }
+
+  .print-btn {
+    display: block; margin: 48px auto 20px; padding: 12px 32px;
+    background: transparent; border: 1px solid rgba(255,255,255,0.2);
+    color: rgba(255,255,255,0.45); font-family: 'Orbitron', monospace;
+    font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase;
+    cursor: pointer; border-radius: 4px; transition: all 0.2s;
+  }
+  .print-btn:hover { border-color: rgba(255,255,255,0.5); color: rgba(255,255,255,0.8); }
+
+  @media print {
+    body { background: #080810; padding: 10px; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .grid { gap: 16px; }
+    .print-btn, .section-title { break-inside: avoid; }
+    .card { break-inside: avoid; }
+  }
+</style>
+</head>
+<body>
+
+<div class="section-title title-commun">Exploits — Peu commun</div>
+<div class="grid" id="grid-exploits"></div>
+
+<div class="section-title title-rare">Héros — Rare</div>
+<div class="grid" id="grid-heros"></div>
+
+<div class="section-title title-epic">Légende — Épique &amp; Légendaire</div>
+<div class="grid" id="grid-legendes"></div>
+
+<button class="print-btn" onclick="window.print()">Imprimer les cartes</button>
+
+<script>
+
+function svgExploit1(c) {
+  return `<svg class="art-svg" viewBox="0 0 140 130" fill="none">
+    <circle cx="70" cy="65" r="48" fill="${c}" fill-opacity="0.06" stroke="${c}" stroke-width="0.5" stroke-opacity="0.2"/>
+    <rect x="32" y="45" width="30" height="38" rx="4" fill="${c}" fill-opacity="0.18" stroke="${c}" stroke-width="1.2" stroke-opacity="0.6"/>
+    <rect x="78" y="45" width="30" height="38" rx="4" fill="${c}" fill-opacity="0.18" stroke="${c}" stroke-width="1.2" stroke-opacity="0.6"/>
+    <line x1="70" y1="46" x2="70" y2="82" stroke="${c}" stroke-width="1.2" stroke-opacity="0.5"/>
+    <line x1="38" y1="56" x2="58" y2="56" stroke="${c}" stroke-width="0.8" stroke-opacity="0.35"/>
+    <line x1="38" y1="62" x2="58" y2="62" stroke="${c}" stroke-width="0.8" stroke-opacity="0.35"/>
+    <line x1="38" y1="68" x2="54" y2="68" stroke="${c}" stroke-width="0.8" stroke-opacity="0.35"/>
+    <line x1="82" y1="56" x2="102" y2="56" stroke="${c}" stroke-width="0.8" stroke-opacity="0.35"/>
+    <line x1="82" y1="62" x2="102" y2="62" stroke="${c}" stroke-width="0.8" stroke-opacity="0.35"/>
+    <line x1="82" y1="68" x2="96"  y2="68" stroke="${c}" stroke-width="0.8" stroke-opacity="0.35"/>
+    <circle cx="100" cy="30" r="12" fill="${c}" fill-opacity="0.15" stroke="${c}" stroke-width="1" stroke-opacity="0.5"/>
+    <polygon points="100,21 103,28 111,28 105,33 107,41 100,36 93,41 95,33 89,28 97,28" fill="${c}" fill-opacity="0.7" stroke="${c}" stroke-width="0.5"/>
+  </svg>`;
+}
+
+function svgExploit2(c) {
+  const pts = [];
+  for(let i=0;i<5;i++){
+    const cx = 22 + i*24;
+    const cy = 58 - Math.abs(2-i)*8;
+    const s = 8 + (2-Math.abs(2-i))*3;
+    pts.push(`<polygon points="${starPts(cx,cy,s,s*0.42)}" fill="${c}" fill-opacity="${0.4+i*0.12}" stroke="${c}" stroke-width="0.8"/>`);
+  }
+  return `<svg class="art-svg" viewBox="0 0 140 130" fill="none">
+    <circle cx="70" cy="65" r="48" fill="${c}" fill-opacity="0.05" stroke="${c}" stroke-width="0.5" stroke-opacity="0.18"/>
+    ${pts.join('')}
+    <text x="70" y="98" text-anchor="middle" font-family="'Orbitron',monospace" font-size="11" font-weight="900" fill="${c}" fill-opacity="0.65">× 5 d'affilée</text>
+  </svg>`;
+}
+
+function svgExploit3(c) {
+  return `<svg class="art-svg" viewBox="0 0 140 130" fill="none">
+    <circle cx="70" cy="60" r="48" fill="${c}" fill-opacity="0.06" stroke="${c}" stroke-width="0.5" stroke-opacity="0.2"/>
+    <circle cx="70" cy="60" r="34" fill="${c}" fill-opacity="0.1" stroke="${c}" stroke-width="1.5" stroke-opacity="0.45"/>
+    <polyline points="50,60 63,74 90,44" stroke="${c}" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" fill="none" stroke-opacity="0.9"/>
+    <circle cx="70" cy="60" r="2.5" fill="${c}" opacity="0.3"/>
+  </svg>`;
+}
+
+function svgRare1(c) {
+  return `<svg class="art-svg" viewBox="0 0 140 130" fill="none">
+    <circle cx="70" cy="65" r="48" fill="${c}" fill-opacity="0.06" stroke="${c}" stroke-width="0.5" stroke-opacity="0.2"/>
+    <polygon points="76,18 56,60 70,60 64,105 90,55 74,55" fill="${c}" fill-opacity="0.55" stroke="${c}" stroke-width="1" stroke-linejoin="round"/>
+    <circle cx="28" cy="100" r="14" fill="${c}" fill-opacity="0.12" stroke="${c}" stroke-width="1.2" stroke-opacity="0.5"/>
+    <line x1="28" y1="91" x2="28" y2="100" stroke="${c}" stroke-width="1.5" stroke-linecap="round"/>
+    <line x1="28" y1="100" x2="34" y2="104" stroke="${c}" stroke-width="1.5" stroke-linecap="round"/>
+    <text x="28" y="122" text-anchor="middle" font-family="'Orbitron',monospace" font-size="7" fill="${c}" fill-opacity="0.5">60s</text>
+  </svg>`;
+}
+
+function svgRare2(c) {
+  return `<svg class="art-svg" viewBox="0 0 140 130" fill="none">
+    <circle cx="70" cy="62" r="48" fill="${c}" fill-opacity="0.05" stroke="${c}" stroke-width="0.5" stroke-opacity="0.18"/>
+    <path d="M70,18 L100,28 L100,58 Q100,90 70,105 Q40,90 40,58 L40,28 Z" fill="${c}" fill-opacity="0.14" stroke="${c}" stroke-width="1.5" stroke-linejoin="round" stroke-opacity="0.7"/>
+    <path d="M70,26 L94,34 L94,58 Q94,82 70,95 Q46,82 46,58 L46,34 Z" fill="${c}" fill-opacity="0.1" stroke="${c}" stroke-width="0.8" stroke-linejoin="round" stroke-opacity="0.4"/>
+    <text x="70" y="72" text-anchor="middle" font-family="'Orbitron',monospace" font-size="18" font-weight="900" fill="${c}" fill-opacity="0.9">100%</text>
+  </svg>`;
+}
+
+function svgRare3(c) {
+  return `<svg class="art-svg" viewBox="0 0 140 130" fill="none">
+    <circle cx="70" cy="62" r="48" fill="${c}" fill-opacity="0.05" stroke="${c}" stroke-width="0.5" stroke-opacity="0.18"/>
+    <path d="M70,24 A38,38 0 1,1 38,56" stroke="${c}" stroke-width="3" fill="none" stroke-linecap="round" stroke-opacity="0.8"/>
+    <polygon points="32,44 38,58 48,50" fill="${c}" fill-opacity="0.85"/>
+    <rect x="56" y="68" width="28" height="22" rx="6" fill="${c}" fill-opacity="0.3" stroke="${c}" stroke-width="1" stroke-opacity="0.6"/>
+    <rect x="60" y="62" width="8"  height="10" rx="3" fill="${c}" fill-opacity="0.4" stroke="${c}" stroke-width="0.8"/>
+    <rect x="70" y="60" width="8"  height="12" rx="3" fill="${c}" fill-opacity="0.4" stroke="${c}" stroke-width="0.8"/>
+    <rect x="80" y="63" width="7"  height="9"  rx="3" fill="${c}" fill-opacity="0.4" stroke="${c}" stroke-width="0.8"/>
+  </svg>`;
+}
+
+function svgLegend1(c) {
+  const dots = [];
+  for(let i=0;i<26;i++){
+    const a = (i/26)*Math.PI*2 - Math.PI/2;
+    const r = 46;
+    dots.push(`<circle cx="${(70+Math.cos(a)*r).toFixed(1)}" cy="${(65+Math.sin(a)*r).toFixed(1)}" r="2.2" fill="${c}" fill-opacity="${0.3+((i%4)/4)*0.4}"/>`);
+  }
+  return `<svg class="art-svg" viewBox="0 0 140 130" fill="none">
+    ${dots.join('')}
+    <circle cx="70" cy="65" r="30" fill="${c}" fill-opacity="0.08" stroke="${c}" stroke-width="1" stroke-opacity="0.3"/>
+    <path d="M44,78 L50,50 L62,66 L70,42 L78,66 L90,50 L96,78 Z" fill="${c}" fill-opacity="0.3" stroke="${c}" stroke-width="1.4" stroke-linejoin="round" stroke-opacity="0.8"/>
+    <rect x="44" y="78" width="52" height="8" rx="3" fill="${c}" fill-opacity="0.4" stroke="${c}" stroke-width="0.8" stroke-opacity="0.6"/>
+    <circle cx="70" cy="42" r="4" fill="${c}" opacity="0.85"/>
+    <circle cx="50" cy="50" r="3" fill="${c}" opacity="0.7"/>
+    <circle cx="90" cy="50" r="3" fill="${c}" opacity="0.7"/>
+    <text x="70" y="75" text-anchor="middle" font-family="'Orbitron',monospace" font-size="9" font-weight="900" fill="${c}" fill-opacity="0.7">26</text>
+  </svg>`;
+}
+
+function svgLegend2(c) {
+  return `<svg class="art-svg" viewBox="0 0 140 130" fill="none">
+    <circle cx="70" cy="65" r="48" fill="${c}" fill-opacity="0.05" stroke="${c}" stroke-width="0.5" stroke-opacity="0.18"/>
+    <rect x="42" y="90" width="20" height="14" rx="3" fill="${c}" fill-opacity="0.22" stroke="${c}" stroke-width="1"/>
+    <rect x="66" y="90" width="26" height="14" rx="3" fill="${c}" fill-opacity="0.22" stroke="${c}" stroke-width="1"/>
+    <rect x="46" y="74" width="22" height="14" rx="3" fill="${c}" fill-opacity="0.32" stroke="${c}" stroke-width="1"/>
+    <rect x="72" y="74" width="18" height="14" rx="3" fill="${c}" fill-opacity="0.32" stroke="${c}" stroke-width="1"/>
+    <rect x="52" y="58" width="36" height="14" rx="3" fill="${c}" fill-opacity="0.42" stroke="${c}" stroke-width="1.2"/>
+    <rect x="56" y="43" width="28" height="13" rx="3" fill="${c}" fill-opacity="0.55" stroke="${c}" stroke-width="1.2"/>
+    <rect x="61" y="29" width="18" height="12" rx="3" fill="${c}" fill-opacity="0.7" stroke="${c}" stroke-width="1.4"/>
+    <text x="70" y="39" text-anchor="middle" font-family="'Orbitron',monospace" font-size="8" font-weight="900" fill="${c}" fill-opacity="0.9">10×</text>
+  </svg>`;
+}
+
+function svgLegend3(c) {
+  return `<svg class="art-svg" viewBox="0 0 140 130" fill="none">
+    <circle cx="70" cy="60" r="48" fill="${c}" fill-opacity="0.06" stroke="${c}" stroke-width="0.5" stroke-opacity="0.18"/>
+    <circle cx="70" cy="50" r="22" fill="${c}" fill-opacity="0.14" stroke="${c}" stroke-width="1.5" stroke-opacity="0.5"/>
+    <circle cx="62" cy="46" r="3" fill="${c}" fill-opacity="0.9"/>
+    <circle cx="78" cy="46" r="3" fill="${c}" fill-opacity="0.9"/>
+    <path d="M63,56 Q70,62 77,56" stroke="${c}" stroke-width="2" fill="none" stroke-linecap="round" stroke-opacity="0.8"/>
+    <path d="M50,78 Q46,95 50,105 L70,105 L90,105 Q94,95 90,78 Q84,72 70,70 Q56,72 50,78Z" fill="${c}" fill-opacity="0.18" stroke="${c}" stroke-width="1" stroke-opacity="0.45"/>
+    <circle cx="100" cy="26" r="14" fill="${c}" fill-opacity="0.22" stroke="${c}" stroke-width="1.5" stroke-opacity="0.6"/>
+    <text x="100" y="30" text-anchor="middle" font-family="'Orbitron',monospace" font-size="8" font-weight="900" fill="${c}" fill-opacity="0.9">MAX</text>
+    <line x1="60" y1="28" x2="56" y2="22" stroke="${c}" stroke-width="1.2" stroke-linecap="round" stroke-opacity="0.5"/>
+    <line x1="80" y1="28" x2="84" y2="22" stroke="${c}" stroke-width="1.2" stroke-linecap="round" stroke-opacity="0.5"/>
+    <line x1="70" y1="26" x2="70" y2="18" stroke="${c}" stroke-width="1.2" stroke-linecap="round" stroke-opacity="0.5"/>
+  </svg>`;
+}
+
+function svgLegend4(c) {
+  return `<svg class="art-svg" viewBox="0 0 140 130" fill="none">
+    <circle cx="70" cy="65" r="48" fill="${c}" fill-opacity="0.06" stroke="${c}" stroke-width="0.5" stroke-opacity="0.2"/>
+    <line x1="70" y1="42" x2="70" y2="100" stroke="${c}" stroke-width="5" stroke-linecap="round" stroke-opacity="0.5"/>
+    <rect x="62" y="88" width="16" height="14" rx="4" fill="${c}" fill-opacity="0.45" stroke="${c}" stroke-width="1"/>
+    <path d="M70,16 Q60,24 62,34 Q65,26 70,30 Q75,26 78,34 Q80,24 70,16Z" fill="${c}" fill-opacity="0.85" stroke="${c}" stroke-width="0.5"/>
+    <path d="M70,22 Q67,28 68,32 Q70,28 72,32 Q73,28 70,22Z" fill="#fff" fill-opacity="0.3"/>
+    <line x1="28" y1="65" x2="42" y2="65" stroke="${c}" stroke-width="1.5" stroke-linecap="round" stroke-opacity="0.4"/>
+    <line x1="98" y1="65" x2="112" y2="65" stroke="${c}" stroke-width="1.5" stroke-linecap="round" stroke-opacity="0.4"/>
+    <line x1="36" y1="38" x2="47" y2="49" stroke="${c}" stroke-width="1.5" stroke-linecap="round" stroke-opacity="0.4"/>
+    <line x1="104" y1="38" x2="93"  y2="49" stroke="${c}" stroke-width="1.5" stroke-linecap="round" stroke-opacity="0.4"/>
+    <line x1="36" y1="92" x2="47"  y2="81" stroke="${c}" stroke-width="1.2" stroke-linecap="round" stroke-opacity="0.3"/>
+    <line x1="104" y1="92" x2="93" y2="81" stroke="${c}" stroke-width="1.2" stroke-linecap="round" stroke-opacity="0.3"/>
+    <circle cx="52" cy="40" r="3" fill="${c}" fill-opacity="0.4"/>
+    <circle cx="88" cy="40" r="3" fill="${c}" fill-opacity="0.4"/>
+    <circle cx="44" cy="70" r="2" fill="${c}" fill-opacity="0.3"/>
+    <circle cx="96" cy="70" r="2" fill="${c}" fill-opacity="0.3"/>
+  </svg>`;
+}
+
+function starPts(cx, cy, r1, r2) {
+  let pts = [];
+  for(let i=0;i<10;i++){
+    const a = (i/10)*Math.PI*2 - Math.PI/2;
+    const r = i%2===0 ? r1 : r2;
+    pts.push(`${(cx+Math.cos(a)*r).toFixed(1)},${(cy+Math.sin(a)*r).toFixed(1)}`);
+  }
+  return pts.join(' ');
+}
+
+const exploits = [
+  { id:'E01', tier:'commun', name:'Première lettre lue', desc:'Le voyage commence ici', xp:'+100', pwr:80,  dots:1, svg: c => svgExploit1(c) },
+  { id:'E02', tier:'commun', name:'5 bonnes réponses',   desc:"d'affilée sans erreur",  xp:'+150', pwr:100, dots:1, svg: c => svgExploit2(c) },
+  { id:'E03', tier:'commun', name:'Session complète',    desc:'Bravo, tout accompli !',  xp:'+200', pwr:120, dots:1, svg: c => svgExploit3(c) },
+];
+
+const heros = [
+  { id:'H01', tier:'rare', name:'Lecteur Rapide',  desc:'Terminé en moins de 60s', xp:'+350', pwr:280, dots:2, svg: c => svgRare1(c) },
+  { id:'H02', tier:'rare', name:'Sans Faute',       desc:'Précision absolue 100%',  xp:'+400', pwr:320, dots:2, svg: c => svgRare2(c) },
+  { id:'H03', tier:'rare', name:'Persévérant',      desc:'Recommencé après erreur', xp:'+300', pwr:260, dots:2, svg: c => svgRare3(c) },
+];
+
+const legendes = [
+  { id:'L01', tier:'epic', name:"Maître de l'Alphabet", desc:'26 lettres maîtrisées',    xp:'+1000', pwr:850, dots:3, svg: c => svgLegend1(c) },
+  { id:'L02', tier:'epic', name:'Constructeur',          desc:"10 mots d'affilée",        xp:'+800',  pwr:750, dots:3, svg: c => svgLegend2(c) },
+  { id:'L03', tier:'epic', name:'Compagnon Légendaire',  desc:'Compagnon au niveau max',  xp:'+900',  pwr:800, dots:3, svg: c => svgLegend3(c) },
+  { id:'L04', tier:'epic', name:'Sauveur',               desc:'Mission EDUCA accomplie',  xp:'+1500', pwr:999, dots:3, svg: c => svgLegend4(c) },
+];
+
+const CLR   = { commun: '#a060ff', rare: '#1adfcc', epic: '#ffb830' };
+const LABEL = { commun: 'Exploit', rare: 'Héros',   epic: 'Légende' };
+
+function buildCard(d) {
+  const c = CLR[d.tier];
+  const activeDots = Array.from({length:3},(_,i)=>
+    `<div class="dot ${i < d.dots ? 'dot-on' : 'dot-off'}"></div>`
+  ).join('');
+  return `<div class="card ${d.tier}">
+    <div class="card-glow"></div><div class="corner-tl"></div><div class="corner-br"></div>
+    <div class="card-top"><div class="cat-tag">${LABEL[d.tier]}</div><div class="card-num">${d.id}</div></div>
+    <div class="art-zone">${d.svg(c)}</div>
+    <div class="divider"></div>
+    <div class="card-bottom">
+      <div class="card-name">${d.name}</div>
+      <div class="card-desc">${d.desc}</div>
+      <div class="card-footer">
+        <div class="rarity">${activeDots}</div>
+        <div class="pwr-badge">PWR <span style="color:rgba(255,255,255,0.55)">${d.pwr}</span></div>
+        <div class="xp-badge">XP <span>${d.xp}</span></div>
+      </div>
+    </div>
+  </div>`;
+}
+
+document.getElementById('grid-exploits').innerHTML = exploits.map(buildCard).join('');
+document.getElementById('grid-heros').innerHTML    = heros.map(buildCard).join('');
+document.getElementById('grid-legendes').innerHTML = legendes.map(buildCard).join('');
+</script>
+</body>
+</html>

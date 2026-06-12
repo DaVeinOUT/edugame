@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EDUCA — Apprendre en Jouant</title>
+  <meta name="description" content="EDUCA — Une école complète dans la poche. Apprendre à lire en jouant, gratuitement, pour chaque enfant du monde.">
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#7C3AED">
+  <link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="icons/icon-192.png">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="EDUCA">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&family=Orbitron:wght@700;900&family=Rajdhani:wght@500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/educa.css">
+  <link rel="stylesheet" href="css/game.css">
+</head>
+<body>
+<div id="app">
+
+  <!-- ═══════════════════════════════════════
+       OVERLAY : RÉVÉLATION DE CARTE
+  ════════════════════════════════════════ -->
+  <div id="cardOverlay" class="card-overlay hidden">
+    <p id="cardOverlayTitle" style="font-size:1.1rem;font-weight:700;opacity:0.85;font-family:'Orbitron',monospace;letter-spacing:0.1em;">Nouvelle carte</p>
+    <div class="card-wrap" role="button" tabindex="0"
+         aria-label="Retourner la carte" onclick="educa.flipCard()">
+      <div class="card-inner" id="cardInner">
+        <div class="card-face card-back">
+          <div class="card-back-logo">E</div>
+          <div class="card-back-text">EDUCA</div>
+        </div>
+        <div class="card-face card-front" id="cardFront"></div>
+      </div>
+    </div>
+    <p class="card-hint" id="cardHint">Appuie pour révéler</p>
+    <button class="btn btn-secondary" id="cardContinueBtn"
+            style="display:none;" onclick="educa.closeCard()">
+      Continuer
+    </button>
+  </div>
+
+  <!-- ═══════════════════════════════════════
+       ÉCRAN : ONBOARDING
+  ════════════════════════════════════════ -->
+  <div class="screen" id="screenOnboard">
+
+    <!-- Étape 1 : Prénom + Âge -->
+    <div class="onboard-step active" id="step1">
+      <div style="height:1rem;"></div>
+      <div class="companion-stage">
+        <div class="companion-placeholder" id="kayaOnboard">
+          <!-- Remplacer par modèle 3D Kaya -->
+        </div>
+      </div>
+      <div class="speech-bubble" onclick="educa.speakBubble(this)">
+        Salut ! Je suis <strong>Kaya</strong>, ton compagnon jaguar.<br>
+        Comment tu t'appelles ?
+      </div>
+      <input class="input" id="inputName" type="text"
+             placeholder="Ton prénom (ou laisse vide)" maxlength="20"
+             enterkeyhint="done" autocomplete="off"
+             aria-label="Ton prénom, facultatif" />
+      <p class="h3 text-center mt-2">Quel âge tu as ?</p>
+      <div class="choice-grid">
+        <button class="choice-btn" data-age="4-6" data-say="4 à 6 ans"
+                onclick="educa.selectAge('4-6',this)">
+          <span class="choice-icon">👶</span>
+          <span class="choice-label">4 – 6 ans</span>
+        </button>
+        <button class="choice-btn" data-age="7-9" data-say="7 à 9 ans"
+                onclick="educa.selectAge('7-9',this)">
+          <span class="choice-icon">🧒</span>
+          <span class="choice-label">7 – 9 ans</span>
+        </button>
+        <button class="choice-btn" data-age="10-12" data-say="10 à 12 ans"
+                onclick="educa.selectAge('10-12',this)">
+          <span class="choice-icon">🧑</span>
+          <span class="choice-label">10 – 12 ans</span>
+        </button>
+      </div>
+      <button class="btn btn-primary" onclick="educa.goStep2()">Suivant →</button>
+    </div>
+
+    <!-- Étape 2 : Univers -->
+    <div class="onboard-step" id="step2">
+      <div style="height:1rem;"></div>
+      <div class="companion-stage">
+        <div class="companion-placeholder"></div>
+      </div>
+      <div class="speech-bubble" id="bubble2" onclick="educa.speakBubble(this)">
+        Dans quel monde veux-tu apprendre ?
+      </div>
+      <div class="choice-grid">
+        <button class="choice-btn" data-universe="jungle" data-say="La jungle !"
+                onclick="educa.selectUniverse('jungle',this)">
+          <span class="choice-icon">🌴</span>
+          <span class="choice-label">Jungle</span>
+        </button>
+        <button class="choice-btn" data-universe="space" data-say="L'espace !"
+                onclick="educa.selectUniverse('space',this)">
+          <span class="choice-icon">🚀</span>
+          <span class="choice-label">Espace</span>
+        </button>
+        <button class="choice-btn" data-universe="ocean" data-say="L'océan !"
+                onclick="educa.selectUniverse('ocean',this)">
+          <span class="choice-icon">🌊</span>
+          <span class="choice-label">Océan</span>
+        </button>
+      </div>
+      <div class="row" style="justify-content:center;gap:1rem;">
+        <button class="btn btn-ghost" onclick="educa._showStep('step1')">← Retour</button>
+        <button class="btn btn-primary" onclick="educa.goStep3()">Suivant →</button>
+      </div>
+    </div>
+
+    <!-- Étape 3 : Confirmation -->
+    <div class="onboard-step" id="step3">
+      <div style="height:2rem;"></div>
+      <div class="companion-stage">
+        <div class="companion-placeholder" style="box-shadow:0 0 60px rgba(245,158,11,0.5)"></div>
+      </div>
+      <div class="speech-bubble" id="bubble3" onclick="educa.speakBubble(this)">
+        Je suis prêt à apprendre avec toi !<br>
+        Ensemble on va tout déchirer !
+      </div>
+      <div style="height:1rem;"></div>
+      <button class="btn btn-secondary" style="font-size:1.2rem;padding:1rem 2.5rem;"
+              onclick="educa.finishOnboard()">
+        C'est parti
+      </button>
+      <button class="btn btn-ghost btn-sm mt-2 text-center"
+              onclick="educa._showStep('step2')">← Retour</button>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════
+       ÉCRAN : HUB
+  ════════════════════════════════════════ -->
+  <div class="screen" id="screenHub">
+    <div class="hub-header">
+      <div class="hub-companion-wrap">
+        <div class="hub-companion-img">
+          <!-- Remplacer par modèle 3D Kaya miniature -->
+        </div>
+      </div>
+      <div class="hub-info">
+        <div class="hub-name" id="hubName">Joueur</div>
+        <div class="hub-rank" id="hubRank">Commun · 0 XP</div>
+        <div class="hub-xp-track">
+          <div class="hub-xp-fill" id="hubXpFill" style="width:0%"></div>
+        </div>
+      </div>
+      <div class="hub-collection-btn" role="button" tabindex="0"
+           aria-label="Ma collection de cartes" onclick="educa.showCollection()"
+           title="Ma collection">
+        <span class="hub-coll-label">Cartes</span>
+        <span style="font-size:0.65rem;opacity:0.7;" id="hubCardCount">0/36</span>
+      </div>
+    </div>
+
+    <p class="h2 text-center mb-2">Choisis ton aventure</p>
+
+    <div class="minigame-grid">
+      <div class="minigame-card" role="button" tabindex="0"
+           aria-label="Les Lettres — reconnais les lettres de l'alphabet"
+           onclick="lettersGame.showDifficulty()">
+        <span class="minigame-icon">Aa</span>
+        <div class="minigame-title">Les Lettres</div>
+        <div class="minigame-desc">Reconnais les lettres de l'alphabet</div>
+        <span class="badge badge-common">Lecture</span>
+      </div>
+      <div class="minigame-card" role="button" tabindex="0"
+           aria-label="Le Constructeur — construis les mots avec des tuiles"
+           onclick="builderGame.start()">
+        <span class="minigame-icon minigame-icon-builder">
+          <span></span><span></span><span></span>
+        </span>
+        <div class="minigame-title">Constructeur</div>
+        <div class="minigame-desc">Lis les mots pour construire ton monde</div>
+        <span class="badge badge-rare">Écriture</span>
+      </div>
+    </div>
+
+    <div class="row" style="justify-content:center;gap:0.8rem;margin-top:0.5rem;">
+      <button class="btn btn-ghost btn-sm" onclick="lettersGame.showStats()">
+        Stats
+      </button>
+      <button class="btn btn-ghost btn-sm" onclick="educa.showCollection()">
+        Collection
+      </button>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════
+       ÉCRAN : CHOIX DIFFICULTÉ
+  ════════════════════════════════════════ -->
+  <div class="screen" id="screenDifficulty">
+    <p class="h2 text-center mb-2 mt-2">Choisis ton niveau</p>
+    <div class="diff-grid">
+      <div class="diff-card" data-level="easy" role="button" tabindex="0"
+           aria-label="Niveau Explorateur" onclick="lettersGame.start('easy')">
+        <div class="diff-icon">🐣</div>
+        <div class="diff-title">Explorateur</div>
+        <div class="diff-desc">Lettres majuscules<br>Parfait pour commencer</div>
+      </div>
+      <div class="diff-card" data-level="medium" role="button" tabindex="0"
+           aria-label="Niveau Aventurier" onclick="lettersGame.start('medium')">
+        <div class="diff-icon">🦜</div>
+        <div class="diff-title">Aventurier</div>
+        <div class="diff-desc">Lettres minuscules<br>Un peu plus difficile</div>
+      </div>
+      <div class="diff-card" data-level="hard" role="button" tabindex="0"
+           aria-label="Niveau Expert" onclick="lettersGame.start('hard')">
+        <div class="diff-icon">⚡</div>
+        <div class="diff-title">Expert</div>
+        <div class="diff-desc">Écoute et trouve la lettre<br>Avec chrono</div>
+      </div>
+      <div class="diff-card" data-level="master" role="button" tabindex="0"
+           aria-label="Niveau Maître" onclick="lettersGame.start('master')">
+        <div class="diff-icon">👑</div>
+        <div class="diff-title">Maitre</div>
+        <div class="diff-desc">L'alphabet dans l'ordre<br>Le défi ultime</div>
+      </div>
+    </div>
+    <button class="btn btn-ghost btn-sm" style="margin:1rem auto;display:block;"
+            onclick="educa.showHub()">← Hub</button>
+  </div>
+
+  <!-- ═══════════════════════════════════════
+       ÉCRAN : JEU LETTRES
+  ════════════════════════════════════════ -->
+  <div class="screen" id="screenGame">
+    <div class="game-topbar">
+      <span class="game-topbar-title" id="gameTitle">Explorateur</span>
+      <div class="timer-badge" id="timerBadge" style="display:none;">15s</div>
+      <div class="game-score"  id="gameScore">0 pts</div>
+    </div>
+
+    <div class="target-zone">
+      <div class="target-label" id="targetLabel">Trouve la même lettre</div>
+      <button class="speak-btn" type="button" onclick="lettersGame.replay()"
+              aria-label="Réécouter la lettre">🔊</button>
+      <div id="targetLetter" class="target-letter"
+           onclick="lettersGame.replay()">
+        ?
+      </div>
+      <div class="letter-word-hint" id="wordHint"></div>
+    </div>
+
+    <div class="options-grid" id="optionsGrid"></div>
+
+    <div id="feedbackToast" class="feedback-toast hidden"></div>
+
+    <div style="margin-top:auto;">
+      <div class="row" style="justify-content:space-between;margin-bottom:0.4rem;">
+        <span class="muted" id="progressText">0/26</span>
+        <button class="btn btn-ghost btn-sm" onclick="lettersGame.quit()">← Hub</button>
+      </div>
+      <div class="progress-track">
+        <div class="progress-fill" id="progressFill" style="width:0%"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════
+       ÉCRAN : CONSTRUCTEUR
+  ════════════════════════════════════════ -->
+  <div class="screen" id="screenBuilder">
+    <div class="game-topbar">
+      <span class="game-topbar-title">Constructeur</span>
+      <div class="game-score" id="builderScore">0 pts</div>
+    </div>
+
+    <div class="builder-word-display" id="builderWordDisplay" role="button" tabindex="0"
+         aria-label="Écouter le mot" onclick="builderGame.replayWord()">—</div>
+
+    <div class="builder-slots" id="builderSlots"></div>
+    <div class="builder-bank" id="builderBank"></div>
+
+    <div id="builderFeedback" class="feedback-toast hidden" style="margin-top:0.5rem;"></div>
+
+    <div class="builder-world" id="builderWorld"></div>
+
+    <div style="margin-top:auto;padding-top:0.8rem;">
+      <div class="row" style="justify-content:space-between;margin-bottom:0.4rem;">
+        <span class="muted" id="builderProgressText">0/10</span>
+        <button class="btn btn-ghost btn-sm" onclick="builderGame.quit()">← Hub</button>
+      </div>
+      <div class="progress-track">
+        <div class="progress-fill" id="builderProgressFill" style="width:0%"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════
+       ÉCRAN : RÉSULTATS
+  ════════════════════════════════════════ -->
+  <div class="screen" id="screenResults">
+    <div style="height:1.5rem;"></div>
+    <p class="h1 text-center" id="resultTitle">Bravo !</p>
+
+    <div class="results-stars">
+      <span class="results-star">★</span>
+      <span class="results-star">★</span>
+      <span class="results-star">★</span>
+    </div>
+
+    <div class="results-stats">
+      <div class="stat-box">
+        <div class="stat-val" id="resFinalScore">0</div>
+        <div class="stat-label">Points</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-val" id="resCorrect">0</div>
+        <div class="stat-label">Réponses</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-val" id="resTotalTime">0s</div>
+        <div class="stat-label">Temps</div>
+      </div>
+    </div>
+
+    <div class="col gap-2 mt-3">
+      <button class="btn btn-secondary" id="reviewBtn" style="display:none;"
+              onclick="lettersGame.startReview()">🔁 Revoir mes erreurs</button>
+      <button class="btn btn-primary" onclick="educa.showHub()">Retour au Hub</button>
+      <button class="btn btn-ghost btn-sm" onclick="educa.showDifficulty()">Rejouer</button>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════
+       ÉCRAN : STATS
+  ════════════════════════════════════════ -->
+  <div class="screen" id="screenStats">
+    <p class="h2 text-center mt-2 mb-2">Mes Stats</p>
+    <div class="results-stats" style="grid-template-columns:1fr 1fr;">
+      <div class="stat-box">
+        <div class="stat-val" id="statGames">0</div>
+        <div class="stat-label">Parties</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-val" id="statBest">0</div>
+        <div class="stat-label">Meilleur score</div>
+      </div>
+      <div class="stat-box" style="grid-column:1/-1;">
+        <div class="stat-val" id="statLetters">0</div>
+        <div class="stat-label">Lettres apprises</div>
+      </div>
+    </div>
+    <p class="h3 text-center mt-3 mb-1">🔊 La voix de Kaya</p>
+    <p class="muted text-center mb-1" style="font-size:0.8rem;">
+      Touche une voix pour l'écouter et la choisir
+    </p>
+    <div id="voiceList" class="col gap-1" style="max-height:32vh;overflow-y:auto;"></div>
+    <button class="btn btn-ghost btn-sm" style="margin:1.5rem auto;display:block;"
+            onclick="educa.showHub()">← Hub</button>
+  </div>
+
+  <!-- ═══════════════════════════════════════
+       ÉCRAN : COLLECTION
+  ════════════════════════════════════════ -->
+  <div class="screen" id="screenCollection">
+    <p class="h2 text-center mt-2">Ma Collection</p>
+    <p class="muted text-center mb-2" id="collectionCount"></p>
+    <div class="collection-grid" id="collectionGrid"></div>
+    <button class="btn btn-ghost btn-sm" style="margin:1rem auto;display:block;"
+            onclick="educa.showHub()">← Hub</button>
+  </div>
+
+</div><!-- #app -->
+
+<div id="flashToast" class="flash-toast" role="status"></div>
+
+<!-- Scripts -->
+<script src="js/audio.js"></script>
+<script src="js/kaya.js"></script>
+<script src="js/card3d.js"></script>
+<script src="js/cards.js"></script>
+<script src="js/educa.js"></script>
+<script src="js/letters.js"></script>
+<script src="js/builder.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    educa       = new Educa();
+    lettersGame = new LettersGame();
+    builderGame = new BuilderGame();
+    educa.start();
+    document.getElementById('inputName').addEventListener('keydown', e => {
+      if (e.key === 'Enter') educa.goStep2();
+    });
+    // Les cartes cliquables (role="button") s'activent aussi au clavier
+    document.addEventListener('keydown', e => {
+      if ((e.key === 'Enter' || e.key === ' ') && e.target.matches?.('[role="button"]')) {
+        e.preventDefault();
+        e.target.click();
+      }
+    });
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('sw.js');
+    }
+  });
+</script>
+</body>
+</html>

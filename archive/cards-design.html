@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EDUCA — 26 Cartes Lettres</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Rajdhani:wght@500;700&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: #080810; font-family: 'Rajdhani', sans-serif; padding: 40px; min-height: 100vh; }
+  h1 { color: rgba(255,255,255,0.15); font-family: 'Orbitron', monospace; font-size: 11px; letter-spacing: 0.3em; text-transform: uppercase; text-align: center; margin-bottom: 40px; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, 200px); gap: 28px; justify-content: center; }
+  .card { width: 200px; height: 280px; border-radius: 18px; position: relative; overflow: hidden; display: flex; flex-direction: column; cursor: pointer; transition: transform 0.25s ease, box-shadow 0.25s ease; page-break-inside: avoid; }
+  .card:hover { transform: translateY(-10px) rotate(-1deg) scale(1.04); z-index: 10; }
+  .theme-blue   { background: linear-gradient(160deg, #060d1f 0%, #0a1530 100%); border: 1.5px solid #2a5fc0; }
+  .theme-teal   { background: linear-gradient(160deg, #060f0e 0%, #0a1e1c 100%); border: 1.5px solid #0f7a6a; }
+  .theme-purple { background: linear-gradient(160deg, #0e060f 0%, #1a0d1e 100%); border: 1.5px solid #7030b0; }
+  .theme-red    { background: linear-gradient(160deg, #0f0606 0%, #1e0a0a 100%); border: 1.5px solid #b02030; }
+  .theme-amber  { background: linear-gradient(160deg, #0f0c04 0%, #1e1608 100%); border: 1.5px solid #b07010; }
+  .theme-green  { background: linear-gradient(160deg, #060f06 0%, #0a1e0a 100%); border: 1.5px solid #207a20; }
+  .card-glow { position: absolute; inset: 0; pointer-events: none; border-radius: inherit; }
+  .theme-blue   .card-glow { box-shadow: inset 0 0 40px rgba(42,95,192,0.2); }
+  .theme-teal   .card-glow { box-shadow: inset 0 0 40px rgba(15,122,106,0.2); }
+  .theme-purple .card-glow { box-shadow: inset 0 0 40px rgba(112,48,176,0.2); }
+  .theme-red    .card-glow { box-shadow: inset 0 0 40px rgba(176,32,48,0.2); }
+  .theme-amber  .card-glow { box-shadow: inset 0 0 40px rgba(176,112,16,0.2); }
+  .theme-green  .card-glow { box-shadow: inset 0 0 40px rgba(32,122,32,0.2); }
+  .card-top { display: flex; justify-content: space-between; align-items: center; padding: 10px 12px 0; }
+  .cat-tag { font-family: 'Orbitron', monospace; font-size: 7px; font-weight: 700; letter-spacing: 0.15em; text-transform: uppercase; padding: 3px 8px; border-radius: 20px; }
+  .theme-blue   .cat-tag { background: rgba(42,95,192,0.3); color: #6aabff; border: 0.5px solid rgba(42,95,192,0.5); }
+  .theme-teal   .cat-tag { background: rgba(15,122,106,0.3); color: #4addc8; border: 0.5px solid rgba(15,122,106,0.5); }
+  .theme-purple .cat-tag { background: rgba(112,48,176,0.3); color: #b87aff; border: 0.5px solid rgba(112,48,176,0.5); }
+  .theme-red    .cat-tag { background: rgba(176,32,48,0.3);  color: #ff7a8a; border: 0.5px solid rgba(176,32,48,0.5); }
+  .theme-amber  .cat-tag { background: rgba(176,112,16,0.3); color: #ffcc5a; border: 0.5px solid rgba(176,112,16,0.5); }
+  .theme-green  .cat-tag { background: rgba(32,122,32,0.3);  color: #6adf6a; border: 0.5px solid rgba(32,122,32,0.5); }
+  .card-num { font-family: 'Orbitron', monospace; font-size: 8px; font-weight: 700; color: rgba(255,255,255,0.25); }
+  .art-zone { flex: 1; display: flex; align-items: center; justify-content: center; position: relative; }
+  .letter-svg { width: 140px; height: 130px; }
+  .art-placeholder { position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%); font-size: 8px; color: rgba(255,255,255,0.15); letter-spacing: 0.1em; text-transform: uppercase; white-space: nowrap; font-family: 'Orbitron', monospace; }
+  .divider { height: 0.5px; margin: 0 12px; opacity: 0.25; }
+  .theme-blue   .divider { background: #2a5fc0; }
+  .theme-teal   .divider { background: #0f7a6a; }
+  .theme-purple .divider { background: #7030b0; }
+  .theme-red    .divider { background: #b02030; }
+  .theme-amber  .divider { background: #b07010; }
+  .theme-green  .divider { background: #207a20; }
+  .card-bottom { padding: 8px 12px 10px; }
+  .letter-name { font-family: 'Orbitron', monospace; font-size: 15px; font-weight: 900; color: #fff; letter-spacing: 0.05em; line-height: 1.1; }
+  .letter-word { font-size: 11px; font-weight: 500; color: rgba(255,255,255,0.45); margin-top: 2px; letter-spacing: 0.05em; }
+  .card-footer { display: flex; align-items: center; justify-content: space-between; margin-top: 8px; }
+  .rarity { display: flex; gap: 4px; align-items: center; }
+  .dot { width: 7px; height: 7px; border-radius: 50%; }
+  .dot-active-blue { background: #4a90ff; } .dot-active-teal { background: #1adfcc; }
+  .dot-active-purple { background: #a060ff; } .dot-active-red { background: #ff5060; }
+  .dot-active-amber { background: #ffb830; } .dot-active-green { background: #40c840; }
+  .dot-off { background: rgba(255,255,255,0.12); }
+  .xp-badge { font-family: 'Orbitron', monospace; font-size: 8px; font-weight: 700; color: rgba(255,255,255,0.3); }
+  .xp-badge span { color: rgba(255,255,255,0.65); }
+  .pwr-badge { font-family: 'Orbitron', monospace; font-size: 8px; font-weight: 700; color: rgba(255,255,255,0.25); }
+  .corner-tl, .corner-br { position: absolute; width: 14px; height: 14px; pointer-events: none; }
+  .corner-tl { top: 6px; left: 6px; border-top: 1.5px solid; border-left: 1.5px solid; border-radius: 4px 0 0 0; }
+  .corner-br { bottom: 6px; right: 6px; border-bottom: 1.5px solid; border-right: 1.5px solid; border-radius: 0 0 4px 0; }
+  .theme-blue   .corner-tl, .theme-blue   .corner-br { border-color: rgba(74,144,255,0.5); }
+  .theme-teal   .corner-tl, .theme-teal   .corner-br { border-color: rgba(26,223,204,0.5); }
+  .theme-purple .corner-tl, .theme-purple .corner-br { border-color: rgba(160,96,255,0.5); }
+  .theme-red    .corner-tl, .theme-red    .corner-br { border-color: rgba(255,80,96,0.5); }
+  .theme-amber  .corner-tl, .theme-amber  .corner-br { border-color: rgba(255,184,48,0.5); }
+  .theme-green  .corner-tl, .theme-green  .corner-br { border-color: rgba(64,200,64,0.5); }
+  .print-btn { display: block; margin: 40px auto 20px; padding: 12px 32px; background: transparent; border: 1px solid rgba(255,255,255,0.2); color: rgba(255,255,255,0.5); font-family: 'Orbitron', monospace; font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase; cursor: pointer; border-radius: 4px; transition: all 0.2s; }
+  .print-btn:hover { border-color: rgba(255,255,255,0.5); color: rgba(255,255,255,0.8); }
+  @media print { body { background: #080810; padding: 10px; -webkit-print-color-adjust: exact; print-color-adjust: exact; } .grid { gap: 16px; } .print-btn { display: none; } .card { break-inside: avoid; } }
+</style>
+</head>
+<body>
+<h1>EDUCA · Collection Alphabet · 26/26</h1>
+<div class="grid" id="grid"></div>
+<button class="print-btn" onclick="window.print()">Imprimer les cartes</button>
+<script>
+const letters = [
+  { l:'A', w:'Araignée',  n:'01', theme:'blue',   clr:'#4a90ff', pw:40  },
+  { l:'B', w:'Bouclier',  n:'02', theme:'purple', clr:'#a060ff', pw:45  },
+  { l:'C', w:'Cristal',   n:'03', theme:'teal',   clr:'#1adfcc', pw:42  },
+  { l:'D', w:'Dragon',    n:'04', theme:'red',    clr:'#ff5060', pw:55  },
+  { l:'E', w:'Éclair',    n:'05', theme:'amber',  clr:'#ffb830', pw:48  },
+  { l:'F', w:'Foudre',    n:'06', theme:'green',  clr:'#40c840', pw:50  },
+  { l:'G', w:'Gardien',   n:'07', theme:'blue',   clr:'#4a90ff', pw:52  },
+  { l:'H', w:'Héros',     n:'08', theme:'purple', clr:'#a060ff', pw:58  },
+  { l:'I', w:'Infini',    n:'09', theme:'teal',   clr:'#1adfcc', pw:44  },
+  { l:'J', w:'Joyau',     n:'10', theme:'amber',  clr:'#ffb830', pw:46  },
+  { l:'K', w:'Kaijū',     n:'11', theme:'red',    clr:'#ff5060', pw:60  },
+  { l:'L', w:'Lame',      n:'12', theme:'green',  clr:'#40c840', pw:53  },
+  { l:'M', w:'Météore',   n:'13', theme:'blue',   clr:'#4a90ff', pw:57  },
+  { l:'N', w:'Nébuleuse', n:'14', theme:'purple', clr:'#a060ff', pw:49  },
+  { l:'O', w:'Orbital',   n:'15', theme:'teal',   clr:'#1adfcc', pw:43  },
+  { l:'P', w:'Phénix',    n:'16', theme:'red',    clr:'#ff5060', pw:62  },
+  { l:'Q', w:'Quantum',   n:'17', theme:'amber',  clr:'#ffb830', pw:47  },
+  { l:'R', w:'Rune',      n:'18', theme:'green',  clr:'#40c840', pw:54  },
+  { l:'S', w:'Spectre',   n:'19', theme:'blue',   clr:'#4a90ff', pw:56  },
+  { l:'T', w:'Titan',     n:'20', theme:'purple', clr:'#a060ff', pw:61  },
+  { l:'U', w:'Ultime',    n:'21', theme:'teal',   clr:'#1adfcc', pw:51  },
+  { l:'V', w:'Vortex',    n:'22', theme:'red',    clr:'#ff5060', pw:59  },
+  { l:'W', w:'Wraith',    n:'23', theme:'amber',  clr:'#ffb830', pw:63  },
+  { l:'X', w:'Xenon',     n:'24', theme:'green',  clr:'#40c840', pw:64  },
+  { l:'Y', w:'Yggdrasil', n:'25', theme:'blue',   clr:'#4a90ff', pw:65  },
+  { l:'Z', w:'Zénith',    n:'26', theme:'purple', clr:'#a060ff', pw:70  },
+];
+function makeRunes(clr) {
+  const dots = [];
+  for(let i=0;i<6;i++){
+    const angle = (i/6)*Math.PI*2 - Math.PI/2;
+    const r = 54, x = 70 + Math.cos(angle)*r, y = 65 + Math.sin(angle)*r;
+    dots.push(`<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="2" fill="${clr}" opacity="0.35"/>`);
+  }
+  return dots.join('');
+}
+function makeCard(d) {
+  const activeDot = `dot-active-${d.theme}`;
+  return `<div class="card theme-${d.theme}">
+    <div class="card-glow"></div><div class="corner-tl"></div><div class="corner-br"></div>
+    <div class="card-top"><div class="cat-tag">Lettre</div><div class="card-num">${d.n}/26</div></div>
+    <div class="art-zone">
+      <svg class="letter-svg" viewBox="0 0 140 130" fill="none">
+        <circle cx="70" cy="65" r="50" fill="${d.clr}" fill-opacity="0.06" stroke="${d.clr}" stroke-width="0.5" stroke-opacity="0.25"/>
+        <circle cx="70" cy="65" r="38" fill="${d.clr}" fill-opacity="0.04" stroke="${d.clr}" stroke-width="0.5" stroke-opacity="0.15"/>
+        ${makeRunes(d.clr)}
+        <text x="70" y="95" text-anchor="middle" font-size="80" font-weight="900" font-family="'Orbitron',monospace" fill="${d.clr}" fill-opacity="0.9" filter="url(#glow-${d.n})">${d.l}</text>
+        <defs><filter id="glow-${d.n}" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="3" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>
+        <line x1="70" y1="8" x2="70" y2="16" stroke="${d.clr}" stroke-width="1.5" stroke-linecap="round" opacity="0.5"/>
+        <line x1="70" y1="114" x2="70" y2="122" stroke="${d.clr}" stroke-width="1.5" stroke-linecap="round" opacity="0.5"/>
+        <line x1="12" y1="65" x2="20" y2="65" stroke="${d.clr}" stroke-width="1.5" stroke-linecap="round" opacity="0.5"/>
+        <line x1="120" y1="65" x2="128" y2="65" stroke="${d.clr}" stroke-width="1.5" stroke-linecap="round" opacity="0.5"/>
+      </svg>
+      <div class="art-placeholder">· zone illustration ·</div>
+    </div>
+    <div class="divider"></div>
+    <div class="card-bottom">
+      <div class="letter-name">${d.l} — ${d.w}</div>
+      <div class="letter-word">Alphabet · Niveau ${parseInt(d.n)}/26</div>
+      <div class="card-footer">
+        <div class="rarity"><div class="dot ${activeDot}"></div><div class="dot dot-off"></div><div class="dot dot-off"></div></div>
+        <div class="pwr-badge">PWR <span style="color:rgba(255,255,255,0.55)">${d.pw}</span></div>
+        <div class="xp-badge">XP <span>+50</span></div>
+      </div>
+    </div>
+  </div>`;
+}
+document.getElementById('grid').innerHTML = letters.map(makeCard).join('');
+</script>
+</body>
+</html>

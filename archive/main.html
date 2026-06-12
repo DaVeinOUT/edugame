@@ -3,7 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mission Lecture : Max apprend l'Alphabet</title>
+    <title>EDUCA - Apprendre en Jouant</title>
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#4A90E2">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-title" content="EDUCA">
     <style>
         /* === POLICES ET VARIABLES CSS === */
         @import url('https://fonts.googleapis.com/css2?family=OpenDyslexic:wght@400;700&display=swap');
@@ -680,6 +684,134 @@
                 backdrop-filter: blur(10px);
             }
         }
+
+        /* === EDUCA : THEMES D'UNIVERS === */
+        body.universe-jungle { --bg-1: #1a4a2e; --bg-2: #2d6a4f; --accent: #52b788; }
+        body.universe-space  { --bg-1: #0d1b2a; --bg-2: #1b263b; --accent: #778da9; }
+        body.universe-ocean  { --bg-1: #03045e; --bg-2: #0077b6; --accent: #90e0ef; }
+        body.universe-jungle { --background-gradient: linear-gradient(135deg, #1a4a2e 0%, #2d6a4f 100%); --text-color: #fff; }
+        body.universe-space  { --background-gradient: linear-gradient(135deg, #0d1b2a 0%, #1b263b 100%); --text-color: #fff; }
+        body.universe-ocean  { --background-gradient: linear-gradient(135deg, #03045e 0%, #0077b6 100%); --text-color: #fff; }
+        body.universe-jungle .screen, body.universe-space .screen, body.universe-ocean .screen {
+            background: rgba(255,255,255,0.12); color: #fff; backdrop-filter: blur(10px);
+        }
+
+        /* === EDUCA : ONBOARDING === */
+        .companion-bubble {
+            background: white; border-radius: 20px; padding: 1.2rem 1.5rem;
+            margin: 1rem auto; max-width: 360px; box-shadow: var(--card-shadow);
+            font-size: 1.2rem; line-height: 1.5; position: relative; color: #2C3E50;
+        }
+        .companion-bubble::after {
+            content: ''; position: absolute; bottom: -12px; left: 40px;
+            border: 12px solid transparent; border-top-color: white; border-bottom: none;
+        }
+        .companion-display {
+            font-size: 5rem; text-align: center; margin: 0.5rem 0;
+            animation: companionFloat 3s ease-in-out infinite;
+        }
+        @keyframes companionFloat {
+            0%,100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        .name-input {
+            font-size: 1.3rem; padding: 0.8rem 1.2rem; border: 3px solid var(--primary-color);
+            border-radius: 15px; width: 100%; max-width: 280px; text-align: center;
+            font-family: inherit; outline: none; margin: 0.5rem 0;
+        }
+        .name-input:focus { box-shadow: 0 0 0 3px rgba(74,144,226,0.3); }
+        .age-grid { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; margin: 1rem 0; }
+        .age-btn { background: white; border: 3px solid var(--primary-color); border-radius: 15px;
+            padding: 1rem 1.5rem; font-size: 1.1rem; font-weight: bold; cursor: pointer;
+            transition: all 0.3s; font-family: inherit; color: var(--primary-color); }
+        .age-btn:hover, .age-btn.selected { background: var(--primary-color); color: white; transform: scale(1.05); }
+        .companion-grid { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; margin: 1rem 0; }
+        .companion-card {
+            background: white; border: 3px solid transparent; border-radius: 20px;
+            padding: 1.2rem; cursor: pointer; transition: all 0.3s; text-align: center;
+            min-width: 110px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        .companion-card:hover, .companion-card.selected {
+            border-color: var(--primary-color); transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(74,144,226,0.3);
+        }
+        .companion-emoji { font-size: 2.8rem; display: block; margin-bottom: 0.4rem; }
+        .companion-name { font-weight: bold; font-size: 0.95rem; color: var(--primary-color); }
+        .universe-grid { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; margin: 1rem 0; }
+        .universe-card {
+            border: 3px solid transparent; border-radius: 20px; padding: 1rem;
+            cursor: pointer; transition: all 0.3s; text-align: center; min-width: 100px;
+            font-family: inherit; font-size: 1rem; font-weight: bold;
+        }
+        .universe-jungle { background: linear-gradient(135deg,#1a4a2e,#52b788); color: white; }
+        .universe-space  { background: linear-gradient(135deg,#0d1b2a,#778da9); color: white; }
+        .universe-ocean  { background: linear-gradient(135deg,#03045e,#90e0ef); color: #0d1b2a; }
+        .universe-card:hover, .universe-card.selected { border-color: var(--secondary-color); transform: scale(1.08); }
+        .universe-icon { font-size: 2.5rem; display: block; margin-bottom: 0.3rem; }
+
+        /* === EDUCA : HUB === */
+        .hub-header {
+            display: flex; align-items: center; gap: 1rem; background: rgba(255,255,255,0.15);
+            border-radius: 20px; padding: 1rem 1.5rem; margin-bottom: 1.5rem;
+            box-shadow: var(--card-shadow);
+        }
+        .hub-companion { font-size: 3rem; animation: companionFloat 3s ease-in-out infinite; }
+        .hub-info { flex: 1; }
+        .hub-player-name { font-size: 1.3rem; font-weight: bold; }
+        .hub-xp-bar { height: 10px; background: rgba(255,255,255,0.3); border-radius: 10px; margin-top: 0.4rem; overflow: hidden; }
+        .hub-xp-fill { height: 100%; background: var(--secondary-color); border-radius: 10px; transition: width 0.8s ease; }
+        .hub-rank { font-size: 0.9rem; opacity: 0.85; margin-top: 0.3rem; }
+        .minigame-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1.2rem; margin: 1.2rem 0; }
+        .minigame-card {
+            background: rgba(255,255,255,0.15); border: 2px solid rgba(255,255,255,0.3);
+            border-radius: 20px; padding: 1.5rem 1rem; cursor: pointer; text-align: center;
+            transition: all 0.3s; backdrop-filter: blur(5px);
+        }
+        .minigame-card:hover { transform: translateY(-6px); background: rgba(255,255,255,0.25); border-color: var(--secondary-color); }
+        .minigame-icon { font-size: 3rem; display: block; margin-bottom: 0.5rem; }
+        .minigame-title { font-weight: bold; font-size: 1rem; }
+        .minigame-desc { font-size: 0.85rem; opacity: 0.8; margin-top: 0.3rem; }
+        .hub-bottom { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; margin-top: 1rem; }
+
+        /* === EDUCA : CARTES === */
+        .card-reveal-overlay {
+            position: fixed; inset: 0; background: rgba(0,0,0,0.85);
+            display: flex; align-items: center; justify-content: center;
+            z-index: 9999; flex-direction: column; gap: 1.5rem;
+        }
+        .card-reveal-overlay.hidden { display: none; }
+        .card-flip-container { perspective: 800px; width: 220px; height: 320px; cursor: pointer; }
+        .card-flip-inner {
+            position: relative; width: 100%; height: 100%;
+            transform-style: preserve-3d; transition: transform 0.7s ease;
+        }
+        .card-flip-inner.flipped { transform: rotateY(180deg); }
+        .card-face {
+            position: absolute; inset: 0; border-radius: 20px;
+            backface-visibility: hidden; display: flex; align-items: center; justify-content: center; flex-direction: column;
+        }
+        .card-back { background: linear-gradient(135deg, #4A90E2, #6BCF7F); border: 4px solid gold; }
+        .card-back-logo { font-size: 4rem; }
+        .card-front { transform: rotateY(180deg); border: 4px solid gold; }
+        .card-front.rarity-common   { background: linear-gradient(135deg, #b0bec5, #78909c); }
+        .card-front.rarity-rare     { background: linear-gradient(135deg, #1565c0, #0d47a1); }
+        .card-front.rarity-epic     { background: linear-gradient(135deg, #6a1b9a, #4a148c); }
+        .card-front.rarity-legendary{ background: linear-gradient(135deg, #e65100, #ff8f00); box-shadow: 0 0 30px gold; }
+        .card-emoji { font-size: 4rem; }
+        .card-rarity-label {
+            color: white; font-weight: bold; font-size: 1rem; text-transform: uppercase;
+            letter-spacing: 2px; margin-top: 0.5rem; text-shadow: 0 1px 3px rgba(0,0,0,0.5);
+        }
+        .card-desc { color: rgba(255,255,255,0.85); font-size: 0.85rem; padding: 0.5rem; text-align: center; }
+        .card-tap-hint { color: rgba(255,255,255,0.7); font-size: 0.95rem; animation: pulse 1.5s infinite; }
+
+        /* === EDUCA : COLLECTION === */
+        .collection-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(90px,1fr)); gap: 0.8rem; max-height: 60vh; overflow-y: auto; }
+        .coll-card { border-radius: 12px; padding: 0.7rem; text-align: center; cursor: pointer; transition: transform 0.2s; }
+        .coll-card:hover { transform: scale(1.1); }
+        .coll-card.locked { opacity: 0.3; filter: grayscale(1); }
+        .coll-emoji { font-size: 1.8rem; }
+        .coll-name { font-size: 0.7rem; margin-top: 0.2rem; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -691,8 +823,163 @@
             </div>
         </div>
 
+        <!-- OVERLAY RÉVÉLATION DE CARTE -->
+        <div class="card-reveal-overlay hidden" id="cardRevealOverlay">
+            <div class="card-flip-container" id="cardFlipContainer" onclick="educa.flipCard()">
+                <div class="card-flip-inner" id="cardFlipInner">
+                    <div class="card-face card-back">
+                        <div class="card-back-logo">📚</div>
+                        <div style="color:white;font-weight:bold;margin-top:0.5rem;">EDUCA</div>
+                    </div>
+                    <div class="card-face card-front" id="cardFront">
+                        <div class="card-emoji" id="cardEmoji">⭐</div>
+                        <div class="card-rarity-label" id="cardRarityLabel">Rare</div>
+                        <div class="card-desc" id="cardDesc">Mot maîtrisé !</div>
+                    </div>
+                </div>
+            </div>
+            <div class="card-tap-hint" id="cardTapHint">Appuie sur la carte pour la révéler !</div>
+            <button class="btn btn-primary" id="cardContinueBtn" style="display:none;" onclick="educa.closeCardReveal()">Continuer ▶</button>
+        </div>
+
+        <!-- ÉCRAN ONBOARDING -->
+        <div class="screen" id="onboardingScreen">
+            <!-- Étape 1 : Prénom & âge -->
+            <div id="onboardStep1">
+                <div class="companion-display" id="onboardCompanionDisplay">🐆</div>
+                <div class="companion-bubble">
+                    Salut ! Je suis nouveau ici moi aussi... Comment tu t'appelles ? T'as quel âge ? 😊
+                </div>
+                <input class="name-input" id="playerNameInput" type="text" placeholder="Ton prénom..." maxlength="20" />
+                <div style="margin-top:1rem;font-weight:bold;">Quel âge tu as ?</div>
+                <div class="age-grid">
+                    <button class="age-btn" onclick="educa.selectAge('4-6', this)">4 – 6 ans</button>
+                    <button class="age-btn" onclick="educa.selectAge('7-9', this)">7 – 9 ans</button>
+                    <button class="age-btn" onclick="educa.selectAge('10-12', this)">10 – 12 ans</button>
+                </div>
+                <div class="controls-container">
+                    <button class="btn btn-primary" onclick="educa.onboardStep2()">Suivant →</button>
+                </div>
+            </div>
+            <!-- Étape 2 : Choix compagnon -->
+            <div id="onboardStep2" style="display:none;">
+                <div class="companion-bubble">
+                    Choisis ton compagnon ! Il grandira avec toi. 🌟
+                </div>
+                <div class="companion-grid">
+                    <div class="companion-card" onclick="educa.selectCompanion('jaguar','🐆',this)">
+                        <span class="companion-emoji">🐆</span>
+                        <span class="companion-name">Kaya</span>
+                    </div>
+                    <div class="companion-card" onclick="educa.selectCompanion('dragon','🐉',this)">
+                        <span class="companion-emoji">🐉</span>
+                        <span class="companion-name">Drago</span>
+                    </div>
+                    <div class="companion-card" onclick="educa.selectCompanion('dolphin','🐬',this)">
+                        <span class="companion-emoji">🐬</span>
+                        <span class="companion-name">Nemo</span>
+                    </div>
+                </div>
+                <div class="controls-container">
+                    <button class="btn" onclick="educa.onboardStep1()">← Retour</button>
+                    <button class="btn btn-primary" onclick="educa.onboardStep3()">Suivant →</button>
+                </div>
+            </div>
+            <!-- Étape 3 : Choix univers -->
+            <div id="onboardStep3" style="display:none;">
+                <div class="companion-bubble">
+                    Dans quel monde veux-tu apprendre ? 🌍
+                </div>
+                <div class="universe-grid">
+                    <button class="universe-card universe-jungle" onclick="educa.selectUniverse('jungle',this)">
+                        <span class="universe-icon">🌿</span>Jungle
+                    </button>
+                    <button class="universe-card universe-space" onclick="educa.selectUniverse('space',this)">
+                        <span class="universe-icon">🚀</span>Espace
+                    </button>
+                    <button class="universe-card universe-ocean" onclick="educa.selectUniverse('ocean',this)">
+                        <span class="universe-icon">🌊</span>Océan
+                    </button>
+                </div>
+                <div class="controls-container">
+                    <button class="btn" onclick="educa.onboardStep2()">← Retour</button>
+                    <button class="btn btn-primary" onclick="educa.finishOnboarding()">C'est parti ! 🚀</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ÉCRAN HUB -->
+        <div class="screen" id="hubScreen">
+            <div class="hub-header">
+                <div class="hub-companion" id="hubCompanion">🐆</div>
+                <div class="hub-info">
+                    <div class="hub-player-name" id="hubPlayerName">Joueur</div>
+                    <div class="hub-rank" id="hubRank">⚪ Commun · <span id="hubXpText">0 XP</span></div>
+                    <div class="hub-xp-bar"><div class="hub-xp-fill" id="hubXpFill" style="width:0%"></div></div>
+                </div>
+                <div style="font-size:1.5rem;cursor:pointer;" onclick="educa.showCollection()" title="Ma collection">🃏</div>
+            </div>
+            <h3 style="text-align:center;margin-bottom:0.5rem;">Choisis ton aventure !</h3>
+            <div class="minigame-grid">
+                <div class="minigame-card" onclick="educa.launchLetters()">
+                    <span class="minigame-icon">🔤</span>
+                    <div class="minigame-title">Les Lettres</div>
+                    <div class="minigame-desc">Reconnais les lettres de l'alphabet</div>
+                </div>
+                <div class="minigame-card" onclick="educa.launchBuilder()">
+                    <span class="minigame-icon">🏗️</span>
+                    <div class="minigame-title">Le Constructeur</div>
+                    <div class="minigame-desc">Lis les mots pour construire ton monde</div>
+                </div>
+            </div>
+            <div class="hub-bottom">
+                <button class="btn btn-small" onclick="educa.showStats()">📊 Stats</button>
+                <button class="btn btn-small" onclick="educa.showCollection()">🃏 Collection</button>
+            </div>
+        </div>
+
+        <!-- ÉCRAN CONSTRUCTEUR (mini-jeu 2) -->
+        <div class="screen" id="builderScreen">
+            <div class="level-indicator">
+                <span class="level-info">🏗️ Le Constructeur</span>
+                <span id="builderScore" style="font-weight:bold;color:var(--primary-color);">0 pts</span>
+            </div>
+            <div style="text-align:center;margin:0.5rem 0;font-size:1.1rem;" id="builderInstruction">
+                Lis le mot et tape-le pour poser le bloc !
+            </div>
+            <div id="builderWorld" style="min-height:120px;display:flex;align-items:flex-end;justify-content:center;gap:0.3rem;flex-wrap:wrap;margin:0.8rem 0;background:rgba(74,144,226,0.08);border-radius:15px;padding:0.8rem;"></div>
+            <div id="builderWordDisplay" style="font-size:2.5rem;font-weight:bold;color:var(--primary-color);text-align:center;margin:0.8rem 0;min-height:60px;"></div>
+            <input id="builderInput" type="text" class="name-input" placeholder="Tape le mot ici..." autocomplete="off" autocorrect="off" spellcheck="false" style="max-width:100%;" />
+            <div style="margin-top:0.5rem;">
+                <button class="btn btn-primary" onclick="educa._builderValidate()">✅ Valider</button>
+            </div>
+            <div class="feedback-container">
+                <div class="feedback-text" id="builderFeedback"></div>
+            </div>
+            <div class="progress-container">
+                <div class="progress-label">
+                    <span>Blocs posés</span>
+                    <span id="builderProgressText">0/10</span>
+                </div>
+                <div class="progress-bar"><div class="progress-fill" id="builderProgressFill"></div></div>
+            </div>
+            <div class="controls-container">
+                <button class="btn" onclick="educa.exitToHub()">🏠 Hub</button>
+            </div>
+        </div>
+
+        <!-- ÉCRAN COLLECTION -->
+        <div class="screen" id="collectionScreen">
+            <h2>🃏 Ma Collection</h2>
+            <p id="collectionCount" style="opacity:0.7;margin-bottom:1rem;"></p>
+            <div class="collection-grid" id="collectionGrid"></div>
+            <div class="controls-container" style="margin-top:1rem;">
+                <button class="btn" onclick="educa.exitToHub()">← Hub</button>
+            </div>
+        </div>
+
         <!-- ÉCRAN D'ACCUEIL -->
-        <div class="screen active" id="welcomeScreen">
+        <div class="screen" id="welcomeScreen">
             <h2>Bienvenue dans l'aventure de Max !</h2>
             <p>Aide Max à apprendre toutes les lettres de l'alphabet.</p>
             <div class="controls-container">
@@ -812,7 +1099,7 @@
             <div class="controls-container">
                 <button class="btn btn-primary" onclick="showDifficultyScreen()">🔄 Rejouer</button>
                 <button class="btn" onclick="reviewMistakes()" id="reviewBtn">📝 Revoir mes erreurs</button>
-                <button class="btn" onclick="showWelcomeScreen()">🏠 Accueil</button>
+                <button class="btn btn-success" onclick="if(educa)educa.showHub()">🏠 Hub EDUCA</button>
             </div>
         </div>
 
@@ -840,10 +1127,285 @@
     </div>
 
     <script>
-        /**
-         * === CLASSE PRINCIPALE DU JEU ===
-         * Architecture orientée objet pour une meilleure organisation
-         */
+        /* =========================================================
+         * EDUCA — Couche principale
+         * Gère : profil, compagnon, cartes, hub, navigation
+         * ========================================================= */
+        class Educa {
+            constructor() {
+                this.RANKS = [
+                    { name: 'Commun',    emoji: '⚪', xpMin: 0    },
+                    { name: 'Rare',      emoji: '🔵', xpMin: 100  },
+                    { name: 'Épique',    emoji: '🟣', xpMin: 300  },
+                    { name: 'Légendaire',emoji: '🟡', xpMin: 700  }
+                ];
+                this.CARDS = [
+                    { id:'c1', emoji:'🌟', name:'Étoile',    rarity:'common'   },
+                    { id:'c2', emoji:'📖', name:'Lecteur',   rarity:'common'   },
+                    { id:'c3', emoji:'✏️', name:'Scribe',    rarity:'common'   },
+                    { id:'c4', emoji:'🎯', name:'Précis',    rarity:'common'   },
+                    { id:'c5', emoji:'⚡', name:'Rapide',    rarity:'rare'     },
+                    { id:'c6', emoji:'🧠', name:'Brillant',  rarity:'rare'     },
+                    { id:'c7', emoji:'🏆', name:'Champion',  rarity:'rare'     },
+                    { id:'c8', emoji:'🐆', name:'Kaya',      rarity:'epic'     },
+                    { id:'c9', emoji:'🐉', name:'Drago',     rarity:'epic'     },
+                    { id:'c10',emoji:'🌈', name:'Arc-en-ciel',rarity:'epic'    },
+                    { id:'c11',emoji:'👑', name:'Roi Lecteur',rarity:'legendary'},
+                    { id:'c12',emoji:'🌍', name:'Sauveur',   rarity:'legendary'}
+                ];
+                this.BUILDER_WORDS = ['mama','papa','ami','eau','feu','vent','bois','lac','mer','île',
+                    'chat','lune','rose','arbre','maison','soleil','étoile','jardin','rivière','forêt'];
+                this.profile  = this.loadProfile();
+                this._pending = { age: null, companion: null, universe: null };
+                this._builderState = { words: [], index: 0, score: 0, blocksPlaced: 0 };
+                this._pendingCard = null;
+            }
+
+            /* ---------- PROFIL ---------- */
+            loadProfile() {
+                try { return JSON.parse(localStorage.getItem('educaProfile')) || null; } catch { return null; }
+            }
+            saveProfile() { localStorage.setItem('educaProfile', JSON.stringify(this.profile)); }
+
+            /* ---------- DÉMARRAGE ---------- */
+            start() {
+                if (!this.profile) {
+                    this.showScreen('onboardingScreen');
+                    this.showOnboardStep(1);
+                } else {
+                    this.applyUniverse(this.profile.universe);
+                    this.showHub();
+                }
+            }
+
+            showScreen(id) {
+                document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+                document.getElementById(id).classList.add('active');
+            }
+
+            /* ---------- ONBOARDING ---------- */
+            showOnboardStep(n) {
+                ['onboardStep1','onboardStep2','onboardStep3'].forEach((id,i) => {
+                    document.getElementById(id).style.display = (i+1 === n) ? '' : 'none';
+                });
+            }
+            onboardStep1() { this.showOnboardStep(1); }
+            onboardStep2() {
+                const name = document.getElementById('playerNameInput').value.trim();
+                if (!name) { alert('Entre ton prénom !'); return; }
+                if (!this._pending.age) { alert('Choisis ton âge !'); return; }
+                this.showOnboardStep(2);
+            }
+            onboardStep3() {
+                if (!this._pending.companion) { alert('Choisis ton compagnon !'); return; }
+                this.showOnboardStep(3);
+            }
+            selectAge(age, btn) {
+                this._pending.age = age;
+                document.querySelectorAll('.age-btn').forEach(b => b.classList.remove('selected'));
+                btn.classList.add('selected');
+            }
+            selectCompanion(type, emoji, card) {
+                this._pending.companion = { type, emoji };
+                document.querySelectorAll('.companion-card').forEach(c => c.classList.remove('selected'));
+                card.classList.add('selected');
+                document.getElementById('onboardCompanionDisplay').textContent = emoji;
+            }
+            selectUniverse(u, btn) {
+                this._pending.universe = u;
+                document.querySelectorAll('.universe-card').forEach(c => c.classList.remove('selected'));
+                btn.classList.add('selected');
+            }
+            finishOnboarding() {
+                const name = document.getElementById('playerNameInput').value.trim();
+                if (!this._pending.universe) { alert('Choisis ton univers !'); return; }
+                this.profile = {
+                    name,
+                    age: this._pending.age,
+                    companion: this._pending.companion,
+                    universe: this._pending.universe,
+                    xp: 0,
+                    cards: [],
+                    firstTimes: {}
+                };
+                this.saveProfile();
+                this.applyUniverse(this.profile.universe);
+                this.showHub();
+            }
+
+            /* ---------- UNIVERS ---------- */
+            applyUniverse(u) {
+                document.body.className = `universe-${u}`;
+            }
+
+            /* ---------- HUB ---------- */
+            showHub() {
+                this.showScreen('hubScreen');
+                this._refreshHub();
+            }
+            _refreshHub() {
+                const p = this.profile;
+                document.getElementById('hubCompanion').textContent  = p.companion.emoji;
+                document.getElementById('hubPlayerName').textContent = p.name;
+                const rank  = this._getRank(p.xp);
+                const next  = this._getNextRank(p.xp);
+                const xpPct = next ? Math.min(100, ((p.xp - rank.xpMin) / (next.xpMin - rank.xpMin)) * 100) : 100;
+                document.getElementById('hubRank').innerHTML   = `${rank.emoji} ${rank.name} · <span id="hubXpText">${p.xp} XP</span>`;
+                document.getElementById('hubXpFill').style.width = xpPct + '%';
+            }
+            _getRank(xp) { return [...this.RANKS].reverse().find(r => xp >= r.xpMin) || this.RANKS[0]; }
+            _getNextRank(xp) { return this.RANKS.find(r => xp < r.xpMin) || null; }
+
+            exitToHub() { this.showHub(); }
+            showStats() { if (game) game.showStatsScreen(); }
+
+            /* ---------- MINI-JEU 1 : LETTRES ---------- */
+            launchLetters() { this.showScreen('difficultyScreen'); }
+
+            /* Appelé depuis AlphabetGame.endGame() */
+            onLetterGameEnd(score, accuracy) {
+                const xpGain = Math.round(score / 5);
+                this.profile.xp += xpGain;
+                this.saveProfile();
+                this._checkFirstTimes('letters');
+                this._triggerCardReveal(accuracy);
+            }
+
+            /* ---------- MINI-JEU 2 : CONSTRUCTEUR ---------- */
+            launchBuilder() {
+                this._builderState = { words: this._shuffleWords(), index: 0, score: 0, blocksPlaced: 0 };
+                this.showScreen('builderScreen');
+                this._builderNextWord();
+                const inp = document.getElementById('builderInput');
+                inp.value = '';
+                inp.addEventListener('keydown', this._builderKeyHandler.bind(this), { once: false });
+                inp.focus();
+            }
+            _shuffleWords() {
+                const arr = [...this.BUILDER_WORDS].sort(() => Math.random() - 0.5);
+                return arr.slice(0, 10);
+            }
+            _builderKeyHandler(e) {
+                if (e.key === 'Enter') this._builderValidate();
+            }
+            _builderNextWord() {
+                const state = this._builderState;
+                if (state.index >= state.words.length) { this._builderEnd(); return; }
+                document.getElementById('builderWordDisplay').textContent = state.words[state.index];
+                document.getElementById('builderInput').value = '';
+                document.getElementById('builderProgressText').textContent = `${state.blocksPlaced}/10`;
+                document.getElementById('builderProgressFill').style.width = (state.blocksPlaced / 10 * 100) + '%';
+                document.getElementById('builderScore').textContent = state.score + ' pts';
+            }
+            _builderValidate() {
+                const state = this._builderState;
+                const input = document.getElementById('builderInput').value.trim().toLowerCase();
+                const target = state.words[state.index].toLowerCase();
+                const fb = document.getElementById('builderFeedback');
+                if (input === target) {
+                    state.score += 15; state.blocksPlaced++; state.index++;
+                    this._addBlock(target);
+                    fb.textContent = '✅ Parfait !'; fb.className = 'feedback-text show success';
+                    setTimeout(() => { fb.classList.remove('show'); this._builderNextWord(); }, 900);
+                } else {
+                    fb.textContent = '❌ Essaie encore !'; fb.className = 'feedback-text show error';
+                    setTimeout(() => fb.classList.remove('show'), 1000);
+                }
+            }
+            _addBlock(word) {
+                const world = document.getElementById('builderWorld');
+                const block = document.createElement('div');
+                const colors = ['#4A90E2','#6BCF7F','#FFD93D','#FF6B6B','#9b59b6','#e67e22'];
+                const c = colors[Math.floor(Math.random() * colors.length)];
+                block.style.cssText = `background:${c};color:white;border-radius:10px;padding:0.5rem 0.8rem;font-weight:bold;font-size:0.9rem;animation:bounceIn 0.4s ease;`;
+                block.textContent = word;
+                world.appendChild(block);
+                world.scrollLeft = world.scrollWidth;
+            }
+            _builderEnd() {
+                const xpGain = Math.round(this._builderState.score / 3);
+                this.profile.xp += xpGain;
+                this.saveProfile();
+                const accuracy = (this._builderState.blocksPlaced / this._builderState.words.length) * 100;
+                this._triggerCardReveal(accuracy);
+            }
+
+            /* ---------- SYSTÈME DE CARTES ---------- */
+            _triggerCardReveal(accuracy) {
+                let pool;
+                if (accuracy >= 90) pool = this.CARDS.filter(c => ['legendary','epic'].includes(c.rarity));
+                else if (accuracy >= 70) pool = this.CARDS.filter(c => ['epic','rare'].includes(c.rarity));
+                else if (accuracy >= 50) pool = this.CARDS.filter(c => c.rarity === 'rare');
+                else pool = this.CARDS.filter(c => c.rarity === 'common');
+                const card = pool[Math.floor(Math.random() * pool.length)];
+                if (!this.profile.cards.includes(card.id)) {
+                    this.profile.cards.push(card.id);
+                    this.saveProfile();
+                }
+                this._showCardReveal(card);
+            }
+            _showCardReveal(card) {
+                this._pendingCard = card;
+                const front = document.getElementById('cardFront');
+                front.className = `card-face card-front rarity-${card.rarity}`;
+                document.getElementById('cardEmoji').textContent       = card.emoji;
+                document.getElementById('cardRarityLabel').textContent  = this._rarityLabel(card.rarity);
+                document.getElementById('cardDesc').textContent         = card.name;
+                document.getElementById('cardFlipInner').classList.remove('flipped');
+                document.getElementById('cardContinueBtn').style.display = 'none';
+                document.getElementById('cardTapHint').style.display    = '';
+                document.getElementById('cardRevealOverlay').classList.remove('hidden');
+                if (game) game.speak('Tu as gagné une nouvelle carte !');
+            }
+            flipCard() {
+                document.getElementById('cardFlipInner').classList.add('flipped');
+                document.getElementById('cardTapHint').style.display    = 'none';
+                document.getElementById('cardContinueBtn').style.display = '';
+                if (game) game.speak(this._rarityLabel(this._pendingCard.rarity) + ' ! ' + this._pendingCard.name);
+            }
+            closeCardReveal() {
+                document.getElementById('cardRevealOverlay').classList.add('hidden');
+                this.showHub();
+            }
+            _rarityLabel(r) {
+                return { common:'Commun', rare:'Rare', epic:'Épique', legendary:'Légendaire' }[r] || r;
+            }
+
+            /* ---------- COLLECTION ---------- */
+            showCollection() {
+                this.showScreen('collectionScreen');
+                const grid = document.getElementById('collectionGrid');
+                grid.innerHTML = '';
+                const owned = this.profile.cards;
+                document.getElementById('collectionCount').textContent = `${owned.length} / ${this.CARDS.length} cartes débloquées`;
+                this.CARDS.forEach(card => {
+                    const el = document.createElement('div');
+                    const colors = { common:'#78909c', rare:'#1565c0', epic:'#6a1b9a', legendary:'#e65100' };
+                    el.className = 'coll-card' + (owned.includes(card.id) ? '' : ' locked');
+                    el.style.background = colors[card.rarity];
+                    el.innerHTML = `<div class="coll-emoji">${card.emoji}</div><div class="coll-name" style="color:white">${card.name}</div>`;
+                    grid.appendChild(el);
+                });
+            }
+
+            /* ---------- PREMIER FOIS ---------- */
+            _checkFirstTimes(type) {
+                if (!this.profile.firstTimes[type]) {
+                    this.profile.firstTimes[type] = new Date().toISOString();
+                    this.saveProfile();
+                }
+            }
+
+            /* ---------- UTILS ---------- */
+            _shuffleArray(arr) { return [...arr].sort(() => Math.random() - 0.5); }
+        }
+
+        /* Instance globale EDUCA */
+        let educa;
+
+        /* =========================================================
+         * CLASSE PRINCIPALE DU JEU — AlphabetGame (conservée)
+         * ========================================================= */
         class AlphabetGame {
             constructor() {
                 // Configuration du jeu
@@ -1599,13 +2161,10 @@
             
             endGame() {
                 this.clearTimer();
-                
-                // Calculer le temps total
                 const totalTime = Math.round((Date.now() - this.gameState.startTime) / 1000);
-                
-                // Sauvegarder les statistiques
                 this.updateStats(totalTime);
-                
+                const accuracy = (this.gameState.correctAnswers / this.gameState.currentLetters.length) * 100;
+                if (educa) educa.onLetterGameEnd(this.gameState.score, accuracy);
                 this.showResultsScreen();
             }
 
@@ -1904,8 +2463,14 @@
 
         // Initialisation quand le DOM est prêt
         document.addEventListener('DOMContentLoaded', () => {
-            game = new AlphabetGame();
-            console.log('🎮 Jeu Max Alphabet initialisé avec succès !');
+            game  = new AlphabetGame();
+            educa = new Educa();
+            educa.start();
+            // Service Worker
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.register('sw.js').then(() => console.log('SW enregistré'));
+            }
+            console.log('🎮 EDUCA initialisé !');
         });
 
         /**
