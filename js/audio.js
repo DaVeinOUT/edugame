@@ -71,7 +71,7 @@ const Voice = {
   },
 
   speak(text, { rate = 0.9, pitch = 1.05, interrupt = true } = {}) {
-    if (!('speechSynthesis' in window) || !text) return;
+    if (!('speechSynthesis' in window) || !text || this.muted) return;
     if (!this._unlocked) this._pending = text;
     if (interrupt) speechSynthesis.cancel();
     const u = new SpeechSynthesisUtterance(text);
@@ -107,6 +107,7 @@ const Sfx = {
   },
 
   _tone(freq, start, dur, type = 'sine', vol = 0.18) {
+    if (this.muted) return;
     const ctx = this.ctx();
     if (!ctx) return;
     const osc  = ctx.createOscillator();

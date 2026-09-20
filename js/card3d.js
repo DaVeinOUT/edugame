@@ -27,6 +27,17 @@ const Card3D = {
     });
     this._overlay.addEventListener('pointerleave', () => this.rest());
 
+    // iOS 13+ : le gyroscope exige une permission explicite accordée lors
+    // d'un geste utilisateur. On la demande au premier toucher de l'overlay
+    // carte (geste valide) ; sans elle, l'effet 3D reste au flottement CSS.
+    this._overlay.addEventListener('pointerdown', () => {
+      if (this._permAsked || typeof DeviceOrientationEvent === 'undefined') return;
+      if (typeof DeviceOrientationEvent.requestPermission === 'function') {
+        this._permAsked = true;
+        DeviceOrientationEvent.requestPermission().catch(() => {});
+      }
+    });
+
     // Sur téléphone, incliner l'appareil incline la carte (gyroscope)
     window.addEventListener('deviceorientation', e => {
       if (this._overlay.classList.contains('hidden')) return;

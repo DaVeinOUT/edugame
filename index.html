@@ -352,11 +352,26 @@
         <div class="stat-label">Lettres apprises</div>
       </div>
     </div>
+    <p class="h3 text-center mt-3 mb-1">📊 Lettres par cœur</p>
+    <p class="muted text-center mb-1" style="font-size:0.8rem;">
+      Vert = apprise · Orange = en cours · Gris = pas encore vue
+    </p>
+    <div id="lettersMastery" class="mastery-grid"></div>
     <p class="h3 text-center mt-3 mb-1">🔊 La voix de Kaya</p>
     <p class="muted text-center mb-1" style="font-size:0.8rem;">
       Touche une voix pour l'écouter et la choisir
     </p>
     <div id="voiceList" class="col gap-1" style="max-height:32vh;overflow-y:auto;"></div>
+    <button class="btn btn-ghost btn-sm" style="margin:0.8rem auto 0;display:block;"
+            id="muteBtn" onclick="lettersGame.toggleMute()">🔇 Couper la voix</button>
+    <div class="row" style="justify-content:center;gap:0.8rem;margin-top:0.8rem;">
+      <button class="btn btn-ghost btn-sm" onclick="educa.exportProgress()">💾 Exporter</button>
+      <button class="btn btn-ghost btn-sm"
+              onclick="document.getElementById('importFile').click()">📥 Importer</button>
+      <input type="file" id="importFile" accept="application/json,.json"
+             style="display:none;"
+             onchange="educa.importProgress(this.files[0]); this.value='';">
+    </div>
     <button class="btn btn-ghost btn-sm" style="margin:1.5rem auto;display:block;"
             onclick="educa.showHub()">← Hub</button>
   </div>
@@ -403,6 +418,16 @@
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('sw.js');
     }
+    // Indicateur hors-ligne : si l'enfant ouvre l'app sans connexion,
+    // Kaya rassure — tout fonctionne, le jeu est prévu pour ça.
+    if (!navigator.onLine) {
+      const t = document.getElementById('flashToast');
+      t.textContent = '📴 Pas d\'internet ? Pas grave, tout fonctionne !';
+      t.classList.add('show');
+      setTimeout(() => t.classList.remove('show'), 4000);
+    }
+    window.addEventListener('offline', () => educa?._flash('Tu es hors-ligne — le jeu continue quand même !'));
+    window.addEventListener('online',  () => educa?._flash('Connexion retrouvée !'));
   });
 </script>
 </body>

@@ -19,11 +19,22 @@ const BUILDER_WORDS = [
 const BLOCK_COLORS = ['#7C3AED','#2563EB','#059669','#D97706','#DC2626','#0891B2'];
 const TILE_DECOYS  = 2;   // lettres pièges ajoutées au tas de tuiles
 
+/* Réplique visible d'une lettre accentuée → sa tuile affiche la forme
+   accentuée (é ≠ e) : l'enfant apprend que l'accent fait partie de la
+   lettre, au lieu de taper « e » sans explication. */
+const ACCENT_SAY = { 'é':'é, accent aigu', 'è':'è, accent grave', 'ê':'ê, accent circonflexe',
+                     'ë':'ë, tréma', 'à':'à, accent grave', 'â':'â, accent circonflexe',
+                     'î':'î, accent circonflexe', 'ï':'ï, tréma', 'ô':'ô, accent circonflexe',
+                     'ù':'ù, accent grave', 'û':'û, accent circonflexe', 'ç':'cé cédille' };
+function hasAccent(l) { return /[\u0300-\u036f]/.test(l.normalize('NFD')); }
+
+/* fisherYates() est défini dans letters.js (chargé avant builder.js). */
+
 class BuilderGame {
   constructor() { this.state = {}; }
 
   start() {
-    const words = [...BUILDER_WORDS].sort(() => Math.random() - 0.5).slice(0, 10);
+    const words = fisherYates(BUILDER_WORDS).slice(0, 10);
     this.state = { words, index:0, score:0, placed:0, pos:0, locked:false };
 
     document.getElementById('builderWorld').innerHTML = '';
@@ -31,15 +42,17 @@ class BuilderGame {
     document.getElementById('builderFeedback').className = 'feedback-toast hidden';
 
     educa.show('screenBuilder');
+    this._bindDelegation();
     Voice.speak('Le Constructeur ! Tape sur les lettres dans le bon ordre pour construire le mot.');
     this._nextWord();
   }
 
   _current() { return this.state.words[this.state.index]; }
 
-  /* Quitter proprement : stoppe voix et enchaînements */
+  /* Quitter proprement : stoppe voix, enchaînements et timers */
   quit() {
     this.state.quit = true;
+    clearTimeout(this._nextTimer);
     Voice.stop();
     educa.showHub();
   }
@@ -59,13 +72,24 @@ class BuilderGame {
     document.getElementById('builderProgressFill').style.width =
       (this.state.placed / 10 * 100) + '%';
     document.getElementById('builderScore').textContent = this.state.score + ' pts';
-    setTimeout(() => this.replayWord(), 600);
+    setTimeout(() => this._speakWord(w), 600);
   }
 
   /* Le mot parle quand on le touche */
   replayWord() {
     const cur = this._current();
-    if (cur) Voice.speak(cur.w);
+    if (cur) this._speakWord(cur.w);
+  }
+
+  /* Prononce le mot ; si la lettre en cours porte un accent, on le nomme
+     (« é, accent aigu ») : l'accent devient un indice, pas un piège. */
+  _speakWord(w) {
+    const next = w[this.state.pos];
+    if (next && hasAccent(next)) {
+      Voice.speak(`${w} ! Prochaine lettre : ${ACCENT_SAY[next] || next} !`);
+    } else {
+      Voice.speak(w);
+    }
   }
 
   _renderSlots(word) {
@@ -86,17 +110,23 @@ class BuilderGame {
     }
     const bank = document.getElementById('builderBank');
     bank.innerHTML = '';
-    letters
-      .map(l => ({ l, r: Math.random() }))
-      .sort((a, b) => a.r - b.r)
-      .forEach(({ l }) => {
-        const t = document.createElement('button');
-        t.type = 'button';
-        t.className = 'tile';
-        t.textContent = l;
-        t.onclick = () => this._tapTile(t, l);
-        bank.appendChild(t);
-      });
+    fisherYates(letters).forEach(l => {
+      const t = document.createElement('button');
+      t.type = 'button';
+      t.className = 'tile' + (hasAccent(l) ? ' tile-accent' : '');
+      t.textContent = l;
+      bank.appendChild(t);
+    });
+  }
+
+  /* Délégation : un seul écouteur sur le tas de tuiles (posé une fois). */
+  _bindDelegation() {
+    if (this._delegated) return;
+    this._delegated = true;
+    document.getElementById('builderBank').addEventListener('click', e => {
+      const t = e.target.closest('.tile');
+      if (t && !t.disabled) this._tapTile(t, t.textContent);
+    });
   }
 
   _tapTile(tile, letter) {
@@ -109,7 +139,17 @@ class BuilderGame {
       slot.textContent = letter;
       slot.classList.add('filled');
       this.state.pos++;
-      Sfx.tap();
+      // L'accent est un indice, pas un piège : on le nomme au bon moment.
+      if (hasAccent(letter)) {
+        Sfx.correct();
+        Voice.speak(ACCENT_SAY[letter] || letter);
+      } else {
+        Sfx.tap();
+      }
+      const nextLetter = word[this.state.pos];
+      if (nextLetter && hasAccent(nextLetter)) {
+        Voice.speak(`Maintenant : ${ACCENT_SAY[nextLetter] || nextLetter}`, { interrupt:false });
+      }
       if (this.state.pos >= word.length) this._wordComplete();
     } else {
       Sfx.wrong();
@@ -131,7 +171,8 @@ class BuilderGame {
     const fb = document.getElementById('builderFeedback');
     fb.textContent = 'Parfait !';
     fb.className   = 'feedback-toast success';
-    setTimeout(() => {
+    this._nextTimer = setTimeout(() => {
+      if (this.state.quit) return;
       fb.className = 'feedback-toast hidden';
       this._nextWord();
     }, 1100);

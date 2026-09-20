@@ -219,6 +219,7 @@ class Educa {
   }
 
   closeCard() {
+    this._clearParticles();
     document.getElementById('cardOverlay').classList.add('hidden');
     if (this._closeTarget === 'collection') this.showCollection(true);
     else this.showHub();
@@ -227,16 +228,27 @@ class Educa {
 
   _spawnParticles(count = 8) {
     const overlay = document.getElementById('cardOverlay');
+    this._particleTimers = this._particleTimers || [];
+    // Timers enregistrés : si l'enfant ferme la carte avant la fin,
+    // closeCard() les annule — plus de fuite d'éléments fantômes.
     for (let i = 0; i < count; i++) {
-      setTimeout(() => {
+      const t = setTimeout(() => {
+        if (overlay.classList.contains('hidden')) return;
         const p = document.createElement('span');
         p.className = 'particle';
         p.style.left  = Math.random() * 80 + 10 + '%';
         p.style.top   = Math.random() * 60 + 20 + '%';
         overlay.appendChild(p);
-        setTimeout(() => p.remove(), 900);
+        const rm = setTimeout(() => p.remove(), 900);
+        this._particleTimers.push(rm);
       }, i * 70);
+      this._particleTimers.push(t);
     }
+  }
+
+  _clearParticles() {
+    (this._particleTimers || []).forEach(t => clearTimeout(t));
+    this._particleTimers = [];
   }
 
   /* ---------- COLLECTION ---------- */
@@ -279,6 +291,49 @@ class Educa {
     t.classList.add('show');
     clearTimeout(this._flashTimer);
     this._flashTimer = setTimeout(() => t.classList.remove('show'), 1800);
+  }
+
+  /* ---------- EXPORT / IMPORT ---------- */
+  /* Changement de téléphone ou tablette partagée : la progression
+     (profil, XP, cartes, stats lettres) se télécharge en JSON et se
+     réimporte — sans serveur, les données restent aux familles. */
+  exportProgress() {
+    const data = {
+      educa: 1,
+      exportedAt: new Date().toISOString(),
+      profile: this.profile,
+      letterStats: this._load('educaLetterStats'),
+      voice: localStorage.getItem('educaVoiceName'),
+    };
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type:'application/json' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = `educa-progression-${(this.profile?.name || 'enfant').toLowerCase()}.json`;
+    a.click();
+    URL.revokeObjectURL(a.href);
+    Voice.speak('Progression téléchargée ! Garde le fichier précieusement.');
+  }
+
+  importProgress(file) {
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      try {
+        const data = JSON.parse(reader.result);
+        if (data.educa !== 1 || !data.profile) throw new Error('bad file');
+        this.profile = data.profile;
+        this.saveProfile();
+        if (data.letterStats) this._save('educaLetterStats', data.letterStats);
+        if (data.voice) localStorage.setItem('educaVoiceName', data.voice);
+        this.applyTheme();
+        Sfx.correct();
+        Voice.speak(`Content de te revoir, ${this.profile.name} ! Ta progression est revenue !`);
+        this.showHub();
+      } catch {
+        this._flash('Ce fichier ne fonctionne pas. Essaie le bon fichier EDUCA !');
+      }
+    };
+    reader.readAsText(file);
   }
 
   exitToHub() { this.showHub(); }

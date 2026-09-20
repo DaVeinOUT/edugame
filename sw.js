@@ -4,7 +4,7 @@
    Chemins RELATIFS : fonctionne aussi sous /edugame/ (GitHub Pages).
    ============================================================ */
 
-const CACHE_NAME = 'educa-v7';
+const CACHE_NAME = 'educa-v8';
 const FONT_CACHE = 'educa-fonts-v1';
 
 const ASSETS = [
@@ -64,12 +64,22 @@ self.addEventListener('fetch', e => {
     return;
   }
 
-  // App : cache d'abord, réseau ensuite, et l'accueil en dernier recours
+  // App : stale-while-revalidate — sert le cache immédiatement (rapide,
+  // hors-ligne OK) mais met à jour le cache en arrière-plan, pour que la
+  // prochaine visite ait la dernière version sans action de l'utilisateur.
   e.respondWith(
-    caches.match(e.request, { ignoreSearch: true }).then(cached =>
-      cached || fetch(e.request).catch(() => {
-        if (e.request.mode === 'navigate') return caches.match('./index.html');
-      })
-    )
+    caches.match(e.request, { ignoreSearch: true }).then(cached => {
+      const fresh = fetch(e.request).then(res => {
+        if (res.ok && e.request.method === 'GET') {
+          const clone = res.clone();
+          caches.open(CACHE_NAME).then(cache => cache.put(e.request, clone));
+        }
+        return res;
+      }).catch(() => {
+        if (!cached && e.request.mode === 'navigate') return caches.match('./index.html');
+        return cached;
+      });
+      return cached || fresh;
+    })
   );
 });

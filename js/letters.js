@@ -34,6 +34,26 @@ const DIFFICULTIES = {
 
 const PRAISE = ['Bravo !', 'Super !', 'Parfait !', 'Génial !', 'Champion !'];
 
+/* Confusions visuelles classiques des 4-6 ans : si l'enfant se trompe
+   entre deux lettres d'une même paire, on le détecte et on propose
+   un exercice ciblé (jamais une sanction). */
+const CONFUSION_PAIRS = {
+  B:'D', D:'B', P:'Q', Q:'P', I:'J', J:'I', M:'N', N:'M',
+};
+
+/* Le Constructeur aussi en profite : Fisher-Yates est partagé. */
+function fisherYates(arr) {
+  const a = [...arr];
+  const rand = (typeof crypto !== 'undefined' && crypto.getRandomValues)
+    ? () => crypto.getRandomValues(new Uint32Array(1))[0] / 2 ** 32
+    : Math.random;
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(rand() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
 class LettersGame {
   constructor() {
     this.state  = {};
@@ -41,16 +61,31 @@ class LettersGame {
     this._speakTimer = null;
     this._lastMistakes = [];
     this.stats  = this._loadStats();
+    this._loadMute();
   }
 
   showDifficulty() { educa.showDifficulty(); }
+
+  /* Délégation d'événements : un seul écouteur sur la grille d'options,
+     posé une fois à l'init — plus robuste que des onclick par bouton
+     sur les petits téléphones. */
+  _bindDelegation() {
+    if (this._delegated) return;
+    this._delegated = true;
+    document.getElementById('optionsGrid').addEventListener('click', e => {
+      const btn = e.target.closest('.option-btn');
+      if (!btn || btn.disabled || this.state.answered) return;
+      const letter = this.state.letters?.[this.state.index];
+      if (letter) this._answer(btn.textContent, letter);
+    });
+  }
 
   /* ---------- INIT ---------- */
   start(difficulty, customLetters = null) {
     const cfg = DIFFICULTIES[difficulty];
     let letters = customLetters ? [...customLetters] : this._buildLetters(cfg);
     // Le mode Maître suit le vrai ordre alphabétique ; les autres mélangent
-    if (cfg.letters !== 'order' || customLetters) letters = this._shuffle(letters);
+    if (cfg.letters !== 'order' || customLetters) letters = fisherYates(letters);
 
     this.state = {
       difficulty, letters,
@@ -71,14 +106,22 @@ class LettersGame {
     document.getElementById('targetLabel').textContent = label;
 
     educa.show('screenGame');
+    this._bindDelegation();
     Voice.speak(this.state.isReview ? 'On révise tes lettres ! Tu vas y arriver !' : label);
     this._next();
   }
 
-  /* Rejoue uniquement les lettres ratées à la dernière partie */
+  /* Rejoue uniquement les lettres ratées à la dernière partie.
+     S'il y a eu des confusions visuelles (b/d, p/q…), la révision
+     porte sur les DEUX lettres de chaque paire : c'est la distinction
+     qui est difficile, pas une lettre isolée. */
   startReview() {
     if (!this._lastMistakes.length) return;
-    this.start(this.state.difficulty, this._lastMistakes);
+    let letters = [...this._lastMistakes];
+    (this.state.confusions || []).forEach(pair => {
+      pair.split('/').forEach(l => { if (!letters.includes(l)) letters.push(l); });
+    });
+    this.start(this.state.difficulty, letters);
   }
 
   _buildLetters(cfg) {
@@ -91,11 +134,13 @@ class LettersGame {
     return UP;
   }
 
-  /* Quitter proprement : stoppe chrono, voix et enchaînements */
+  /* Quitter proprement : stoppe chrono, voix, enchaînements et particules */
   quit() {
     this.state.quit = true;
     this._stopTimer();
     clearTimeout(this._speakTimer);
+    (this._particleTimers || []).forEach(t => clearTimeout(t));
+    this._particleTimers = [];
     Voice.stop();
     educa.showHub();
   }
@@ -131,8 +176,8 @@ class LettersGame {
   _renderOptions(correct) {
     const cfg  = DIFFICULTIES[this.state.difficulty];
     const pool = this._getPool();
-    const wrong = this._shuffle(pool.filter(l => l !== correct)).slice(0, cfg.options - 1);
-    const opts  = this._shuffle([correct, ...wrong]);
+    const wrong = fisherYates(pool.filter(l => l !== correct)).slice(0, cfg.options - 1);
+    const opts  = fisherYates([correct, ...wrong]);
 
     const container = document.getElementById('optionsGrid');
     container.innerHTML = '';
@@ -141,7 +186,7 @@ class LettersGame {
       btn.type = 'button';
       btn.className  = 'option-btn';
       btn.textContent = letter;
-      btn.onclick = () => this._answer(letter, correct);
+      // Le clic est géré par délégation sur #optionsGrid (_bindDelegation)
       container.appendChild(btn);
     });
   }
@@ -176,9 +221,10 @@ class LettersGame {
     targetEl.classList.remove('audio-mode');
 
     const word = LETTER_ASSOC[correct.toUpperCase()].word;
+    const tgt  = correct.toUpperCase();
     if (isCorrect) {
       this.state.correct++;
-      this.state.correctLetters.push(correct.toUpperCase());
+      this.state.correctLetters.push(tgt);
       this.state.streak++;
       this.state.bestStreak = Math.max(this.state.bestStreak, this.state.streak);
       this.state.score += this._scoreFor();
@@ -190,10 +236,23 @@ class LettersGame {
     } else {
       this.state.streak = 0;
       this.state.mistakes.push({ letter: correct, selected });
+      // Confusion visuelle classique (b/d, p/q, i/j, m/n) : message ciblé
+      // + mémorisée pour la révision et les stats parents.
+      const sel = (selected || '').toUpperCase();
+      const isConfusion = CONFUSION_PAIRS[tgt] === sel;
+      if (isConfusion) {
+        this.state.confusions = this.state.confusions || [];
+        this.state.confusions.push(`${tgt}/${sel}`);
+        this._recordConfusion(tgt, sel);
+      }
       Sfx.wrong();
-      Voice.speak(`Presque ! La bonne réponse, c'était ${correct.toUpperCase()}, comme ${word}.`);
-      this._showFeedback(`C'était ${correct}`, 'error', 2200);
+      const msg = isConfusion
+        ? `Presque ! ${tgt} et ${sel} se ressemblent beaucoup. Regarde bien : c'était ${tgt}, comme ${word}.`
+        : `Presque ! La bonne réponse, c'était ${tgt}, comme ${word}.`;
+      Voice.speak(msg);
+      this._showFeedback(`C'était ${correct}`, 'error', 2400);
     }
+    this._recordLetter(tgt, isCorrect);
     document.getElementById('gameScore').textContent = this.state.score + ' pts';
     setTimeout(() => { this.state.index++; this._next(); }, isCorrect ? 1200 : 2400);
   }
@@ -286,7 +345,24 @@ class LettersGame {
 
     Sfx.star();
     Voice.speak(`Bravo, ${name} ! ${this.state.correct} bonnes réponses sur ${this.state.letters.length} !`);
-    if (n) Voice.speak('Tu veux revoir tes erreurs ? Appuie sur le bouton orange.', { interrupt:false });
+
+    // Message contextuel : la POSITION des erreurs compte.
+    // Rater en fin de partie ≠ erreurs dispersées — la fatigue se nomme,
+    // une difficulté précise se cible. Jamais de reproche.
+    if (n) {
+      const wrongIdx = this.state.letters
+        .map((l, i) => this.state.mistakes.some(m => m.letter === l) ? i : -1)
+        .filter(i => i >= 0);
+      const lateErrors = wrongIdx.length && wrongIdx.every(i => i >= this.state.letters.length * 0.6);
+      const nConfusions = (this.state.confusions || []).length;
+      if (lateErrors && this.state.correct >= this.state.letters.length * 0.6) {
+        Voice.speak('Tu as été très fort au début ! Les dernières étaient fatigantes. On les revoit ensemble ?', { interrupt:false });
+      } else if (nConfusions) {
+        Voice.speak('Certaines lettres se ressemblent et te jouent des tours. Un petit entraînement spécial ?', { interrupt:false });
+      } else {
+        Voice.speak('Tu veux revoir tes erreurs ? Appuie sur le bouton orange.', { interrupt:false });
+      }
+    }
   }
 
   /* ---------- PROGRESS ---------- */
@@ -326,29 +402,51 @@ class LettersGame {
   }
 
   /* ---------- PARTICLES ---------- */
+  /* Les timers sont enregistrés pour être annulés dans quit() —
+     sinon ils continuaient à créer des éléments après la sortie. */
   _particles() {
     const zone = document.getElementById('screenGame');
+    this._particleTimers = this._particleTimers || [];
     for (let i = 0; i < 4; i++) {
-      setTimeout(() => {
+      const t = setTimeout(() => {
+        if (this.state.quit) return;
         const p = document.createElement('span');
         p.className = 'particle';
         p.style.left  = Math.random() * 80 + 10 + '%';
         p.style.top   = '40%';
         zone.appendChild(p);
-        setTimeout(() => p.remove(), 900);
+        const rm = setTimeout(() => p.remove(), 900);
+        this._particleTimers.push(rm);
       }, i * 100);
+      this._particleTimers.push(t);
     }
   }
 
   /* ---------- STATS ---------- */
   _loadStats() {
-    try { return JSON.parse(localStorage.getItem('educaLetterStats')) || { gamesPlayed:0, bestScore:0, totalLetters:0 }; }
-    catch { return { gamesPlayed:0, bestScore:0, totalLetters:0 }; }
+    const def = { gamesPlayed:0, bestScore:0, totalLetters:0, letters:{}, confusions:{}, playSeconds:0 };
+    try { return { ...def, ...(JSON.parse(localStorage.getItem('educaLetterStats')) || {}) }; }
+    catch { return { ...def }; }
+  }
+  /* Suivi par lettre : réussies / vues — base de l'espace parents. */
+  _recordLetter(letter, ok) {
+    const l = this.stats.letters[letter] || { ok:0, seen:0 };
+    l.seen++;
+    if (ok) l.ok++;
+    this.stats.letters[letter] = l;
+    localStorage.setItem('educaLetterStats', JSON.stringify(this.stats));
+  }
+  /* Compteur de confusions visuelles (b/d, p/q, i/j, m/n). */
+  _recordConfusion(target, selected) {
+    const key = `${target}/${selected}`;
+    this.stats.confusions[key] = (this.stats.confusions[key] || 0) + 1;
+    localStorage.setItem('educaLetterStats', JSON.stringify(this.stats));
   }
   _updateStats() {
     this.stats.gamesPlayed++;
     this.stats.bestScore    = Math.max(this.stats.bestScore, this.state.score);
     this.stats.totalLetters += this.state.correct;
+    this.stats.playSeconds += Math.round((Date.now() - this.state.startTime) / 1000);
     localStorage.setItem('educaLetterStats', JSON.stringify(this.stats));
   }
   showStats() {
@@ -356,9 +454,52 @@ class LettersGame {
     document.getElementById('statGames').textContent   = s.gamesPlayed;
     document.getElementById('statBest').textContent    = s.bestScore;
     document.getElementById('statLetters').textContent = s.totalLetters;
+    this._renderMastery();
+    this._renderMuteBtn();
     this._renderVoicePicker();
     educa.show('screenStats');
     Voice.speak(`Tes statistiques ! ${s.gamesPlayed} parties jouées, et ${s.totalLetters} lettres réussies !`);
+  }
+
+  /* Grille visuelle de maîtrise par lettre (espace parents léger) :
+     apprise ≥80% après 3 vues · en cours si vue · grise sinon. */
+  _renderMastery() {
+    const grid = document.getElementById('lettersMastery');
+    if (!grid) return;
+    grid.innerHTML = '';
+    'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('').forEach(l => {
+      const d = this.stats.letters[l];
+      let cls = 'mastery-unseen';
+      if (d && d.seen >= 3 && d.ok / d.seen >= 0.8) cls = 'mastery-ok';
+      else if (d && d.seen > 0)                     cls = 'mastery-wip';
+      const cell = document.createElement('span');
+      cell.className = `mastery-cell ${cls}`;
+      cell.textContent = l;
+      cell.title = d ? `${l} : ${d.ok}/${d.seen} réussies` : `${l} : pas encore vue`;
+      grid.appendChild(cell);
+    });
+  }
+
+  /* ---------- MODE SILENCIEUX ---------- */
+  /* Classe / bibliothèque : coupe voix et effets. Les consignes restent
+     affichées à l'écran — pensé pour ceux qui commencent à déchiffrer. */
+  toggleMute() {
+    this._muted = !this._muted;
+    localStorage.setItem('educaMuted', this._muted ? '1' : '');
+    if (this._muted) Voice.stop();
+    Voice.muted = this._muted;
+    Sfx.muted   = this._muted;
+    this._renderMuteBtn();
+    if (!this._muted) Voice.speak('La voix de Kaya est de retour !');
+  }
+  _loadMute() {
+    this._muted = localStorage.getItem('educaMuted') === '1';
+    Voice.muted = this._muted;
+    Sfx.muted   = this._muted;
+  }
+  _renderMuteBtn() {
+    const b = document.getElementById('muteBtn');
+    if (b) b.textContent = this._muted ? '🔊 Remettre la voix' : '🔇 Couper la voix';
   }
 
   /* Sélecteur de voix (pour les parents) — touche = écoute + choix */
@@ -384,8 +525,6 @@ class LettersGame {
     });
   }
 
-  /* ---------- UTILS ---------- */
-  _shuffle(arr) { return [...arr].sort(() => Math.random() - 0.5); }
 }
 
 let lettersGame;
