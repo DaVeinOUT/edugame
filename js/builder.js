@@ -53,6 +53,7 @@ class BuilderGame {
   quit() {
     this.state.quit = true;
     clearTimeout(this._nextTimer);
+    clearTimeout(this._speakTimer);
     Voice.stop();
     educa.showHub();
   }
@@ -72,7 +73,9 @@ class BuilderGame {
     document.getElementById('builderProgressFill').style.width =
       (this.state.placed / 10 * 100) + '%';
     document.getElementById('builderScore').textContent = this.state.score + ' pts';
-    setTimeout(() => this._speakWord(w), 600);
+    this._speakTimer = setTimeout(() => {
+      if (!this.state.quit) this._speakWord(w);
+    }, 600);
   }
 
   /* Le mot parle quand on le touche */

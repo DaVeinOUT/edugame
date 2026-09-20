@@ -111,16 +111,20 @@ class LettersGame {
     this._next();
   }
 
-  /* Rejoue uniquement les lettres ratées à la dernière partie.
+  /* Rejoue les lettres ratées à la dernière partie.
      S'il y a eu des confusions visuelles (b/d, p/q…), la révision
      porte sur les DEUX lettres de chaque paire : c'est la distinction
-     qui est difficile, pas une lettre isolée. */
+     qui est difficile, pas une lettre isolée.
+     La casse suit la difficulté : en mode Aventurier (minuscules),
+     on révise des minuscules — les paires sont stockées en majuscules. */
   startReview() {
     if (!this._lastMistakes.length) return;
     let letters = [...this._lastMistakes];
     (this.state.confusions || []).forEach(pair => {
       pair.split('/').forEach(l => { if (!letters.includes(l)) letters.push(l); });
     });
+    const cfg = DIFFICULTIES[this.state.difficulty];
+    if (cfg.letters === 'lowercase') letters = letters.map(l => l.toLowerCase());
     this.start(this.state.difficulty, letters);
   }
 
