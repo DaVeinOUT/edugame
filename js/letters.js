@@ -140,13 +140,19 @@ class LettersGame {
 
   /* Quitter proprement : stoppe chrono, voix, enchaînements et particules */
   quit() {
+    this._halt();
+    educa.showHub();
+  }
+
+  /* Arrête tout SANS naviguer — utilisé quand le bouton « retour » du
+     téléphone pilote déjà la navigation via l'historique. */
+  _halt() {
     this.state.quit = true;
     this._stopTimer();
     clearTimeout(this._speakTimer);
     (this._particleTimers || []).forEach(t => clearTimeout(t));
     this._particleTimers = [];
     Voice.stop();
-    educa.showHub();
   }
 
   /* ---------- QUESTION ---------- */

@@ -4,7 +4,7 @@
    Chemins RELATIFS : fonctionne aussi sous /edugame/ (GitHub Pages).
    ============================================================ */
 
-const CACHE_NAME = 'educa-v8';
+const CACHE_NAME = 'educa-v9';
 const FONT_CACHE = 'educa-fonts-v1';
 
 const ASSETS = [

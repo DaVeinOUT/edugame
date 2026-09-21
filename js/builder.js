@@ -51,11 +51,17 @@ class BuilderGame {
 
   /* Quitter proprement : stoppe voix, enchaînements et timers */
   quit() {
+    this._halt();
+    educa.showHub();
+  }
+
+  /* Arrête tout SANS naviguer — utilisé quand le bouton « retour » du
+     téléphone pilote déjà la navigation via l'historique. */
+  _halt() {
     this.state.quit = true;
     clearTimeout(this._nextTimer);
     clearTimeout(this._speakTimer);
     Voice.stop();
-    educa.showHub();
   }
 
   _nextWord() {

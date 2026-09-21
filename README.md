@@ -40,7 +40,7 @@ python3 -m http.server 8765
 Avant de publier des changements, **augmenter le numéro de version dans `sw.js`** :
 
 ```js
-const CACHE_NAME = 'educa-v8';   // → passer à v9, v10…
+const CACHE_NAME = 'educa-v9';   // → passer à v10, v11…
 ```
 
 Sinon les téléphones gardent l'ancienne version en cache.

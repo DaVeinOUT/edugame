@@ -372,6 +372,18 @@
              style="display:none;"
              onchange="educa.importProgress(this.files[0]); this.value='';">
     </div>
+    <div class="row" style="justify-content:center;gap:0.8rem;margin-top:0.8rem;">
+      <button class="btn btn-ghost btn-sm" onclick="educa.editProfile()">✏️ Modifier mon profil</button>
+      <button class="btn btn-ghost btn-sm btn-danger-zone" onclick="educa.resetAll()">↺ Tout recommencer</button>
+    </div>
+    <!-- Double garde : visible seulement après le 1er appui, se referme seule après 8 s -->
+    <div id="resetBanner" class="reset-banner hidden" role="alert">
+      <p>Tout effacer : cartes, points, prénom ?</p>
+      <div class="row" style="justify-content:center;gap:0.8rem;">
+        <button class="btn btn-sm btn-danger" onclick="educa.confirmReset()">Oui, tout effacer</button>
+        <button class="btn btn-ghost btn-sm" onclick="educa.cancelReset()">Non, garder</button>
+      </div>
+    </div>
     <button class="btn btn-ghost btn-sm" style="margin:1.5rem auto;display:block;"
             onclick="educa.showHub()">← Hub</button>
   </div>

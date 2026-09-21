@@ -380,6 +380,33 @@
   background: rgba(245,158,11,0.12);
 }
 
+/* === ZONE DANGER : tout recommencer === */
+/* Le bouton reste discret (zone parents), la bannière de confirmation
+   est elle bien visible et parlée — double garde anti-tapotements. */
+.btn-danger-zone {
+  color: rgba(255,255,255,0.45);
+  border-color: rgba(239,68,68,0.25);
+}
+.reset-banner {
+  margin: 0.8rem auto 0;
+  padding: 0.9rem 1.2rem;
+  max-width: 22rem;
+  background: rgba(239,68,68,0.12);
+  border: 2px solid var(--danger);
+  border-radius: var(--radius);
+  text-align: center;
+  animation: correctPop 0.3s ease;
+}
+.reset-banner.hidden { display: none; }
+.reset-banner p { font-weight: 900; margin-bottom: 0.6rem; }
+.btn-danger {
+  background: var(--danger);
+  border: 2px solid var(--danger);
+  color: white;
+  font-weight: 900;
+}
+.btn-danger:active { transform: scale(0.95); }
+
 /* === PARTICLES === */
 @keyframes particleFly {
   to { transform:translateY(-100px) scale(0); opacity:0; }

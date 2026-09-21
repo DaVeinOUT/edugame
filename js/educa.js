@@ -32,10 +32,47 @@ class Educa {
   show(id) {
     document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
     document.getElementById(id).classList.add('active');
+    // Historique de navigation : le bouton « retour » du téléphone revient
+    // à l'écran précédent au lieu de fermer l'app (PWA mono-page).
+    if (this._currentScreen !== id) {
+      this._currentScreen = id;
+      this._exitArmed = false;   // toute navigation désarme la sortie
+      if (this._historyReady && history.state?.educaScreen !== id) {
+        history.pushState({ educaScreen: id }, '');
+      }
+    }
   }
 
   /* ---------- START ---------- */
   start() {
+    // Point d'ancrage de l'historique : l'écran courant devient la base,
+    // les écrans suivants sont empilés. La première pression sur « retour »
+    // du téléphone demande confirmation avant de vraiment quitter.
+    this._historyReady = true;
+    window.addEventListener('popstate', e => {
+      const overlay = document.getElementById('cardOverlay');
+      // L'overlay de récompense n'est pas un écran : « retour » le ferme
+      // d'abord, l'enfant reste sur sa page de résultats.
+      if (overlay && !overlay.classList.contains('hidden')) {
+        this._clearParticles();
+        overlay.classList.add('hidden');
+        history.pushState({ educaScreen: this._currentScreen }, '');
+        return;
+      }
+      const target = e.state?.educaScreen;
+      if (target) {
+        // Un jeu interrompu par « retour » doit stopper timers et voix
+        // sans forcer la navigation (c'est l'historique qui pilote).
+        const prev = this._currentScreen;
+        if (prev === 'screenGame')    lettersGame?._halt();
+        if (prev === 'screenBuilder') builderGame?._halt();
+        this._currentScreen = target;
+        this.show(target);
+      } else {
+        // Plus rien dans la pile : on est au point de sortie de l'app.
+        this._confirmExit();
+      }
+    });
     if (!this.profile) {
       this.show('screenOnboard');
       this._showStep('step1');
@@ -45,6 +82,17 @@ class Educa {
     }
   }
 
+  /* Retour au bord de l'app : la 1re pression avertit et arme la sortie,
+     la 2e (sans navigation entre-temps) laisse réellement quitter. */
+  _confirmExit() {
+    if (this._exitArmed) return;   // armé : on ne repousse pas, l'app peut sortir
+    this._exitArmed = true;
+    Voice.speak('Tu veux vraiment partir ? Appuie encore une fois sur retour pour quitter.');
+    this._flash('Appuie encore sur retour pour quitter');
+    // Repousse l'écran courant pour garder une chance d'annuler.
+    history.pushState({ educaScreen: this._currentScreen }, '');
+  }
+
   /* Le choix de l'enfant (jungle / espace / océan) colore tout son monde */
   applyTheme() {
     document.body.classList.remove('universe-jungle','universe-space','universe-ocean');
@@ -52,7 +100,47 @@ class Educa {
     if (u) document.body.classList.add(`universe-${u}`);
   }
 
-  /* ---------- ONBOARDING ---------- */
+  /* ---------- PROFIL : MODIFIER ---------- */
+  /* Relance l'onboarding pré-rempli : l'enfant peut corriger son prénom,
+     son âge ou son univers SANS perdre ses cartes ni ses points. */
+  editProfile() {
+    const p = this.profile;
+    if (!p) return;
+    this._editing = true;
+    this._pending = { name: p.name, age: p.age, universe: p.universe };
+    this.show('screenOnboard');
+    this._showStep('step1');
+    // Pré-remplissage : champ prénom + pastilles déjà sélectionnées
+    document.getElementById('inputName').value = p.name === 'Champion' ? '' : p.name;
+    document.querySelectorAll('[data-age]').forEach(b =>
+      b.classList.toggle('selected', b.dataset.age === p.age));
+    document.querySelectorAll('[data-universe]').forEach(b =>
+      b.classList.toggle('selected', b.dataset.universe === p.universe));
+    document.getElementById('bubble2').textContent =
+      `Salut ${p.name} ! Dans quel monde veux-tu apprendre ?`;
+    Voice.speak('On change ton profil ! Tes cartes et tes points sont gardés, promis.');
+  }
+
+  /* ---------- PROFIL : TOUT RECOMMENCER ---------- */
+  /* Double garde contre les tapotements : 1er appui arme + parle,
+     2e appui (dans la bannière) exécute. Désarmé après 8 s sans suite. */
+  resetAll() {
+    Voice.speak('Attention ! Ça efface TOUT : les cartes, les points, le prénom. Si tu es vraiment sûr, appuie sur le bouton rouge.');
+    const banner = document.getElementById('resetBanner');
+    banner.classList.remove('hidden');
+    clearTimeout(this._resetTimer);
+    this._resetTimer = setTimeout(() => this.cancelReset(), 8000);
+  }
+  cancelReset() {
+    clearTimeout(this._resetTimer);
+    document.getElementById('resetBanner')?.classList.add('hidden');
+    Voice.speak('Ouf ! Rien n\'est effacé.');
+  }
+  confirmReset() {
+    ['educaProfile','educaLetterStats','educaVoiceName','educaMuted']
+      .forEach(k => localStorage.removeItem(k));
+    location.reload();   // repart vraiment à zéro, mémoire comprise
+  }
   _showStep(id) {
     document.querySelectorAll('.onboard-step').forEach(s => s.classList.remove('active'));
     const step = document.getElementById(id);
@@ -100,14 +188,20 @@ class Educa {
   finishOnboard() {
     const p = this._pending;
     if (!p.name || !p.age || !p.universe) return;
-    this.profile = {
-      name: p.name,
-      age:  p.age,
-      universe: p.universe,
-      xp: 0,
-      cards: [],
-      firstTimes: {},
-    };
+    if (this._editing && this.profile) {
+      // Édition : seuls prénom/âge/univers changent, le reste est sacré
+      Object.assign(this.profile, { name: p.name, age: p.age, universe: p.universe });
+    } else {
+      this.profile = {
+        name: p.name,
+        age:  p.age,
+        universe: p.universe,
+        xp: 0,
+        cards: [],
+        firstTimes: {},
+      };
+    }
+    this._editing = false;
     this.saveProfile();
     this.applyTheme();
     Sfx.correct();
