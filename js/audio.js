@@ -70,8 +70,14 @@ const Voice = {
     this.speak('Salut ! Je suis Kaya ! On apprend ensemble ?');
   },
 
-  speak(text, { rate = 0.9, pitch = 1.05, interrupt = true } = {}) {
-    if (!('speechSynthesis' in window) || !text || this.muted) return;
+  /* highlightEl : élément mis en valeur pendant que Kaya parle
+     (approximation du surlignage synchrone — l'API Web Speech ne
+     permet pas le mot-à-mot). */
+  speak(text, { rate, pitch = 1.05, interrupt = true, highlightEl = null } = {}) {
+    if (!('speechSynthesis' in window) || !text || this.muted) {
+      return;
+    }
+    if (rate == null) rate = (typeof Comfort !== 'undefined' ? Comfort.voiceRate() : 0.9);
     if (!this._unlocked) this._pending = text;
     if (interrupt) speechSynthesis.cancel();
     const u = new SpeechSynthesisUtterance(text);
@@ -84,6 +90,15 @@ const Voice = {
     u.pitch  = pitch;
     u.volume = 1;
     u.onstart = () => { this._unlocked = true; this._pending = null; };
+    if (highlightEl) {
+      u.onstart = () => {
+        this._unlocked = true; this._pending = null;
+        highlightEl.classList.add('speaking');
+      };
+      const clear = () => highlightEl.classList.remove('speaking');
+      u.onend = clear;
+      u.onerror = clear;
+    }
     speechSynthesis.speak(u);
   },
 

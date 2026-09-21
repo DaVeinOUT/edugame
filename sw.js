@@ -4,26 +4,31 @@
    Chemins RELATIFS : fonctionne aussi sous /edugame/ (GitHub Pages).
    ============================================================ */
 
-const CACHE_NAME = 'educa-v9';
-const FONT_CACHE = 'educa-fonts-v1';
+const CACHE_NAME = 'educa-v11';
+const FONT_CACHE = 'educa-fonts-v2';   // v2 : contient aussi les polices OpenDyslexic
 
 const ASSETS = [
   './',
   './index.html',
   './manifest.json',
   './css/base.css',
+  './css/a11y.css',
   './css/educa.css',
   './css/game.css',
   './js/audio.js',
+  './js/comfort.js',
   './js/kaya.js',
   './js/card3d.js',
   './js/cards.js',
   './js/educa.js',
   './js/letters.js',
   './js/builder.js',
+  './js/trace.js',
   './icons/icon.svg',
   './icons/icon-192.png',
   './icons/icon-512.png',
+  './fonts/OpenDyslexic-Regular.woff',
+  './fonts/OpenDyslexic-Bold.woff',
 ];
 
 self.addEventListener('install', e => {

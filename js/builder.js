@@ -6,15 +6,25 @@
    et chaque mot a son image.
    ============================================================ */
 
-const BUILDER_WORDS = [
-  { w:'maman',   e:'👩' }, { w:'papa',    e:'👨' }, { w:'eau',     e:'💧' },
-  { w:'feu',     e:'🔥' }, { w:'vent',    e:'💨' }, { w:'bleu',    e:'🔵' },
-  { w:'lac',     e:'🏞️' }, { w:'mer',     e:'🌊' }, { w:'île',     e:'🏝️' },
-  { w:'ami',     e:'😊' }, { w:'chat',    e:'🐱' }, { w:'lune',    e:'🌙' },
-  { w:'rose',    e:'🌹' }, { w:'arbre',   e:'🌳' }, { w:'soleil',  e:'☀️' },
-  { w:'étoile',  e:'⭐' }, { w:'jardin',  e:'🌷' }, { w:'rivière', e:'💦' },
-  { w:'forêt',   e:'🌲' }, { w:'nuage',   e:'☁️' },
-];
+/* Mots regroupés par palier : le Constructeur choisit ceux qui
+   correspondent au chemin de lecture de l'enfant. */
+const BUILDER_WORDS_BY_PALIER = {
+  1: [ { w:'maman', e:'👩' }, { w:'papa', e:'👨' }, { w:'eau', e:'💧' },
+       { w:'feu',   e:'🔥' }, { w:'ami',  e:'😊' }, { w:'mer', e:'🌊' },
+       { w:'chat',  e:'🐱' }, { w:'lune', e:'🌙' }, { w:'île', e:'🏝️' },
+       { w:'lac',   e:'🏞️' } ],
+  2: [ { w:'vent',   e:'💨' }, { w:'bleu',   e:'🔵' }, { w:'rose',  e:'🌹' },
+       { w:'arbre',  e:'🌳' }, { w:'soleil', e:'☀️' }, { w:'nuage', e:'☁️' },
+       { w:'forêt',  e:'🌲' }, { w:'école',  e:'🏫' }, { w:'ballon',e:'⚽' },
+       { w:'livre',  e:'📖' } ],
+  3: [ { w:'étoile',  e:'⭐' }, { w:'jardin',  e:'🌷' }, { w:'rivière', e:'💦' },
+       { w:'montagne',e:'⛰️' }, { w:'château', e:'🏰' }, { w:'papillon',e:'🦋' },
+       { w:'chocolat',e:'🍫' }, { w:'aventure',e:'🗺️' }, { w:'arc-en-ciel',e:'🌈' },
+       { w:'bibliothèque',e:'📚' } ],
+};
+
+/* Rétrocompat : liste plate utilisée en dehors du palier (ex. tests). */
+const BUILDER_WORDS = Object.values(BUILDER_WORDS_BY_PALIER).flat();
 
 const BLOCK_COLORS = ['#7C3AED','#2563EB','#059669','#D97706','#DC2626','#0891B2'];
 const TILE_DECOYS  = 2;   // lettres pièges ajoutées au tas de tuiles
@@ -34,8 +44,11 @@ class BuilderGame {
   constructor() { this.state = {}; }
 
   start() {
-    const words = fisherYates(BUILDER_WORDS).slice(0, 10);
-    this.state = { words, index:0, score:0, placed:0, pos:0, locked:false };
+    // Le palier choisit les mots adaptés au chemin de lecture de l'enfant.
+    const palier = educa?.getPalier?.() || 1;
+    const deck   = BUILDER_WORDS_BY_PALIER[palier] || BUILDER_WORDS;
+    const words  = fisherYates(deck).slice(0, 10);
+    this.state   = { words, index:0, score:0, placed:0, pos:0, locked:false };
 
     document.getElementById('builderWorld').innerHTML = '';
     document.getElementById('builderScore').textContent = '0 pts';
@@ -91,13 +104,14 @@ class BuilderGame {
   }
 
   /* Prononce le mot ; si la lettre en cours porte un accent, on le nomme
-     (« é, accent aigu ») : l'accent devient un indice, pas un piège. */
+     (« é, accent aigu »). Le mot affiché s'illumine pendant la voix. */
   _speakWord(w) {
     const next = w[this.state.pos];
+    const opts = { highlightEl: document.getElementById('builderWordDisplay') };
     if (next && hasAccent(next)) {
-      Voice.speak(`${w} ! Prochaine lettre : ${ACCENT_SAY[next] || next} !`);
+      Voice.speak(`${w} ! Prochaine lettre : ${ACCENT_SAY[next] || next} !`, opts);
     } else {
-      Voice.speak(w);
+      Voice.speak(w, opts);
     }
   }
 
@@ -209,6 +223,7 @@ class BuilderGame {
     document.getElementById('resCorrect').textContent    = `${this.state.placed}/10`;
     document.getElementById('resTotalTime').textContent  = '—';
     document.getElementById('reviewBtn').style.display   = 'none';
+    document.getElementById('levelUpBtn').style.display  = 'none';
 
     const stars  = document.querySelectorAll('.results-star');
     const earned = accuracy >= 90 ? 3 : accuracy >= 70 ? 2 : accuracy >= 50 ? 1 : 0;

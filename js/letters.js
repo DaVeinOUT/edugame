@@ -81,14 +81,33 @@ class LettersGame {
   }
 
   /* ---------- INIT ---------- */
+  /* Le palier (chemin de lecture : Découverte/Déchiffreur/Lecteur) fixe
+     les limites — nombre d'options, casse, chrono. La carte de niveau
+     choisie règle seulement le mode visuel/audio et l'ordre. */
+  /* Le palier borne le nombre d'options et le chrono ; la carte de
+     niveau choisie porte la casse (majuscules/minuscules/mixte/ordre) —
+     sa promesse visuelle est toujours tenue, quel que soit le palier. */
+  _resolveCfg(difficulty) {
+    const base = DIFFICULTIES[difficulty];
+    const pal  = Educa.PALIERS[educa.getPalier()].cfg;
+    return {
+      name:      base.name,
+      hideTarget: base.hideTarget,
+      options:   pal.options,
+      timer:     !!(pal.timer && base.timer),
+      timeLimit: pal.timeLimit || 15,
+      letters:   base.letters,
+    };
+  }
+
   start(difficulty, customLetters = null) {
-    const cfg = DIFFICULTIES[difficulty];
+    const cfg = this._resolveCfg(difficulty);
     let letters = customLetters ? [...customLetters] : this._buildLetters(cfg);
     // Le mode Maître suit le vrai ordre alphabétique ; les autres mélangent
     if (cfg.letters !== 'order' || customLetters) letters = fisherYates(letters);
 
     this.state = {
-      difficulty, letters,
+      difficulty, cfg, letters,
       index: 0, score: 0, correct: 0,
       mistakes: [], correctLetters: [],
       streak: 0, bestStreak: 0,
@@ -101,7 +120,10 @@ class LettersGame {
     document.getElementById('gameTitle').textContent =
       this.state.isReview ? 'Révision' : cfg.name;
     document.getElementById('gameScore').textContent = '0 pts';
-    document.getElementById('timerBadge').style.display = cfg.timer ? '' : 'none';
+    // Le réglage « Pas de chrono » fait disparaître le minuteur, même
+    // pour les niveaux qui en ont un — le stress n'apprend rien.
+    const useTimer = Comfort.timerEnabled(cfg);
+    document.getElementById('timerBadge').style.display = useTimer ? '' : 'none';
     const label = cfg.hideTarget ? 'Trouve la lettre que tu entends' : 'Trouve la même lettre';
     document.getElementById('targetLabel').textContent = label;
 
@@ -123,9 +145,39 @@ class LettersGame {
     (this.state.confusions || []).forEach(pair => {
       pair.split('/').forEach(l => { if (!letters.includes(l)) letters.push(l); });
     });
-    const cfg = DIFFICULTIES[this.state.difficulty];
-    if (cfg.letters === 'lowercase') letters = letters.map(l => l.toLowerCase());
+    // Casse alignée sur la difficulté courante (minuscules si Aventurier)
+    if (this.state.cfg?.letters === 'lowercase') {
+      letters = letters.map(l => l.toLowerCase());
+    }
     this.start(this.state.difficulty, letters);
+  }
+
+  /* ---------- QUESTION ---------- */
+  _next() {
+    if (this.state.quit) return;
+    if (this.state.index >= this.state.letters.length) { this._end(); return; }
+    const letter = this.state.letters[this.state.index];
+    this._render(letter);
+    this._updateProgress();
+    if (Comfort.timerEnabled(this.state.cfg)) this._startTimer();
+  }
+
+  _render(letter) {
+    const cfg    = this.state.cfg;
+    const assoc  = LETTER_ASSOC[letter.toUpperCase()];
+    const target = document.getElementById('targetLetter');
+    // En mode audio la lettre est cachée : l'enfant écoute, le 🔊 invite à rejouer le son
+    target.textContent = cfg.hideTarget ? '🔊' : letter;
+    target.classList.toggle('audio-mode', !!cfg.hideTarget);
+    // L'indice-image ne montre jamais la lettre en mode audio (sinon c'est triché)
+    document.getElementById('wordHint').innerHTML = cfg.hideTarget
+      ? `<span class="hint-emoji">${assoc.emoji}</span>`
+      : `<span class="hint-emoji">${assoc.emoji}</span>${letter.toUpperCase()} comme ${assoc.word}`;
+    this.state.answered = false;
+    this._renderOptions(letter);
+    this._clearFeedback();
+    // La toute première lettre attend la fin de la consigne parlée
+    this._speakLetter(letter, this.state.index === 0);
   }
 
   _buildLetters(cfg) {
@@ -155,36 +207,8 @@ class LettersGame {
     Voice.stop();
   }
 
-  /* ---------- QUESTION ---------- */
-  _next() {
-    if (this.state.quit) return;
-    if (this.state.index >= this.state.letters.length) { this._end(); return; }
-    const letter = this.state.letters[this.state.index];
-    this._render(letter);
-    this._updateProgress();
-    if (DIFFICULTIES[this.state.difficulty].timer) this._startTimer();
-  }
-
-  _render(letter) {
-    const cfg    = DIFFICULTIES[this.state.difficulty];
-    const assoc  = LETTER_ASSOC[letter.toUpperCase()];
-    const target = document.getElementById('targetLetter');
-    // En mode audio la lettre est cachée : l'enfant écoute, le 🔊 invite à rejouer le son
-    target.textContent = cfg.hideTarget ? '🔊' : letter;
-    target.classList.toggle('audio-mode', !!cfg.hideTarget);
-    // L'indice-image ne montre jamais la lettre en mode audio (sinon c'est triché)
-    document.getElementById('wordHint').innerHTML = cfg.hideTarget
-      ? `<span class="hint-emoji">${assoc.emoji}</span>`
-      : `<span class="hint-emoji">${assoc.emoji}</span>${letter.toUpperCase()} comme ${assoc.word}`;
-    this.state.answered = false;
-    this._renderOptions(letter);
-    this._clearFeedback();
-    // La toute première lettre attend la fin de la consigne parlée
-    this._speakLetter(letter, this.state.index === 0);
-  }
-
   _renderOptions(correct) {
-    const cfg  = DIFFICULTIES[this.state.difficulty];
+    const cfg  = this.state.cfg;
     const pool = this._getPool();
     const wrong = fisherYates(pool.filter(l => l !== correct)).slice(0, cfg.options - 1);
     const opts  = fisherYates([correct, ...wrong]);
@@ -202,7 +226,7 @@ class LettersGame {
   }
 
   _getPool() {
-    const cfg = DIFFICULTIES[this.state.difficulty];
+    const cfg = this.state.cfg;
     const UP  = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
     const LO  = 'abcdefghijklmnopqrstuvwxyz'.split('');
     if (cfg.letters === 'uppercase' || cfg.letters === 'order') return UP;
@@ -269,14 +293,16 @@ class LettersGame {
 
   _scoreFor() {
     const base = { easy:10, medium:15, hard:20, master:30 }[this.state.difficulty] || 10;
-    const cfg  = DIFFICULTIES[this.state.difficulty];
-    const timeBonus = cfg.timer && this.state.timeLeft > cfg.timeLimit / 2 ? 1.5 : 1;
+    const cfg  = this.state.cfg;
+    // Bonus de vitesse seulement si le chrono existe réellement pour
+    // cette partie (le réglage « Pas de chrono » le retire).
+    const timeBonus = Comfort.timerEnabled(cfg) && this.state.timeLeft > cfg.timeLimit / 2 ? 1.5 : 1;
     return Math.round(base * timeBonus);
   }
 
   /* ---------- TIMER ---------- */
   _startTimer() {
-    const cfg = DIFFICULTIES[this.state.difficulty];
+    const cfg = this.state.cfg;
     this.state.timeLeft = cfg.timeLimit;
     this._updateTimer();
     this._timer = setInterval(() => {
@@ -332,6 +358,16 @@ class LettersGame {
     this._renderResults(accuracy, totalTime);
     educa.show('screenResults');
     educa.addXP(Math.round(this.state.score / 5));
+    // La progression pilote la montée de palier — uniquement sur une
+    // vraie partie complète (pas une révision), pas d'âge imposé.
+    if (!this.state.isReview) {
+      const up = educa.recordPalierSession(accuracy);
+      if (up.canLevelUp) {
+        const btn = document.getElementById('levelUpBtn');
+        btn.style.display = '';
+        btn.onclick = () => { btn.style.display = 'none'; educa.setPalier(up.nextPalier); };
+      }
+    }
     setTimeout(() => educa.triggerCard(accuracy, flags, this.state.correctLetters), 2200);
   }
 
@@ -343,6 +379,7 @@ class LettersGame {
     document.getElementById('resCorrect').textContent    =
       `${this.state.correct}/${this.state.letters.length}`;
     document.getElementById('resTotalTime').textContent  = `${totalTime}s`;
+    document.getElementById('levelUpBtn').style.display  = 'none';
     const stars  = document.querySelectorAll('.results-star');
     const earned = accuracy >= 90 ? 3 : accuracy >= 70 ? 2 : accuracy >= 50 ? 1 : 0;
     stars.forEach((s,i) => s.classList.toggle('earned', i < earned));
@@ -406,8 +443,11 @@ class LettersGame {
     clearTimeout(this._speakTimer);
     this._speakTimer = setTimeout(() => {
       const assoc = LETTER_ASSOC[letter.toUpperCase()];
+      // L'indice-image s'illumine pendant que Kaya parle : vue + ouïe
+      // synchronisées (approche multisensorielle).
       Voice.speak(`${letter.toUpperCase()} ! ${letter.toUpperCase()}, comme ${assoc.word}.`,
-                  { interrupt: !afterIntro });
+                  { interrupt: !afterIntro,
+                    highlightEl: document.getElementById('wordHint') });
     }, afterIntro ? 400 : 250);
   }
 
@@ -466,6 +506,7 @@ class LettersGame {
     document.getElementById('statLetters').textContent = s.totalLetters;
     this._renderMastery();
     this._renderMuteBtn();
+    Comfort.renderPanel();
     this._renderVoicePicker();
     educa.show('screenStats');
     Voice.speak(`Tes statistiques ! ${s.gamesPlayed} parties jouées, et ${s.totalLetters} lettres réussies !`);

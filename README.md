@@ -12,18 +12,22 @@ edugame/
 ├── index.html        ← LE JEU (la seule page à ouvrir / déployer)
 ├── manifest.json     ← installation sur téléphone (PWA)
 ├── sw.js             ← mode hors-ligne (service worker)
+├── fonts/            ← polices OpenDyslexic (réglage confort, licence SIL/OFL)
 ├── css/
 │   ├── base.css      ← styles de base, boutons, thèmes d'univers
+│   ├── a11y.css      ← réglages confort (police dys, espacement, fond doux) + trace
 │   ├── educa.css     ← accueil, hub, Kaya, cartes 3D, collection
 │   └── game.css      ← mini-jeux (Lettres, Constructeur)
 ├── js/
 │   ├── audio.js      ← la voix de Kaya + effets sonores
+│   ├── comfort.js    ← réglages confort (dyslexie & handicap), persistants
 │   ├── kaya.js       ← le dessin de Kaya (bébé jaguar SVG)
 │   ├── card3d.js     ← effet 3D holographique des cartes
 │   ├── cards.js      ← les 36 cartes à collectionner
-│   ├── educa.js      ← profil, navigation, hub, révélation de carte
+│   ├── educa.js      ← profil, paliers (Découverte/Déchiffreur/Lecteur), hub
 │   ├── letters.js    ← mini-jeu « Les Lettres »
-│   └── builder.js    ← mini-jeu « Le Constructeur »
+│   ├── builder.js    ← mini-jeu « Le Constructeur »
+│   └── trace.js      ← mini-jeu « Écris la lettre » (tracer au doigt, multisensoriel)
 ├── icons/            ← icônes de l'application
 └── archive/          ← anciennes versions (NON utilisées par le jeu)
 ```
@@ -40,7 +44,7 @@ python3 -m http.server 8765
 Avant de publier des changements, **augmenter le numéro de version dans `sw.js`** :
 
 ```js
-const CACHE_NAME = 'educa-v9';   // → passer à v10, v11…
+const CACHE_NAME = 'educa-v11';   // → passer à v12, v13…
 ```
 
 Sinon les téléphones gardent l'ancienne version en cache.
@@ -51,4 +55,6 @@ Sinon les téléphones gardent l'ancienne version en cache.
 2. **Jamais de clavier imposé** : tuiles-lettres, boutons, images.
 3. **Phonétique française** : chaque mot d'association COMMENCE par sa lettre (« H comme Hibou »).
 4. **Cartes méritées** : un exploit réel donne sa carte (jamais au hasard).
-5. **Léger et hors-ligne** : zéro librairie externe, pensé pour les petits téléphones et les zones sans connexion.
+6. **Adapté à tous** : réglages confort persistants (police adaptée, espacement, fond doux, voix lente, pas de chrono) pensés avec les pratiques validées pour la dyslexie.
+7. **Trois chemins de lecture** : Découverte (4-6 ans), Déchiffreur (7-9), Lecteur (10-12) — l'âge fixe le point de départ, la réussite propose la montée de palier (jamais imposée).
+8. **Multisensoriel** : voir, entendre, et écrire au doigt — l'équivalent numérique de la lettre en relief.

@@ -1,0 +1,157 @@
+/* ============================================================
+   A11Y.CSS — Réglages confort (dyslexie & handicap)
+   Chaque réglage = une classe sur <body>, appliquée par
+   comfort.js. Rien n'est imposé : chacun se (dés)active seul.
+   ============================================================ */
+
+/* Police adaptée — hébergée en local (licence SIL/OFL, voir fonts/LICENSE.txt) */
+@font-face {
+  font-family: 'OpenDyslexic';
+  src: url('../fonts/OpenDyslexic-Regular.woff') format('woff');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'OpenDyslexic';
+  src: url('../fonts/OpenDyslexic-Bold.woff') format('woff');
+  font-weight: 700 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* --- Police adaptée : b/d, p/q, n/u ont des formes distinctes --- */
+body.comfort-dyslexic-font,
+body.comfort-dyslexic-font .btn,
+body.comfort-dyslexic-font .input,
+body.comfort-dyslexic-font .option-btn,
+body.comfort-dyslexic-font .tile {
+  font-family: 'OpenDyslexic', 'Nunito', sans-serif;
+  /* Les deux polices display Orbitron/Rajdhani restent pour les chiffres
+     décoratifs uniquement — jamais pour du texte à lire. */
+}
+
+/* --- Espacement renforcé : réduit mesurablement les erreurs de lecture --- */
+body.comfort-wide-spacing {
+  letter-spacing: 0.06em;
+  word-spacing: 0.12em;
+  line-height: 1.7;
+}
+body.comfort-wide-spacing .option-btn,
+body.comfort-wide-spacing .target-letter,
+body.comfort-wide-spacing .builder-word-display {
+  letter-spacing: 0.14em;
+}
+body.comfort-wide-spacing .tile { letter-spacing: 0.1em; }
+
+/* --- Fond doux : moins de fatigue visuelle que le contraste nuit plein --- */
+body.comfort-soft-bg {
+  background: #FDF6E3 !important;
+  color: #334155;
+}
+body.comfort-soft-bg::before { display: none; }
+body.comfort-soft-bg .card,
+body.comfort-soft-bg .stat-box,
+body.comfort-soft-bg .minigame-card,
+body.comfort-soft-bg .diff-card,
+body.comfort-soft-bg .choice-btn,
+body.comfort-soft-bg .hub-header {
+  background: rgba(15,23,42,0.05);
+  border-color: rgba(15,23,42,0.15);
+}
+body.comfort-soft-bg .option-btn,
+body.comfort-soft-bg .tile {
+  background: #FFFFFF;
+  border-color: rgba(15,23,42,0.25);
+  color: #1E293B;
+}
+body.comfort-soft-bg .btn-ghost { color: #334155; border-color: rgba(15,23,42,0.3); }
+body.comfort-soft-bg .muted { color: #64748B; }
+body.comfort-soft-bg .input { background:#fff; border-color:rgba(15,23,42,0.3); color:#1E293B; }
+body.comfort-soft-bg .input::placeholder { color: rgba(15,23,42,0.35); }
+body.comfort-soft-bg .target-letter { color: #1E293B; text-shadow: none; }
+body.comfort-soft-bg .builder-word-display { color: #1E293B; text-shadow: none; }
+body.comfort-soft-bg .speech-bubble { color: #1E293B; }
+body.comfort-soft-bg .mastery-unseen { background: rgba(15,23,42,0.06); border-color: rgba(15,23,42,0.15); color: #94A3B8; }
+body.comfort-soft-bg .slot { background: rgba(15,23,42,0.04); border-color: rgba(15,23,42,0.3); color: #1E293B; }
+body.comfort-soft-bg .progress-track { background: rgba(15,23,42,0.12); }
+body.comfort-soft-bg .target-label,
+body.comfort-soft-bg .letter-word-hint { color: #475569; }
+body.comfort-soft-bg .game-topbar-title,
+body.comfort-soft-bg .h1, body.comfort-soft-bg .h2, body.comfort-soft-bg .h3 { color: #0F172A; }
+
+/* --- Mot mis en valeur pendant que Kaya le prononce --- */
+.speaking {
+  outline: 3px solid var(--secondary);
+  outline-offset: 4px;
+  border-radius: 8px;
+  transition: outline-color 0.15s;
+}
+
+/* --- Panneau de réglages (écran Stats) --- */
+.comfort-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.6rem;
+  padding: 0 0.25rem;
+}
+.comfort-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: 48px;
+  padding: 0.6rem 0.8rem;
+  border-radius: var(--radius);
+  background: rgba(255,255,255,0.07);
+  border: 2px solid rgba(255,255,255,0.15);
+  color: inherit;
+  font-family: inherit;
+  font-weight: 700;
+  font-size: 0.85rem;
+  cursor: pointer;
+  text-align: left;
+}
+body.comfort-soft-bg .comfort-toggle {
+  background: rgba(15,23,42,0.05);
+  border-color: rgba(15,23,42,0.2);
+}
+.comfort-toggle .comfort-state {
+  margin-left: auto;
+  font-size: 0.75rem;
+  font-weight: 900;
+  opacity: 0.6;
+}
+.comfort-toggle.active {
+  border-color: var(--secondary);
+  background: rgba(245,158,11,0.14);
+}
+.comfort-toggle.active .comfort-state { opacity: 1; color: var(--secondary); }
+
+/* --- Trace la lettre : canvas tactile multisensoriel --- */
+.trace-canvas-wrap {
+  position: relative;
+  margin: 0 auto;
+  border-radius: var(--radius);
+  overflow: hidden;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.15);
+  touch-action: none;   /* le doigt trace, la page ne scrolle pas */
+}
+body.comfort-soft-bg .trace-canvas-wrap {
+  background: rgba(15,23,42,0.04);
+  border-color: rgba(15,23,42,0.2);
+}
+#traceCanvas { display: block; width: 100%; height: auto; }
+.trace-letter-ghost {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14rem;
+  font-weight: 900;
+  opacity: 0.12;
+  pointer-events: none;
+  user-select: none;
+}
+body.comfort-soft-bg .trace-letter-ghost { color: #0F172A; }

@@ -18,6 +18,56 @@ class Educa {
   _save(key, val)  { localStorage.setItem(key, JSON.stringify(val)); }
   saveProfile()    { this._save('educaProfile', this.profile); }
 
+  /* ---------- PALIERS — 3 chemins de lecture ----------
+     L'âge fixe le point de départ, mais la RÉUSSITE pilote la montée.
+     Un enfant peut rester au palier 1 aussi longtemps qu'il faut,
+     et monter sans stress quand il est prêt. */
+  static PALIERS = {
+    1: { name:'Découverte',  say:'chemin Découverte',  minAge:'4-6',  cfg:{
+      letters:'uppercase', options:2, timer:false, showWordHint:true,
+      syllables:false, wordLength:[2,4] } },
+    2: { name:'Déchiffreur', say:'chemin Déchiffreur', minAge:'7-9',  cfg:{
+      letters:'mixed',     options:3, timer:false, showWordHint:true,
+      syllables:true,  wordLength:[3,5] } },
+    3: { name:'Lecteur',     say:'chemin Lecteur',     minAge:'10-12', cfg:{
+      letters:'mixed',     options:4, timer:true, timeLimit:20, showWordHint:false,
+      syllables:true,  wordLength:[4,8] } },
+  };
+
+  /* Palier actuel : profil si déjà défini, sinon âge, sinon 1. */
+  getPalier() {
+    if (this.profile?.palier) return this.profile.palier;
+    const byAge = { '4-6':1, '7-9':2, '10-12':3 };
+    return byAge[this.profile?.age] || 1;
+  }
+
+  /* Enregistre le résultat d'une session et propose la montée si 2
+     sessions consécutives ≥80 % sur le palier actuel. */
+  recordPalierSession(accuracy) {
+    const p = this.getPalier();
+    const stats = this.profile.palierStats = this.profile.palierStats || {};
+    stats[p] = stats[p] || { sessions:0, goodStreak:0 };
+    stats[p].sessions++;
+    stats[p].goodStreak = accuracy >= 80 ? stats[p].goodStreak + 1 : 0;
+    this.saveProfile();
+    // 2 bonnes sessions = on propose le palier suivant (jamais imposé)
+    if (stats[p].goodStreak >= 2 && p < 3) {
+      const next = Educa.PALIERS[p + 1];
+      Voice.speak(`Tu assures ! Tu veux essayer le ${next.say} ? C'est un peu plus difficile, mais je crois en toi.`, { interrupt:false });
+      return { canLevelUp: true, nextPalier: p + 1 };
+    }
+    return { canLevelUp: false };
+  }
+
+  /* L'enfant accepte la montée — ou redescend si c'est trop dur. */
+  setPalier(n) {
+    this.profile.palier = Math.max(1, Math.min(3, n));
+    this.saveProfile();
+    const p = Educa.PALIERS[this.profile.palier];
+    Voice.speak(`Tu es maintenant sur le ${p.say} !`);
+    this.showHub();
+  }
+
   /* ---------- RANKS ---------- */
   static RANKS = [
     { name:'Commun',     xpMin:0   },
@@ -66,6 +116,7 @@ class Educa {
         const prev = this._currentScreen;
         if (prev === 'screenGame')    lettersGame?._halt();
         if (prev === 'screenBuilder') builderGame?._halt();
+        if (prev === 'screenTrace')   traceGame?._halt();
         this._currentScreen = target;
         this.show(target);
       } else {
@@ -137,7 +188,7 @@ class Educa {
     Voice.speak('Ouf ! Rien n\'est effacé.');
   }
   confirmReset() {
-    ['educaProfile','educaLetterStats','educaVoiceName','educaMuted']
+    ['educaProfile','educaLetterStats','educaVoiceName','educaMuted','educaComfort']
       .forEach(k => localStorage.removeItem(k));
     location.reload();   // repart vraiment à zéro, mémoire comprise
   }
@@ -218,7 +269,8 @@ class Educa {
       ? Math.min(100, ((p.xp - rank.xpMin) / (next.xpMin - rank.xpMin)) * 100)
       : 100;
     document.getElementById('hubName').textContent  = p.name;
-    document.getElementById('hubRank').textContent  = `${rank.name} · ${p.xp} XP`;
+    const palier = Educa.PALIERS[this.getPalier()];
+    document.getElementById('hubRank').textContent  = `${rank.name} · ${p.xp} XP · ${palier.name}`;
     document.getElementById('hubXpFill').style.width = pct + '%';
     document.getElementById('hubCardCount').textContent =
       `${p.cards.length}/${CARDS_DATA.length}`;
@@ -235,10 +287,13 @@ class Educa {
   }
 
   /* ---------- DIFFICULTÉ ---------- */
+  /* Fait correspondre l'ancien système (easy/medium/hard/master) au
+     palier courant : 1=Découverte, 2=Déchiffreur, 3=Lecteur. */
   showDifficulty() {
     this.show('screenDifficulty');
-    // Niveau conseillé selon l'âge donné à l'accueil
-    const reco = { '4-6':'easy', '7-9':'medium', '10-12':'hard' }[this.profile?.age] || 'easy';
+    // L'étoile suit le palier de l'enfant (pas seulement son âge) :
+    // Découverte → visuel, Déchiffreur → à l'oreille doux, Lecteur → expert.
+    const reco = { 1:'easy', 2:'medium', 3:'hard' }[this.getPalier()] || 'easy';
     document.querySelectorAll('.diff-card').forEach(c => {
       c.classList.toggle('recommended', c.dataset.level === reco);
     });

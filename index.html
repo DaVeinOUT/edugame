@@ -16,6 +16,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&family=Orbitron:wght@700;900&family=Rajdhani:wght@500;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/a11y.css">
   <link rel="stylesheet" href="css/educa.css">
   <link rel="stylesheet" href="css/game.css">
 </head>
@@ -184,6 +185,14 @@
         <div class="minigame-desc">Lis les mots pour construire ton monde</div>
         <span class="badge badge-rare">Écriture</span>
       </div>
+      <div class="minigame-card" role="button" tabindex="0"
+           aria-label="Écris la lettre — trace les lettres avec ton doigt"
+           onclick="traceGame.start()">
+        <span class="minigame-icon" style="color:var(--secondary);">✍️</span>
+        <div class="minigame-title">Écris la lettre</div>
+        <div class="minigame-desc">Trace les lettres avec ton doigt</div>
+        <span class="badge badge-epic">Motricité</span>
+      </div>
     </div>
 
     <div class="row" style="justify-content:center;gap:0.8rem;margin-top:0.5rem;">
@@ -326,6 +335,9 @@
     </div>
 
     <div class="col gap-2 mt-3">
+      <button class="btn btn-success" id="levelUpBtn" style="display:none;">
+        🚀 Passer au palier suivant
+      </button>
       <button class="btn btn-secondary" id="reviewBtn" style="display:none;"
               onclick="lettersGame.startReview()">🔁 Revoir mes erreurs</button>
       <button class="btn btn-primary" onclick="educa.showHub()">Retour au Hub</button>
@@ -352,6 +364,11 @@
         <div class="stat-label">Lettres apprises</div>
       </div>
     </div>
+    <p class="h3 text-center mt-3 mb-1">⚙️ Confort de lecture</p>
+    <p class="muted text-center mb-1" style="font-size:0.8rem;">
+      Pour les yeux et les oreilles — essaie, ça se change quand tu veux
+    </p>
+    <div id="comfortGrid" class="comfort-grid"></div>
     <p class="h3 text-center mt-3 mb-1">📊 Lettres par cœur</p>
     <p class="muted text-center mb-1" style="font-size:0.8rem;">
       Vert = apprise · Orange = en cours · Gris = pas encore vue
@@ -399,18 +416,49 @@
             onclick="educa.showHub()">← Hub</button>
   </div>
 
+  <!-- ═══════════════════════════════════════
+       ÉCRAN : TRACE LA LETTRE (multisensoriel)
+  ════════════════════════════════════════ -->
+  <div class="screen" id="screenTrace">
+    <div class="game-topbar">
+      <span class="game-topbar-title">Écris la lettre</span>
+      <button class="speak-btn" style="position:static;" type="button"
+              aria-label="Réécouter la lettre" onclick="traceGame.replay()">🔊</button>
+    </div>
+    <div class="trace-canvas-wrap">
+      <div class="trace-letter-ghost" id="traceGhost">A</div>
+      <canvas id="traceCanvas" width="440" height="440"
+              style="aspect-ratio:1/1;max-width:100%;height:auto;"></canvas>
+    </div>
+    <div class="row" style="justify-content:center;gap:0.8rem;margin-top:0.8rem;">
+      <button class="btn btn-ghost btn-sm" onclick="traceGame.clearCanvas()">🧽 Effacer</button>
+      <button class="btn btn-primary" onclick="traceGame.nextLetter()">C'est fait !</button>
+    </div>
+    <div style="margin-top:auto;padding-top:0.8rem;">
+      <div class="row" style="justify-content:space-between;margin-bottom:0.4rem;">
+        <span class="muted" id="traceProgress">1/10</span>
+        <button class="btn btn-ghost btn-sm" onclick="traceGame.quit()">← Hub</button>
+      </div>
+      <div class="progress-track">
+        <div class="progress-fill" id="traceFill" style="width:0%"></div>
+      </div>
+    </div>
+  </div>
+
 </div><!-- #app -->
 
 <div id="flashToast" class="flash-toast" role="status"></div>
 
 <!-- Scripts -->
 <script src="js/audio.js"></script>
+<script src="js/comfort.js"></script>
 <script src="js/kaya.js"></script>
 <script src="js/card3d.js"></script>
 <script src="js/cards.js"></script>
 <script src="js/educa.js"></script>
 <script src="js/letters.js"></script>
 <script src="js/builder.js"></script>
+<script src="js/trace.js"></script>
 <script>
   document.addEventListener('DOMContentLoaded', () => {
     educa       = new Educa();
