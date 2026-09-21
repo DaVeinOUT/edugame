@@ -67,10 +67,20 @@
   line-height: 1;
   text-shadow: 0 0 40px rgba(124,58,237,0.8);
 }
-/* Mode audio : la cible affiche 🔊 et pulse — écoute, puis trouve */
+/* Mode audio : la cible est une icône d'écoute SVG claire,
+   pulsante doucement — pas un emoji géant. */
 .target-letter.audio-mode {
   text-shadow: none;
   animation: speakPulse 1.6s ease-in-out infinite;
+}
+.listen-icon {
+  display: inline-block;
+  width: 5rem;
+  height: 5rem;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23A78BFA' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M11 5 6 9H2v6h4l5 4V5z' fill='%23A78BFA' fill-opacity='0.25'/%3E%3Cpath d='M15.5 8.5a5 5 0 0 1 0 7'/%3E%3Cpath d='M18.5 5.5a10 10 0 0 1 0 13'/%3E%3C/svg%3E");
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
 }
 @keyframes speakPulse {
   0%,100% { transform:scale(1); }

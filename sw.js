@@ -4,7 +4,7 @@
    Chemins RELATIFS : fonctionne aussi sous /edugame/ (GitHub Pages).
    ============================================================ */
 
-const CACHE_NAME = 'educa-v11';
+const CACHE_NAME = 'educa-v12';
 const FONT_CACHE = 'educa-fonts-v2';   // v2 : contient aussi les polices OpenDyslexic
 
 const ASSETS = [

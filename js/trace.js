@@ -19,7 +19,8 @@ class TraceGame {
     const pool     = palier === 1 ? 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
                                   : 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
     const letters  = fisherYates(pool.split('')).slice(0, 10);
-    this.state     = { letters, index: 0, quit: false, strokes: 0 };
+    this.state     = { letters, index: 0, quit: false, strokes: 0, startedAt: Date.now() };
+    this._partialCounted = false;
 
     document.getElementById('traceProgress').textContent = '1/10';
     educa.show('screenTrace');
@@ -32,7 +33,16 @@ class TraceGame {
     Voice.stop();
     educa.showHub();
   }
-  _halt() { this.state.quit = true; Voice.stop(); }
+  _halt() {
+    this.state.quit = true;
+    // Chaque lettre réellement tracée avant l'abandon compte
+    if (!this._partialCounted && this.state.index > 0) {
+      this._partialCounted = true;
+      educa?.recordActivity({ items: this.state.index,
+        seconds: Math.round((Date.now() - (this.state.startedAt || Date.now())) / 1000) });
+    }
+    Voice.stop();
+  }
 
   _current() { return this.state.letters[this.state.index]; }
 
@@ -129,8 +139,31 @@ class TraceGame {
     Voice.speak(assoc ? `${letter.toUpperCase()} ! Comme ${assoc.word}.` : `${letter.toUpperCase()} !`);
   }
 
+  /* Validation réelle du tracé : on compte les pixels dessinés, le
+   bouton « C'est fait ! » ne valide que si l'enfant a vraiment tracé.
+   Tolérance très généreuse — c'est un jeu, pas un examen. */
+  _pixelCount() {
+    if (!this._ctx) return 0;
+    // Dimensions PHYSIQUES du canvas (× dpr) : setTransform ne change
+    // pas les coordonnées lues par getImageData.
+    const c = document.getElementById('traceCanvas');
+    const data = this._ctx.getImageData(0, 0, c.width, c.height).data;
+    const dpr = window.devicePixelRatio || 1;
+    let n = 0;
+    for (let i = 3; i < data.length; i += 64) {   // échantillonnage léger
+      if (data[i] > 0) n++;
+    }
+    return n / (dpr * dpr);   // ramené au repère 440×440
+  }
+
   nextLetter() {
     if (this.state.quit) return;
+    const drawn = this._pixelCount();
+    if (drawn < 60) {   // presque rien tracé : on encourage à essayer
+      Voice.speak('Essaie de tracer la lettre avec ton doigt d\'abord ! Le grand dessin t\'aide.');
+      Sfx.tap();
+      return;
+    }
     Sfx.correct();
     Voice.speak(PRAISE[Math.floor(Math.random() * PRAISE.length)]);
     this.state.index++;
@@ -138,6 +171,13 @@ class TraceGame {
   }
 
   _end() {
+    // Même compteur global que les autres jeux
+    if (!this._partialCounted) {
+      this._partialCounted = true;
+      educa.recordActivity({ items: this.state.letters.length,
+        seconds: Math.round((Date.now() - (this.state.startedAt || Date.now())) / 1000),
+        completed: true });
+    }
     educa.show('screenResults');
     const name = educa.profile?.name || 'Champion';
     document.getElementById('resultTitle').textContent = `Bravo, ${name} !`;

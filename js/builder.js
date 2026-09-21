@@ -48,7 +48,7 @@ class BuilderGame {
     const palier = educa?.getPalier?.() || 1;
     const deck   = BUILDER_WORDS_BY_PALIER[palier] || BUILDER_WORDS;
     const words  = fisherYates(deck).slice(0, 10);
-    this.state   = { words, index:0, score:0, placed:0, pos:0, locked:false };
+    this.state   = { words, index:0, score:0, placed:0, pos:0, locked:false, startedAt: Date.now() };
 
     document.getElementById('builderWorld').innerHTML = '';
     document.getElementById('builderScore').textContent = '0 pts';
@@ -214,6 +214,12 @@ class BuilderGame {
 
   _end() {
     const accuracy = (this.state.placed / this.state.words.length) * 100;
+    // Même compteur global que les autres jeux
+    // Même compteur global que les autres jeux + session au palier
+    educa.recordActivity({ score: this.state.score, items: this.state.placed,
+      seconds: Math.round((Date.now() - (this.state.startedAt || Date.now())) / 1000),
+      completed: true });
+    educa.recordPalierSession(accuracy);
     educa.addXP(Math.round(this.state.score / 3));
     educa.show('screenResults');
 

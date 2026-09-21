@@ -73,13 +73,21 @@ const Voice = {
   /* highlightEl : élément mis en valeur pendant que Kaya parle
      (approximation du surlignage synchrone — l'API Web Speech ne
      permet pas le mot-à-mot). */
-  speak(text, { rate, pitch = 1.05, interrupt = true, highlightEl = null } = {}) {
-    if (!('speechSynthesis' in window) || !text || this.muted) {
-      return;
-    }
-    if (rate == null) rate = (typeof Comfort !== 'undefined' ? Comfort.voiceRate() : 0.9);
+  speak(text, opts = {}) {
+    if (!('speechSynthesis' in window) || !text || this.muted) return;
+    const { interrupt = true } = opts;
     if (!this._unlocked) this._pending = text;
+    clearTimeout(this._speakDefer);
+    // Bug Chrome documenté (issues.chromium 409717085 / 414259797) :
+    // un speak() juste après cancel() peut disparaître silencieusement —
+    // la file doit respirer ~90 ms avant la nouvelle phrase.
     if (interrupt) speechSynthesis.cancel();
+    this._speakDefer = setTimeout(() => this._doSpeak(text, opts), interrupt ? 90 : 0);
+  },
+
+  _doSpeak(text, { rate, pitch = 1.05, highlightEl = null, _retried = false } = {}) {
+    if (!('speechSynthesis' in window) || this.muted) return;
+    if (rate == null) rate = (typeof Comfort !== 'undefined' ? Comfort.voiceRate() : 0.9);
     const u = new SpeechSynthesisUtterance(text);
     u.lang = 'fr-FR';
     // Hors-ligne, une voix réseau resterait muette : on bascule sur la locale
@@ -89,16 +97,19 @@ const Voice = {
     u.rate   = rate;
     u.pitch  = pitch;
     u.volume = 1;
-    u.onstart = () => { this._unlocked = true; this._pending = null; };
-    if (highlightEl) {
-      u.onstart = () => {
-        this._unlocked = true; this._pending = null;
-        highlightEl.classList.add('speaking');
-      };
-      const clear = () => highlightEl.classList.remove('speaking');
-      u.onend = clear;
-      u.onerror = clear;
-    }
+    const clear = () => highlightEl?.classList.remove('speaking');
+    u.onstart = () => {
+      this._unlocked = true; this._pending = null;
+      highlightEl?.classList.add('speaking');
+    };
+    u.onend = clear;
+    u.onerror = (e) => {
+      clear();
+      // Chrome avale parfois sa propre file : on retente une fois.
+      if (!_retried && e?.error !== 'canceled' && e?.error !== 'interrupted') {
+        setTimeout(() => this._doSpeak(text, { rate, pitch, highlightEl, _retried: true }), 120);
+      }
+    };
     speechSynthesis.speak(u);
   },
 
@@ -159,5 +170,15 @@ document.addEventListener('pointerdown', () => {
     if (!Voice._unlocked && Voice._pending) Voice.speak(Voice._pending);
   }, 150);
 }, { once: true });
+
+/* Chrome fige parfois la file de synthèse (pending=true, speaking=false,
+   plus rien ne sort jamais — bug 409717085). Réveilleur discret. */
+if ('speechSynthesis' in window) {
+  setInterval(() => {
+    try {
+      if (speechSynthesis.pending && !speechSynthesis.speaking) speechSynthesis.resume();
+    } catch { /* rien à faire */ }
+  }, 4000);
+}
 
 Voice.init();

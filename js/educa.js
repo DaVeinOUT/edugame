@@ -485,6 +485,21 @@ class Educa {
     reader.readAsText(file);
   }
 
+  /* ---------- STATS GLOBALES ----------
+     Partagées par TOUS les jeux : une partie de Lettres, un mot
+     construit ou une lettre tracée nourrissent le même total.
+     Un abandon en cours de route compte ce qui a été appris. */
+  recordActivity({ score = 0, items = 0, seconds = 0, completed = false } = {}) {
+    let s;
+    try { s = JSON.parse(localStorage.getItem('educaLetterStats')) || {}; }
+    catch { s = {}; }
+    if (completed) s.gamesPlayed = (s.gamesPlayed || 0) + 1;
+    s.bestScore    = Math.max(s.bestScore || 0, score);
+    s.totalLetters = (s.totalLetters || 0) + items;
+    s.playSeconds  = (s.playSeconds || 0) + seconds;
+    localStorage.setItem('educaLetterStats', JSON.stringify(s));
+  }
+
   exitToHub() { this.showHub(); }
 }
 

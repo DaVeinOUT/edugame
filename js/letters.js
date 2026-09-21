@@ -105,6 +105,12 @@ class LettersGame {
     let letters = customLetters ? [...customLetters] : this._buildLetters(cfg);
     // Le mode Maître suit le vrai ordre alphabétique ; les autres mélangent
     if (cfg.letters !== 'order' || customLetters) letters = fisherYates(letters);
+    // Une session = une dizaine de lettres, pas tout l'alphabet d'un coup.
+    // 52 lettres mélangées (Expert), c'est une corvée ; 13 bien choisies,
+    // c'est une partie. Seul le défi Maître garde les 26 dans l'ordre.
+    if (!customLetters && cfg.letters !== 'order') {
+      letters = letters.slice(0, 13);
+    }
 
     this.state = {
       difficulty, cfg, letters,
@@ -166,8 +172,11 @@ class LettersGame {
     const cfg    = this.state.cfg;
     const assoc  = LETTER_ASSOC[letter.toUpperCase()];
     const target = document.getElementById('targetLetter');
-    // En mode audio la lettre est cachée : l'enfant écoute, le 🔊 invite à rejouer le son
-    target.textContent = cfg.hideTarget ? '🔊' : letter;
+    // En mode audio, la cible affiche une icône d'écoute discrète —
+    // et jamais un emoji géant qui domine l'écran (tchip).
+    target.innerHTML = cfg.hideTarget
+      ? '<span class="listen-icon" aria-hidden="true"></span>'
+      : letter;
     target.classList.toggle('audio-mode', !!cfg.hideTarget);
     // L'indice-image ne montre jamais la lettre en mode audio (sinon c'est triché)
     document.getElementById('wordHint').innerHTML = cfg.hideTarget
@@ -202,8 +211,11 @@ class LettersGame {
     this.state.quit = true;
     this._stopTimer();
     clearTimeout(this._speakTimer);
+    clearTimeout(this._fbTimer);
     (this._particleTimers || []).forEach(t => clearTimeout(t));
     this._particleTimers = [];
+    // Ce qui a été appris avant l'abandon compte dans les stats
+    if (this.state.correct > 0) this._updateStatsPartial();
     Voice.stop();
   }
 
@@ -354,7 +366,7 @@ class LettersGame {
       retry:           this.state.isReview,
     };
     this._lastMistakes = [...new Set(this.state.mistakes.map(m => m.letter))];
-    this._updateStats();
+    this._updateStats(true);
     this._renderResults(accuracy, totalTime);
     educa.show('screenResults');
     educa.addXP(Math.round(this.state.score / 5));
@@ -492,15 +504,33 @@ class LettersGame {
     this.stats.confusions[key] = (this.stats.confusions[key] || 0) + 1;
     localStorage.setItem('educaLetterStats', JSON.stringify(this.stats));
   }
-  _updateStats() {
-    this.stats.gamesPlayed++;
-    this.stats.bestScore    = Math.max(this.stats.bestScore, this.state.score);
-    this.stats.totalLetters += this.state.correct;
-    this.stats.playSeconds += Math.round((Date.now() - this.state.startTime) / 1000);
+  _updateStats(completed = true) {
+    // Drapeau PAR SESSION (state), jamais dans les stats persistées.
+    // À l'abandon, les items sont déjà comptés : la complétion plus tard
+    // n'ajoute que la partie, pas les items une seconde fois.
+    const already = this.state._counted;
+    if (already && !completed) return;
+    if (completed) {
+      this.stats.gamesPlayed++;
+      if (!already) {   // abandon puis _end malgré tout : items déjà comptés
+        this.stats.totalLetters += this.state.correct || 0;
+      }
+    } else {
+      this.stats.totalLetters += this.state.correct || 0;
+    }
+    this.state._counted = true;
+    this.stats.bestScore    = Math.max(this.stats.bestScore, this.state.score || 0);
+    this.stats.playSeconds += Math.round((Date.now() - (this.state.startTime || Date.now())) / 1000);
     localStorage.setItem('educaLetterStats', JSON.stringify(this.stats));
   }
+  /* Une partie abandonnée compte quand même ce qui a été appris —
+     sinon les stats restent à 0 pour un enfant qui quitte en cours. */
+  _updateStatsPartial() {
+    this._updateStats(false);
+  }
   showStats() {
-    const s = this.stats;
+    const s = this.stats = this._loadStats();   // relecture : Constructeur et
+                                                // traceur écrivent aussi dedans
     document.getElementById('statGames').textContent   = s.gamesPlayed;
     document.getElementById('statBest').textContent    = s.bestScore;
     document.getElementById('statLetters').textContent = s.totalLetters;
