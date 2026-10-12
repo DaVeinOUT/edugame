@@ -35,7 +35,7 @@ test('chaque étape propose une leçon complète et jouable', () => {
 test('la leçon va de l\'oreille vers l\'écrit', () => {
   const p = newProfile({}, NOW);
   const plan = planLesson(cur, p, cur.stepById('t').index, { rand: seededRandom(5), now: NOW });
-  const order = ['listen', 'sound', 'syllable', 'read', 'build', 'sentence'];
+  const order = ['listen', 'sound', 'syllable', 'read', 'hearword', 'build', 'sentence'];
   const ranks = plan.map(i => order.indexOf(i.kind));
   assert.deepEqual(ranks, [...ranks].sort((a, b) => a - b));
 });

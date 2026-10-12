@@ -12,14 +12,17 @@ test('un mot simple : graphèmes, syllabes et CGP', () => {
 test('les graphèmes complexes comptent pour UN son', () => {
   const p = parseSeg('ch-a-t°');
   assert.deepEqual(p.graphemes.map(g => g.g), ['ch', 'a', 't']);
-  assert.deepEqual(p.gpcs, ['ch>ch', 'a>a']);
+  assert.deepEqual(p.gpcs, ['ch>ch', 'a>a', '°']);
 });
 
-test('la lettre muette est marquée et ne demande aucune connaissance', () => {
+test('la lettre muette est marquée et s\'apprend (étape « lettres muettes »)', () => {
   const p = parseSeg('ch-a-t°');
   assert.equal(p.graphemes[2].mute, true);
   assert.equal(p.graphemes[2].p, '');
-  assert.equal(isDecodable(p, new Set(['ch>ch', 'a>a'])), true);
+  assert.equal(isDecodable(p, new Set(['ch>ch', 'a>a'])), false);
+  assert.equal(isDecodable(p, new Set(['ch>ch', 'a>a', '°'])), true);
+  assert.ok(parseSeg('h°-i|b-ou').gpcs.includes('h>°'), 'le h muet a sa propre étape');
+  assert.ok(parseSeg('d-an-s-ent°').gpcs.includes('ent>°'));
 });
 
 test('une lecture explicite remplace la lecture par défaut', () => {

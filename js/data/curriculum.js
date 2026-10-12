@@ -1,110 +1,170 @@
 /* ============================================================
-   DATA/CURRICULUM.JS — Le parcours de lecture de Kaya
+   DATA/CURRICULUM.JS — Le parcours de lecture de Kaya (66 étapes)
    Une méthode explicite et systématique : on apprend le SON des
-   lettres (pas seulement leur nom), une correspondance à la fois,
-   des voyelles et consonnes qu'on peut prolonger (« mmm », « sss »)
-   vers les graphèmes complexes (ou, on, an, oi, eau, gn…).
-   Ordre inspiré des recommandations françaises (guide « Pour enseigner
-   la lecture et l'écriture au CP », MEN 2019) : fréquence, facilité de
-   la fusion, et lettres qui se ressemblent (b/d, p/q, m/n, f/v)
-   jamais introduites l'une juste après l'autre.
+   lettres, une correspondance graphème→phonème par étape.
+   Ordre arbitré à partir de sources (rapports/2026-10-12-pedagogie-sources.md) :
+   • voyelles et consonnes qu'on peut prolonger d'abord (Dehaene et al. 2012) ;
+   • « ou » et les lettres muettes tôt, comme Kalulu (2025) ;
+   • consonnes brèves (p t c d b g) AVANT les sons nasaux (on, an, in),
+     eux-mêmes espacés ;
+   • b, d, p, q éloignés + une étape-contraste ;
+   • règles contextuelles (c, g, s) après leur valeur de base, raretés à la fin ;
+   • ~15 correspondances dans les 18 premières étapes (Goigoux 2016 : tempo optimal).
+   Les mots-outils deviennent lisibles quand leurs sons sont connus.
 
    Notation des mots : voir js/core/seg.js ("ch-a-t°", "m-ai|s:z-on").
-   Dans les textes de Kaya : [x] = jouer le son x, «mot» = dire le mot
-   lentement (et montrer son image si elle existe).
+   Dans les textes de Kaya : [x] = jouer le son x, «mot» = dire le mot lentement.
    ============================================================ */
 
-/* kind : voyelle | longue (consonne qu'on peut prolonger) | courte
-          (consonne brève) | complexe (plusieurs lettres, un son) | regle */
+/* kind : voyelle | longue (consonne qu'on prolonge) | courte (consonne brève)
+          | complexe (plusieurs lettres, un son) | regle | mot | contraste */
 export const STEPS = [
   { id: 'a', show: 'a', gpcs: ['a>a', 'à>a', 'â>a'], ph: 'a', kind: 'voyelle', anchor: 'ananas',
-    intro: 'Voici la lettre a. Elle fait le son [a]. Comme au début de «ananas» ! Dis avec moi : [a] !' },
+    intro: 'Voici la lettre a. Elle fait le son [a]. Ouvre grand la bouche : [a] ! Comme au début de «ananas». Dis-le avec moi : [a] !' },
   { id: 'i', show: 'i', gpcs: ['i>i', 'î>i', 'ï>i'], ph: 'i', kind: 'voyelle', anchor: 'île',
-    intro: 'Voici la lettre i, avec son petit point. Elle fait le son [i]. Comme au début de «île» ! Dis avec moi : [i] !' },
-  { id: 'l', show: 'l', gpcs: ['l>l', 'll>l'], ph: 'l', kind: 'longue', anchor: 'lion',
-    intro: 'Voici la lettre l. Son nom, c\'est «l». Mais dans les mots, elle chante [l]. Comme au début de «lion» ! Écoute : «la», «li» !' },
+    intro: 'Voici la lettre i, avec son petit point. Elle fait le son [i], comme un sourire. Comme au début de «île». Dis-le avec moi : [i] !' },
+  { id: 'l', show: 'l', gpcs: ['l>l'], ph: 'l', kind: 'longue', anchor: 'lion',
+    intro: 'Voici la lettre l. Dans les mots, elle chante [l], la langue en haut. Comme au début de «lion» ! Écoute : «la», «li» !' },
   { id: 'o', show: 'o', gpcs: ['o>o', 'ô>o'], ph: 'o', kind: 'voyelle', anchor: 'os',
-    intro: 'Voici la lettre o, toute ronde. Elle fait le son [o]. Comme dans «os» ! Avec l : «lo» !' },
-  { id: 'r', show: 'r', gpcs: ['r>r', 'rr>r'], ph: 'r', kind: 'longue', anchor: 'robot',
-    intro: 'Voici la lettre r. Dans les mots, elle gronde tout doucement : [r]. Comme au début de «robot» ! Écoute : «ra», «ri», «ro» !' },
+    intro: 'Voici la lettre o, toute ronde, comme ta bouche : [o] ! Comme dans «os». Avec l, ça fait «lo» !' },
+  { id: 'r', show: 'r', gpcs: ['r>r'], ph: 'r', kind: 'longue', anchor: 'robot',
+    intro: 'Voici la lettre r. Elle gronde tout doucement, au fond de la gorge : [r]. Comme au début de «robot» ! Écoute : «ra», «ri», «ro» !' },
   { id: 'u', show: 'u', gpcs: ['u>u', 'û>u', 'ù>u'], ph: 'u', kind: 'voyelle', anchor: 'usine',
-    intro: 'Voici la lettre u. Elle fait le son [u], la bouche en rond comme pour un bisou. Comme au début de «usine» ! Écoute : «lu», «ru» !' },
-  { id: 'm', show: 'm', gpcs: ['m>m', 'mm>m'], ph: 'm', kind: 'longue', anchor: 'moto',
+    intro: 'Voici la lettre u. Elle fait le son [u], la bouche en avant comme pour un bisou. Comme au début de «usine» ! Écoute : «lu», «ru» !' },
+  { id: 'm', show: 'm', gpcs: ['m>m'], ph: 'm', kind: 'longue', anchor: 'moto',
     intro: 'Voici la lettre m, avec ses deux bosses. Elle chante [m], la bouche fermée. Comme au début de «moto» ! Écoute : «ma», «mi», «mo» !' },
-  { id: 'é', show: 'é', gpcs: ['é>é'], ph: 'é', kind: 'voyelle', anchor: 'éléphant',
-    intro: 'Voici é, avec son accent qui monte. Il fait le son [é]. Comme au début de «éléphant» ! Écoute : «mé», «ré», «lé» !' },
-  { id: 's', show: 's', gpcs: ['s>s', 'ss>s'], ph: 's', kind: 'longue', anchor: 'soleil',
-    intro: 'Voici la lettre s, comme un petit serpent. Elle siffle [s]. Comme au début de «soleil» ! Écoute : «sa», «si», «so» !' },
   { id: 'e', show: 'e', gpcs: ['e>e'], ph: 'e', kind: 'voyelle', anchor: 'renard',
     intro: 'Voici la lettre e, sans accent. Elle fait le son [e], tout doux. On l\'entend dans «renard» : re… nard. Écoute : «le», «me», «re» !' },
-  { id: 'f', show: 'f', gpcs: ['f>f', 'ff>f'], ph: 'f', kind: 'longue', anchor: 'fusée',
-    intro: 'Voici la lettre f. Elle souffle [f], comme le vent. Comme au début de «fusée» ! Écoute : «fa», «fi», «fo» !' },
+  { id: 'é', show: 'é', gpcs: ['é>é'], ph: 'é', kind: 'voyelle', anchor: 'éléphant',
+    intro: 'Voici é, avec son accent qui monte. Il fait le son [é], comme un sourire. Comme au début de «éléphant» ! Écoute : «mé», «ré», «lé» !' },
+  { id: 's', show: 's', gpcs: ['s>s'], ph: 's', kind: 'longue', anchor: 'soleil',
+    intro: 'Voici la lettre s, comme un petit serpent. Elle siffle [s]. Comme au début de «soleil» ! Écoute : «sa», «si», «so» !' },
+  { id: 'ou', show: 'ou', gpcs: ['ou>ou', 'où>ou', 'oû>ou'], ph: 'ou', kind: 'complexe', anchor: 'ours',
+    intro: 'Regarde : o et u, ensemble. Ils font UN seul son : [ou], comme un loup qui chante. Comme au début de «ours» ! Écoute : «lou», «mou», «sou» !' },
+  { id: 'muettes', show: 'lettres muettes', gpcs: ['°'], ph: null, kind: 'regle', anchor: 'lit',
+    intro: 'Certaines lettres ne font aucun bruit : ce sont les lettres muettes. Dans le jeu, elles sont en gris. Regarde «lit» : on ne dit pas le t ! Quand une lettre est grise, tu ne la dis pas.' },
+  { id: 'f', show: 'f', gpcs: ['f>f'], ph: 'f', kind: 'longue', anchor: 'fusée',
+    intro: 'Voici la lettre f. Elle souffle [f], comme le vent, les dents sur la lèvre. Comme au début de «fusée» ! Écoute : «fa», «fi», «fo» !' },
   { id: 'ch', show: 'ch', gpcs: ['ch>ch'], ph: 'ch', kind: 'complexe', anchor: 'chat',
     intro: 'Regarde : c et h, ensemble. Ils font UN seul son : [ch], comme quand on dit chut ! Comme au début de «chat» ! Écoute : «cha», «chi», «cho» !' },
   { id: 'v', show: 'v', gpcs: ['v>v'], ph: 'v', kind: 'longue', anchor: 'vélo',
-    intro: 'Voici la lettre v. Elle vibre [v]. Comme au début de «vélo» ! Écoute : «va», «vi», «vo» ! Attention : f souffle, v vibre.' },
-  { id: 'n', show: 'n', gpcs: ['n>n', 'nn>n'], ph: 'n', kind: 'longue', anchor: 'nuage',
-    intro: 'Voici la lettre n, avec une seule bosse. Elle chante [n], dans le nez. Comme au début de «nuage» ! Écoute : «na», «ni», «no» ! Attention : m a deux bosses, n n\'en a qu\'une.' },
+    intro: 'Voici la lettre v. Elle vibre [v] : pose ta main sur ta gorge, ça chatouille ! Comme au début de «vélo» ! Écoute : «va», «vi», «vo» !' },
+  { id: 'n', show: 'n', gpcs: ['n>n'], ph: 'n', kind: 'longue', anchor: 'nuage',
+    intro: 'Voici la lettre n, avec une seule bosse. Elle chante [n], dans le nez. Comme au début de «nuage» ! Écoute : «na», «ni», «no» !' },
+  { id: 'un', show: 'un', gpcs: ['un>in'], ph: 'in', kind: 'mot', anchor: 'un',
+    intro: 'Voici un petit mot très utile : «un». Il se dit [in]. Et son amie : «une». On dit : un chat, une lune !' },
   { id: 'j', show: 'j', gpcs: ['j>j'], ph: 'j', kind: 'longue', anchor: 'jus',
-    intro: 'Voici la lettre j. Elle fait [j]. Comme au début de «jus» ! Écoute : «ja», «ji», «jo» ! Attention : ch souffle, j vibre.' },
-  { id: 'ou', show: 'ou', gpcs: ['ou>ou', 'où>ou', 'oû>ou'], ph: 'ou', kind: 'complexe', anchor: 'ours',
-    intro: 'Regarde : o et u, ensemble. Ils font UN seul son : [ou], comme un loup qui chante. Comme au début de «ours» ! Écoute : «lou», «mou», «chou» !' },
-  { id: 'p', show: 'p', gpcs: ['p>p', 'pp>p'], ph: 'p', kind: 'courte', anchor: 'pomme',
+    intro: 'Voici la lettre j. Elle fait [j], et elle vibre. Comme au début de «jus» ! Écoute : «ja», «ji», «jo» !' },
+  { id: 'p', show: 'p', gpcs: ['p>p'], ph: 'p', kind: 'courte', anchor: 'pomme',
     intro: 'Voici la lettre p. Elle fait un petit bruit tout court : [p], comme une bulle qui éclate. Écoute : «pa», «pi», «po» ! Comme au début de «pomme» !' },
-  { id: 't', show: 't', gpcs: ['t>t', 'tt>t'], ph: 't', kind: 'courte', anchor: 'tortue',
+  { id: 't', show: 't', gpcs: ['t>t'], ph: 't', kind: 'courte', anchor: 'tortue',
     intro: 'Voici la lettre t. Elle fait un petit bruit court : [t], comme une goutte qui tombe. Écoute : «ta», «ti», «to» ! Comme au début de «tortue» !' },
-  { id: 'on', show: 'on', gpcs: ['on>on', 'om>on'], ph: 'on', kind: 'complexe', anchor: 'mouton',
-    intro: 'Regarde : o et n, ensemble. Ils font UN seul son : [on]. Comme à la fin de «mouton» ! Écoute : «lon», «ron», «mon» !' },
-  { id: 'd', show: 'd', gpcs: ['d>d', 'dd>d'], ph: 'd', kind: 'courte', anchor: 'dinosaure',
-    intro: 'Voici la lettre d. Elle fait un petit bruit court : [d]. Écoute : «da», «di», «do» ! Comme au début de «dinosaure» ! Pose ta main sur ta gorge : avec d, elle vibre ; avec t, non.' },
-  { id: 'an', show: 'an', gpcs: ['an>an', 'en>an', 'am>an', 'em>an'], ph: 'an', kind: 'complexe', anchor: 'enfant',
-    intro: 'Regarde : a et n, ensemble. Ils font UN seul son : [an]. Comme au début de «enfant» ! Ce son s\'écrit aussi e, n. Écoute : «lan», «man», «ran» !' },
-  { id: 'z', show: 'z', gpcs: ['z>z'], ph: 'z', kind: 'longue', anchor: 'zèbre',
-    intro: 'Voici la lettre z. Elle bourdonne [z], comme une abeille. Comme au début de «zèbre» ! Écoute : «za», «zi», «zo» ! Attention : s siffle, z bourdonne.' },
-  { id: 'b', show: 'b', gpcs: ['b>b', 'bb>b'], ph: 'b', kind: 'courte', anchor: 'ballon',
-    intro: 'Voici la lettre b. Elle fait un petit bruit court : [b]. Écoute : «ba», «bi», «bo» ! Comme au début de «ballon» ! Attention : b a son ventre à droite, d a son ventre à gauche.' },
-  { id: 'è', show: 'è', gpcs: ['è>è', 'ê>è', 'ë>è', 'e>è'], ph: 'è', kind: 'voyelle', anchor: 'chèvre',
-    intro: 'Voici è, avec son accent qui descend. Il fait le son [è]. Comme dans «chèvre» ! On le trouve aussi avec un chapeau, ê, comme dans «fête», et parfois e tout seul, comme dans «mer».' },
-  { id: 'k', show: 'c', gpcs: ['c>k', 'k>k', 'q>k', 'qu>k', 'cc>k'], ph: 'k', kind: 'courte', anchor: 'canard',
-    intro: 'Le son [k] s\'écrit de plusieurs façons : c comme dans «canard», k comme dans «koala», et q, u comme dans «quatre». Écoute : «ca», «co», «cu» !' },
-  { id: 'in', show: 'in', gpcs: ['in>in', 'im>in', 'ain>in', 'aim>in', 'ein>in', 'un>in', 'um>in', 'yn>in', 'ym>in'], ph: 'in', kind: 'complexe', anchor: 'lapin',
-    intro: 'Regarde : i et n, ensemble. Ils font UN seul son : [in]. Comme à la fin de «lapin» ! Ce son s\'écrit aussi a, i, n comme dans «pain», et u, n comme dans «un».' },
-  { id: 'g', show: 'g', gpcs: ['g>g', 'gu>g'], ph: 'g', kind: 'courte', anchor: 'gâteau',
-    intro: 'Voici la lettre g. Devant a, o et u, elle fait [g]. Comme au début de «gâteau» ! Écoute : «ga», «go», «gu» ! Pour faire [g] devant e ou i, on écrit g, u : «guitare».' },
+  { id: 'c', show: 'c', gpcs: ['c>k'], ph: 'k', kind: 'courte', anchor: 'canard',
+    intro: 'Voici la lettre c. Devant a, o et u, elle fait [k], un petit bruit au fond de la gorge. Comme au début de «canard» ! Écoute : «ca», «co», «cu» !' },
   { id: 'oi', show: 'oi', gpcs: ['oi>oi', 'oî>oi'], ph: 'oi', kind: 'complexe', anchor: 'roi',
     intro: 'Regarde : o et i, ensemble. Ils font le son [oi]. Comme dans «roi» ! Écoute : «moi», «toi», «loi» !' },
+  { id: 'd', show: 'd', gpcs: ['d>d'], ph: 'd', kind: 'courte', anchor: 'dinosaure',
+    intro: 'Voici la lettre d, avec son ventre à gauche. Elle fait un petit bruit court : [d]. Écoute : «da», «di», «do» ! Comme au début de «dinosaure» ! Pose ta main sur ta gorge : avec d, elle vibre.' },
+  { id: 'è', show: 'è', gpcs: ['è>è', 'ê>è', 'ë>è'], ph: 'è', kind: 'voyelle', anchor: 'chèvre',
+    intro: 'Voici è, avec son accent qui descend. Il fait le son [è]. Comme dans «chèvre» ! Avec un petit chapeau, ê fait aussi [è], comme dans «fête».' },
+  { id: 'g', show: 'g', gpcs: ['g>g', 'gu>g'], ph: 'g', kind: 'courte', anchor: 'gâteau',
+    intro: 'Voici la lettre g. Devant a, o et u, elle fait [g]. Comme au début de «gâteau» ! Écoute : «ga», «go», «gu» ! Pour faire [g] devant e ou i, on ajoute un u : «guitare».' },
+  { id: 'b', show: 'b', gpcs: ['b>b'], ph: 'b', kind: 'courte', anchor: 'ballon',
+    intro: 'Voici la lettre b, avec son ventre à droite. Elle fait un petit bruit court : [b]. Écoute : «ba», «bi», «bo» ! Comme au début de «ballon» !' },
+  { id: 'on', show: 'on', gpcs: ['on>on'], ph: 'on', kind: 'complexe', anchor: 'mouton',
+    intro: 'Regarde : o et n, ensemble. Ils font UN seul son : [on], qui passe par le nez. Comme à la fin de «mouton» ! Écoute : «lon», «ron», «mon» !' },
+  { id: 'es', show: 'es', gpcs: ['es>é'], ph: 'é', kind: 'mot', anchor: null, examples: ['l-es', 'd-es', 'm-es'],
+    intro: 'Dans les petits mots «les», «des», «mes», e et s ensemble font [é]. Écoute : «les» !' },
+  { id: 'est', show: 'est', gpcs: ['est>è'], ph: 'è', kind: 'mot', anchor: null, examples: ['est'],
+    intro: 'Voici un mot spécial : «est». Il se lit [è] ! Comme dans : le chat est là.' },
+  { id: 'qu', show: 'qu', gpcs: ['q>k', 'qu>k'], ph: 'k', kind: 'courte', anchor: 'quatre',
+    intro: 'Regarde : q et u, ensemble. Ils font [k], comme c ! Comme au début de «quatre». Écoute : «qui», «que», «quoi» !' },
+  { id: 'bdpq', show: 'b d p q', gpcs: [], ph: null, kind: 'contraste', anchor: null, examples: ['b-a', 'd-a', 'p-a'],
+    intro: 'Attention, ces quatre lettres se ressemblent, comme des jumelles ! b a son ventre en bas à droite : [b]. d a son ventre en bas à gauche : [d]. p a son ventre en haut : [p]. Regarde bien où est le ventre !' },
+  { id: 'an', show: 'an', gpcs: ['an>an'], ph: 'an', kind: 'complexe', anchor: 'panda',
+    intro: 'Regarde : a et n, ensemble. Ils font UN seul son : [an]. Comme dans «panda» et «maman» ! Écoute : «lan», «man», «ran» !' },
+  { id: 'en', show: 'en', gpcs: ['en>an'], ph: 'an', kind: 'complexe', anchor: 'dent',
+    intro: 'Le son [an] s\'écrit aussi e, n ! Comme dans «dent» et «enfant».' },
+  { id: 'au', show: 'au', gpcs: ['au>o'], ph: 'o', kind: 'complexe', anchor: 'jaune',
+    intro: 'Regarde : a et u, ensemble. Ils font le son [o], comme la lettre o ! Comme dans «jaune».' },
+  { id: 'k', show: 'k', gpcs: ['k>k'], ph: 'k', kind: 'courte', anchor: 'koala',
+    intro: 'Voici la lettre k. Elle fait [k], comme c ! Elle est rare : on la trouve dans «koala» et «ski».' },
   { id: 'ai', show: 'ai', gpcs: ['ai>è', 'aî>è', 'ei>è'], ph: 'è', kind: 'complexe', anchor: 'lait',
     intro: 'Regarde : a et i, ensemble. Ils font le son [è]. Comme dans «lait» ! On l\'écrit aussi e, i, comme dans «reine».' },
-  { id: 'eu', show: 'eu', gpcs: ['eu>eu', 'œu>eu'], ph: 'eu', kind: 'complexe', anchor: 'feu',
-    intro: 'Regarde : e et u, ensemble. Ils font le son [eu]. Comme dans «feu» ! On le trouve aussi dans «cœur».' },
-  { id: 'au', show: 'au', gpcs: ['au>o', 'eau>o'], ph: 'o', kind: 'complexe', anchor: 'bateau',
-    intro: 'Regarde : a et u, ensemble. Ils font le son [o]. Comme dans «jaune» ! Et e, a, u font aussi [o], comme dans «bateau».' },
-  { id: 'gn', show: 'gn', gpcs: ['gn>gn'], ph: 'gn', kind: 'complexe', anchor: 'montagne',
-    intro: 'Regarde : g et n, ensemble. Ils font le son [gn]. Comme dans «montagne» ! Écoute : «gna», «gnon» !' },
+  { id: 'in', show: 'in', gpcs: ['in>in'], ph: 'in', kind: 'complexe', anchor: 'lapin',
+    intro: 'Regarde : i et n, ensemble. Ils font UN seul son : [in]. Comme à la fin de «lapin» ! Écoute : «lin», «pin», «vin» !' },
+  { id: 'ain', show: 'ain', gpcs: ['ain>in', 'ein>in'], ph: 'in', kind: 'complexe', anchor: 'pain',
+    intro: 'Le son [in] s\'écrit aussi a, i, n : «pain», «main», «train» !' },
+  { id: 'z', show: 'z', gpcs: ['z>z'], ph: 'z', kind: 'longue', anchor: 'zèbre',
+    intro: 'Voici la lettre z. Elle bourdonne [z], comme une abeille. Comme au début de «zèbre» ! Écoute : «za», «zi», «zo» ! Attention : s siffle, z bourdonne.' },
+  { id: 'oin', show: 'oin', gpcs: ['oin>oin'], ph: 'oin', kind: 'complexe', anchor: null, examples: ['c-oin', 'l-oin'],
+    intro: 'Regarde : o, i, n ensemble. Ils font le son [oin], comme dans «coin» et «loin» !' },
+  { id: 'ui', show: 'ui', gpcs: ['ui>ui'], ph: 'ui', kind: 'complexe', anchor: 'huit',
+    intro: 'Regarde : u et i, ensemble. Ils se disent vite, d\'un seul coup : [ui]. Comme dans «huit» et «parapluie» !' },
+  { id: 'doubles', show: 'll tt mm', gpcs: ['ll>l', 'mm>m', 'nn>n', 'pp>p', 'tt>t', 'ff>f', 'rr>r', 'ss>s', 'cc>k', 'bb>b', 'dd>d'],
+    ph: null, kind: 'regle', anchor: 'pomme',
+    intro: 'Parfois, une lettre est écrite deux fois : «pomme», «ballon». Les deux lettres font UN seul son ! On lit «pomme» comme s\'il n\'y avait qu\'un m.' },
+  { id: 'e-è', show: 'e = è', gpcs: ['e>è'], ph: 'è', kind: 'regle', anchor: 'mer',
+    intro: 'Devant deux consonnes, ou une consonne à la fin du mot, la lettre e se lit souvent [è] : «mer», «sel», «escargot».' },
+  { id: 'eu', show: 'eu', gpcs: ['eu>eu'], ph: 'eu', kind: 'complexe', anchor: 'feu',
+    intro: 'Regarde : e et u, ensemble. Ils font le son [eu]. Comme dans «feu» et «bleu» !' },
+  { id: 'am', show: 'am em', gpcs: ['am>an', 'em>an'], ph: 'an', kind: 'regle', anchor: 'lampe',
+    intro: 'Devant m, b et p, le son [an] s\'écrit avec un m : a, m comme dans «lampe», et «jambe».' },
+  { id: 'om', show: 'om', gpcs: ['om>on'], ph: 'on', kind: 'regle', anchor: 'trompette',
+    intro: 'Devant m, b et p, le son [on] s\'écrit o, m : «trompette», «pompier».' },
+  { id: 'im', show: 'im', gpcs: ['im>in', 'ym>in', 'aim>in', 'um>in', 'yn>in'], ph: 'in', kind: 'regle', anchor: null,
+    examples: ['t-im|b-r-e°', 'f-aim'],
+    intro: 'Devant m, b et p, le son [in] s\'écrit i, m : «timbre». Et dans «faim», a, i, m fait aussi [in] !' },
   { id: 'c-s', show: 'ce ci ç', gpcs: ['c>s', 'ç>s'], ph: 's', kind: 'regle', anchor: 'citron',
     intro: 'Devant e, i et y, la lettre c siffle [s]. Comme au début de «citron» ! Avec une cédille, ç siffle toujours : «garçon».' },
   { id: 'g-j', show: 'ge gi', gpcs: ['g>j'], ph: 'j', kind: 'regle', anchor: 'girafe',
     intro: 'Devant e, i et y, la lettre g fait [j]. Comme au début de «girafe» ! Écoute : «page», «neige».' },
   { id: 's-z', show: 's = z', gpcs: ['s>z'], ph: 'z', kind: 'regle', anchor: 'maison',
     intro: 'Entre deux voyelles, la lettre s bourdonne [z]. Comme dans «maison» ! Écoute : «rose», «valise».' },
+  { id: 'er', show: 'er', gpcs: ['er>é'], ph: 'é', kind: 'complexe', anchor: 'panier',
+    intro: 'À la fin d\'un mot, e et r font souvent le son [é]. Comme dans «panier» et «cahier» !' },
+  { id: 'et', show: 'et', gpcs: ['et>é'], ph: 'é', kind: 'mot', anchor: null, examples: ['et'],
+    intro: 'Voici le petit mot «et». Il se lit [é] ! On dit : papa et maman.' },
+  { id: 'ien', show: 'ien', gpcs: ['ien>ien'], ph: 'ien', kind: 'complexe', anchor: 'chien',
+    intro: 'Regarde : i, e, n ensemble. Ils font le son [ien]. Comme dans «chien» et «bien» !' },
+  { id: 'ent', show: '-ent', gpcs: ['ent>°'], ph: null, kind: 'regle', anchor: null, examples: ['d-an-s-ent°'],
+    intro: 'Quand plusieurs personnes font quelque chose, le mot finit souvent par e, n, t… et ces lettres sont muettes ! «Ils dansent» : on dit «danse».' },
+  { id: 'eau', show: 'eau', gpcs: ['eau>o'], ph: 'o', kind: 'complexe', anchor: 'bateau',
+    intro: 'Regarde : e, a, u ensemble. Ils font le son [o]. Comme dans «bateau» et «gâteau» !' },
   { id: 'x', show: 'x', gpcs: ['x>ks', 'x>gz', 'x>s'], ph: 'ks', kind: 'regle', anchor: 'taxi',
     intro: 'Voici la lettre x. Le plus souvent, elle fait deux sons à la fois : [ks]. Comme dans «taxi» ! Dans «six» et «dix», elle siffle [s].' },
-  { id: 'ill', show: 'ill', gpcs: ['ill>y', 'il>y', 'll>y', 'y>y', 'y>i'], ph: 'y', kind: 'complexe', anchor: 'papillon',
-    intro: 'Regarde : i, l, l. Ensemble, ils font souvent le son [y]. Comme dans «papillon» ! On le trouve aussi dans «soleil», et avec la lettre y : «yoyo».' },
-  { id: 'er', show: 'er ez', gpcs: ['er>é', 'ez>é', 'ed>é'], ph: 'é', kind: 'regle', anchor: 'panier',
-    intro: 'À la fin d\'un mot, e, r et e, z font souvent le son [é]. Comme dans «panier» et dans «nez» !' },
+  { id: 'gn', show: 'gn', gpcs: ['gn>gn'], ph: 'gn', kind: 'complexe', anchor: 'montagne',
+    intro: 'Regarde : g et n, ensemble. Ils font le son [gn]. Comme dans «montagne» ! Écoute : «gna», «gnon» !' },
+  { id: 'ez', show: 'ez', gpcs: ['ez>é', 'ed>é'], ph: 'é', kind: 'complexe', anchor: 'nez',
+    intro: 'À la fin d\'un mot, e et z font le son [é]. Comme dans «nez» ! Et dans «pied», e et d font aussi [é].' },
+  { id: 'ill', show: 'ill', gpcs: ['ill>y', 'il>y', 'll>y'], ph: 'y', kind: 'complexe', anchor: 'papillon',
+    intro: 'Regarde : i, l, l. Ensemble, ils font souvent le son [y], comme dans «papillon» ! On le trouve aussi dans «soleil» et «abeille».' },
+  { id: 'œu', show: 'œu', gpcs: ['œu>eu'], ph: 'eu', kind: 'complexe', anchor: 'cœur',
+    intro: 'Voici un o et un e collés, puis un u. Ensemble, ils font le son [eu], comme dans «cœur» et «œuf» !' },
+  { id: 'ti', show: 'ti', gpcs: ['t>s'], ph: 's', kind: 'regle', anchor: null, examples: ['p-o|t:s-i|on'],
+    intro: 'Devant i et une autre voyelle, la lettre t peut se lire [s] : «potion», «attention».' },
   { id: 'ph', show: 'ph', gpcs: ['ph>f'], ph: 'f', kind: 'complexe', anchor: 'dauphin',
     intro: 'Regarde : p et h, ensemble. Ils font [f], comme la lettre f ! Comme dans «dauphin» et «éléphant».' },
-  { id: 'w', show: 'w', gpcs: ['w>w', 'w>v'], ph: 'w', kind: 'regle', anchor: 'kiwi',
-    intro: 'Voici la lettre w, qu\'on appelle double v. Dans «kiwi», elle fait [w]. Et la lettre h ? Elle ne fait aucun bruit : «hibou» !' },
+  { id: 'ay', show: 'ay oy', gpcs: ['a>è', 'o>oi'], ph: 'è', kind: 'regle', anchor: 'crayon',
+    intro: 'Dans «crayon», a et y se lisent [è] puis [y] : cray… on ! Et dans «voyage», o et y se lisent [oi] puis [y].' },
+  { id: 'h', show: 'h', gpcs: ['h>°'], ph: null, kind: 'regle', anchor: 'hibou',
+    intro: 'Voici la lettre h. Toute seule, elle ne fait aucun bruit : «hibou» se dit «ibou» ! Mais avec c, elle fait ch, et avec p, elle fait ph.' },
+  { id: 'y', show: 'y', gpcs: ['y>i', 'y>y'], ph: 'i', kind: 'voyelle', anchor: 'stylo',
+    intro: 'Voici la lettre y. Elle fait souvent [i], comme dans «stylo» ! Parfois elle fait [y], comme dans «yoyo».' },
+  { id: 'w', show: 'w', gpcs: ['w>w', 'w>v'], ph: 'w', kind: 'longue', anchor: 'kiwi',
+    intro: 'Voici la lettre w, qu\'on appelle double v. Dans «kiwi», elle fait [w]. Elle est très rare. Bravo : tu connais maintenant toutes les lettres !' },
 ];
+
+/* Grandes parties du chemin (index de la première étape → titre). */
+export const SECTIONS = [[0, 'Premiers sons'], [10, 'Les sons doux'], [18, 'Les petits bruits'],
+  [31, 'Les sons à plusieurs lettres'], [44, 'Les sons rusés']];
 
 /* Lexique illustré : [notation, émoji]. L'étape où chaque mot devient
    LISIBLE est calculée (toutes ses correspondances déjà apprises) ;
    avant, le mot sert aux jeux d'écoute, qui ne demandent pas de lire. */
 export const LEXICON = [
   // animaux
-  ['ch-a-t°', '🐱'], ['ch-i-en:in', '🐶'], ['l-a|p-in', '🐰'], ['l-i|on', '🦁'], ['l-ou-p°', '🐺'],
+  ['ch-a-t°', '🐱'], ['ch-ien', '🐶'], ['l-a|p-in', '🐰'], ['l-i|on', '🦁'], ['l-ou-p°', '🐺'],
   ['ou-r-s', '🐻'], ['r-a-t°', '🐀'], ['s-ou|r-i-s°', '🐭'], ['v-a|ch-e°', '🐄'], ['ch-e|v-a-l', '🐴'],
   ['m-ou|t-on', '🐑'], ['c-o|ch-on', '🐷'], ['p-ou|l-e°', '🐔'], ['c-o-q', '🐓'], ['c-a|n-a-r-d°', '🦆'],
   ['p-oi|ss-on', '🐟'], ['b-a|l-ei|n-e°', '🐋'], ['r-e|qu-in', '🦈'], ['d-au|ph-in', '🐬'], ['c-r-a|b-e°', '🦀'],
@@ -137,7 +197,7 @@ export const LEXICON = [
   ['u|s:z-i|n-e°', '🏭'], ['t-ou-r|n-e|s-o-l', '🌻'], ['l-i-t°', '🛏️'], ['p-o-r|t-e°', '🚪'], ['ch-ai|s:z-e°', '🪑'],
   ['l-am|p-e°', '💡'], ['c-l-é', '🔑'], ['l-i|v-r-e°', '📖'], ['c-a|h°-i-er', '📓'], ['s-t-y|l-o', '🖊️'],
   ['c-r-a:è|y:y-on', '✏️'], ['c:s-i|s:z-eau-x°', '✂️'], ['r-è|g-l-e°', '📏'], ['s-a-c', '🎒'], ['v-a|l-i|s:z-e°', '🧳'],
-  ['p-a|r-a|p-l-u-i-e°', '☂️'], ['ch-a|p-eau', '👒'], ['c-ou|r-o|nn-e°', '👑'], ['b-a|gu-e°', '💍'], ['l-u|n-e:è|tt-e°-s°', '👓'],
+  ['p-a|r-a|p-l-ui-e°', '☂️'], ['ch-a|p-eau', '👒'], ['c-ou|r-o|nn-e°', '👑'], ['b-a|gu-e°', '💍'], ['l-u|n-e:è|tt-e°-s°', '👓'],
   ['r-o|b-e°', '👗'], ['ch-au|ss-u|r-e°', '👞'], ['ch-au|ss-e:è|tt-e°', '🧦'], ['c-a|d-eau', '🎁'], ['b-ou|g:j-i-e°', '🕯️'],
   ['gu-i|t-a|r-e°', '🎸'], ['t-am|b-ou-r', '🥁'], ['p-i|a|n-o', '🎹'], ['v-i|o|l-on', '🎻'], ['t-r-om|p-e:è|tt-e°', '🎺'],
   ['s-a|x-o|ph-o|n-e°', '🎷'], ['m-u|s:z-i|qu-e°', '🎵'], ['ph-o|t-o', '📷'], ['t-é|l-é|ph-o|n-e°', '☎️'],
@@ -148,7 +208,7 @@ export const LEXICON = [
   ['y:y-o|y:y-o', '🪀'], ['d-é', '🎲'], ['n-ou|n-ou-r-s°', '🧸'], ['f-i-l', '🧵'], ['f-u|m-é-e°', '💨'],
   ['s-o|f-a', '🛋️'], ['j-eu', '🎮'], ['j-u|d-o', '🥋'], ['b-o|x-e°', '🥊'], ['f-ê|t-e°', '🎉'],
   ['c:s-i-r|qu-e°', '🎪'], ['m-é|d-a-ill-e°', '🏅'], ['c-ou|p-e°', '🏆'], ['d-an|s-e°', '💃'], ['r-a|d-i|o', '📻'],
-  ['t-é|l-é', '📺'], ['é|p-é-e°', '🗡️'], ['h°-ô|p-i|t-a-l', '🏥'], ['r-ou|t-e°', '🛣️'],
+  ['t-é|l-é', '📺'], ['é|p-é-e°', '🗡️'], ['h°-ô|p-i|t-a-l', '🏥'], ['r-ou|t-e°', '🛣️'], ['m-u-r', '🧱'],
   // les gens, le corps, les émotions
   ['b-é|b-é', '👶'], ['m-a|m-an', '👩'], ['p-a|p-a', '👨'], ['p-a|p-i', '👴'], ['m-a|m-i-e°', '👵'],
   ['r-oi', '🤴'], ['r-ei|n-e°', '👸'], ['f-é-e°', '🧚'], ['f-i-ll:y-e°', '👧'], ['g-a-r|ç-on', '👦'],
@@ -159,34 +219,35 @@ export const LEXICON = [
   ['f-â|ch-é', '😠'],
   // nombres et couleurs
   ['z-é|r-o', '0️⃣'], ['un', '1️⃣'], ['d-eu-x°', '2️⃣'], ['t-r-oi-s°', '3️⃣'], ['qu-a|t-r-e°', '4️⃣'],
-  ['c:s-in-q', '5️⃣'], ['s-i-x:s', '6️⃣'], ['s-e:è-p°-t', '7️⃣'], ['h°-u-i-t', '8️⃣'], ['n-eu-f', '9️⃣'],
+  ['c:s-in-q', '5️⃣'], ['s-i-x:s', '6️⃣'], ['s-e:è-p°-t', '7️⃣'], ['h°-ui-t', '8️⃣'], ['n-eu-f', '9️⃣'],
   ['d-i-x:s', '🔟'], ['b-l-eu', '🔵'], ['r-ou|g:j-e°', '🔴'], ['v-e:è-r-t°', '🟢'], ['j-au|n-e°', '🟡'],
   ['n-oi-r', '⚫'], ['b-l-an-c°', '⚪'],
 ];
 
-/* Mots-outils : très fréquents, appris comme des mots entiers à partir
-   de l'étape indiquée (même s'ils contiennent un son pas encore vu). */
+/* Mots-outils (sans image) : lisibles dès que leurs sons sont connus.
+   special = mot qui ne se lit pas comme il s'écrit (es/les/des, est, et). */
 export const TOOL_WORDS = [
-  { seg: 'a', step: 'a' }, { seg: 'à', step: 'a' }, { seg: 'l-a', step: 'l' }, { seg: 'i-l', step: 'l' },
-  { seg: 'l-e', step: 'e' }, { seg: 'l-e:é-s°', step: 'e' }, { seg: 's-u-r', step: 's' },
-  { seg: 'un', step: 'n' }, { seg: 'u|n-e°', step: 'n' }, { seg: 'e:é-t°', step: 't' },
-  { seg: 'e:è-s°-t°', step: 't' }, { seg: 'd-e', step: 'd' }, { seg: 'd-e:é-s°', step: 'd' },
-  { seg: 'd-u', step: 'd' }, { seg: 'd-an-s°', step: 'an' }, { seg: 'e:è-ll-e°', step: 'è' },
-  { seg: 'au', step: 'au' }, { seg: 'a|v-e:è-c', step: 'k' },
+  { seg: 'a' }, { seg: 'à' }, { seg: 'i-l' }, { seg: 'l-a' }, { seg: 'l-e' }, { seg: 'm-e' }, { seg: 's-e' },
+  { seg: 's-u-r' }, { seg: 'v-ou-s°' }, { seg: 'n-ou-s°' }, { seg: 'n-e' }, { seg: 'un' }, { seg: 'u|n-e°' }, { seg: 'j-e' },
+  { seg: 'p-ou-r' }, { seg: 't-ou-t°' }, { seg: 'd-e' }, { seg: 'm-on' }, { seg: 't-on' }, { seg: 's-on' },
+  { seg: 'l-es', special: true }, { seg: 'd-es', special: true }, { seg: 'm-es', special: true },
+  { seg: 'est', special: true }, { seg: 'qu-e' }, { seg: 'd-an-s°' }, { seg: 'm-ai-s°' },
+  { seg: 'e:è|ll-e°' }, { seg: 'a|v-e:è-c' }, { seg: 'c:s-e' }, { seg: 'et', special: true }, { seg: 'd-u' },
 ];
 
 /* Phrases : lire, puis choisir l'image (une seule correspond exactement :
    les autres changent UN détail, il faut donc lire chaque mot). */
 export const SENTENCES = [
-  { words: ['l-e', 'ch-a-t°', 'd-o-r-t°'], pic: '🐱😴', alt: ['🐶😴', '🐱🍽️'] },
   { words: ['p-a|p-a', 'l-i-t°', 'un', 'l-i|v-r-e°'], pic: '👨📖', alt: ['👩📖', '👨⚽'] },
-  { words: ['l-a', 'v-a|ch-e°', 'e:è-s°-t°', 'd-an-s°', 'l-e', 'p-r-é'], pic: '🐄🌿', alt: ['🐄🏠', '🐴🌿'] },
+  { words: ['l-e', 'ch-a-t°', 'd-o-r-t°'], pic: '🐱😴', alt: ['🐶😴', '🐱🍽️'] },
   { words: ['l-e', 'b-é|b-é', 'a', 'un', 'b-a|ll-on'], pic: '👶🎈', alt: ['👶🧸', '👧🎈'] },
-  { words: ['l-a', 't-o-r|t-u-e°', 'e:è-s°-t°', 's-u-r', 'l-e', 's-a|b-l-e°'], pic: '🐢🏖️', alt: ['🐢🌊', '🦀🏖️'] },
+  { words: ['l-a', 'v-a|ch-e°', 'est', 'd-an-s°', 'l-e', 'p-r-é'], pic: '🐄🌿', alt: ['🐄🏠', '🐴🌿'] },
+  { words: ['l-a', 't-o-r|t-u-e°', 'est', 's-u-r', 'l-e', 's-a|b-l-e°'], pic: '🐢🏖️', alt: ['🐢🌊', '🦀🏖️'] },
   { words: ['l-e', 'l-a|p-in', 'a', 'u|n-e°', 'c-a|r-o|tt-e°'], pic: '🐰🥕', alt: ['🐰🍎', '🐭🥕'] },
   { words: ['l-e', 'l-ou-p°', 'a', 'f-aim'], pic: '🐺🍽️', alt: ['🐺😴', '🦊🍽️'] },
   { words: ['l-e', 'r-oi', 'a', 'u|n-e°', 'c-ou|r-o|nn-e°'], pic: '🤴👑', alt: ['👸👑', '🤴🗡️'] },
   { words: ['p-a|p-i', 'f-ai-t°', 'd-u', 'v-é|l-o'], pic: '👴🚲', alt: ['👴🚗', '👦🚲'] },
+  { words: ['e:è|ll-e°', 'a', 'u|n-e°', 'r-o|b-e°'], pic: '👧👗', alt: ['👧🎈', '👦👗'] },
   { words: ['m-a|m-an', 'a', 'un', 'ch-a|p-eau'], pic: '👩👒', alt: ['👩👓', '👨👒'] },
   { words: ['m-a|m-i-e°', 'a', 'un', 'g-â|t-eau'], pic: '👵🎂', alt: ['👴🎂', '👵🎁'] },
   { words: ['l-e', 's-in|g:j-e°', 'a', 'u|n-e°', 'b-a|n-a|n-e°'], pic: '🐒🍌', alt: ['🐒🍎', '🐯🍌'] },
@@ -194,15 +255,20 @@ export const SENTENCES = [
   { words: ['l-a', 'r-ei|n-e°', 'm-an|g:j-e°', 'u|n-e°', 'p-o|mm-e°'], pic: '👸🍎', alt: ['👸🍌', '🤴🍎'] },
   { words: ['l-a', 'f-u|s:z-é-e°', 'v-a', 's-u-r', 'l-a', 'l-u|n-e°'], pic: '🚀🌙', alt: ['🚀☀️', '✈️🌙'] },
   { words: ['i-l', 'p-l-eu-t°', 's-u-r', 'l-a', 'm-ai|s:z-on'], pic: '🌧️🏠', alt: ['☀️🏠', '🌧️🌳'] },
+  { words: ['p-a|p-a', 'et', 'm-a|m-an', 'd-an-s-ent°'], pic: '👨👩💃', alt: ['👨👩😴', '👴👵💃'] },
+  { words: ['l-es', 'ch-a-t°-s°', 'd-o-r|m-ent°'], pic: '🐱🐱😴', alt: ['🐶🐶😴', '🐱🐱🍽️'] },
 ];
 
-/* Lettres qui se ressemblent (à l'œil ou à l'oreille) : on les fait
-   travailler ENSEMBLE, c'est la distinction qui est difficile. */
+/* Lettres et sons qui se ressemblent (à l'œil ou à l'oreille) : on les
+   travaille ENSEMBLE — c'est la distinction qui est difficile. */
 export const CONFUSABLE = {
-  b: ['d', 'p'], d: ['b', 't'], p: ['b', 'q', 't'], q: ['p'], t: ['d', 'f'],
+  b: ['d', 'p'], d: ['b', 't'], p: ['b', 'qu', 't'], qu: ['p', 'g'], t: ['d', 'f'],
   m: ['n'], n: ['m', 'u'], u: ['n', 'ou'], f: ['v', 't'], v: ['f'],
-  s: ['z', 'ch'], z: ['s'], ch: ['j', 's'], j: ['ch', 'g'], g: ['k', 'j'], c: ['g', 'k'], k: ['g', 'c'],
+  s: ['z', 'ch'], z: ['s'], ch: ['j', 's'], j: ['ch', 'g'], g: ['c', 'j'], c: ['g', 'k'], k: ['g', 'c'],
   l: ['i', 'r'], r: ['l'], i: ['l', 'é'], a: ['o', 'e'], o: ['a', 'ou'], e: ['é', 'è'], 'é': ['è', 'e'], 'è': ['é', 'e'],
-  ou: ['u', 'on', 'au'], on: ['an', 'ou', 'in'], an: ['on', 'in'], in: ['an', 'on'], oi: ['on', 'ou'],
-  eu: ['ou', 'au'], au: ['ou', 'eu'], ai: ['oi', 'au'], gn: ['n', 'g'], ph: ['f', 'p'],
+  ou: ['u', 'on', 'au'], on: ['an', 'ou', 'in'], an: ['on', 'in'], en: ['an', 'on'], in: ['an', 'on', 'un'],
+  ain: ['in', 'an'], un: ['in', 'on'], oi: ['on', 'ou'], eu: ['ou', 'au'], 'œu': ['eu', 'ou'], au: ['ou', 'eu'],
+  eau: ['au', 'ou'], ai: ['oi', 'au'], ui: ['u', 'ou'], ien: ['in', 'an'], oin: ['oi', 'in'], gn: ['n', 'g'],
+  ph: ['f', 'p'], x: ['s', 'z'], y: ['i', 'j'], w: ['v', 'u'], er: ['é', 'ez'], ez: ['er', 'é'],
+  es: ['et', 'est'], et: ['es', 'est'], est: ['et', 'es'], ill: ['il', 'l'],
 };

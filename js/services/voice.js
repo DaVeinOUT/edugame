@@ -125,7 +125,7 @@ async function say(text, opts = {}) {
   if (interrupt) stop();
   const myGen = st.gen;
   const rate = opts.rate ?? (st.slow ? SLOW_RATE : DEFAULT_RATE) * (opts.slowWord ? 0.85 : 1);
-  caption(text);
+  if (!opts.noCaption) caption(text);
   if (!synth || st.muted || st.screenReader) {
     await wait(Math.min(2600, estimate(text, rate) * 0.6));
     return;
@@ -156,11 +156,11 @@ function playFile(url) {
  * Fait entendre un son isolé (phonème) : fichier si disponible, sinon appui parlé.
  * @param {string} ph identifiant de phonème (« m », « ch », « on »…)
  */
-async function sound(ph) {
+async function sound(ph, { noCaption = false } = {}) {
   const myGen = st.gen;
-  if (st.muted || st.screenReader) { caption(`[${ph}]`); await wait(500); return; }
+  if (st.muted || st.screenReader) { if (!noCaption) caption(`« ${ph} »`); await wait(500); return; }
   if (st.soundFiles.has(ph)) {
-    caption(`[${ph}]`);
+    if (!noCaption) caption(`« ${ph} »`);
     const ok = await playFile(`${st.soundBase}${encodeURIComponent(ph)}.mp3`);
     if (ok || myGen !== st.gen) return;
   }
@@ -177,14 +177,29 @@ async function sound(ph) {
 async function seq(parts, { interrupt = true } = {}) {
   if (interrupt) stop();
   const myGen = st.gen;
+  caption(captionOf(parts));   // un seul sous-titre, la phrase entière
   for (const part of parts) {
     if (myGen !== st.gen) return;
-    if (typeof part === 'string') await say(part, { interrupt: false });
+    if (typeof part === 'string') await say(part, { interrupt: false, noCaption: true });
     else if (part.pause) await wait(part.pause);
-    else if (part.sound) await sound(part.sound);
-    else if (part.word) await say(part.word, { interrupt: false, slowWord: true, highlight: part.highlight });
-    else if (part.say) await say(part.say, { ...part, interrupt: false });
+    else if (part.sound) await sound(part.sound, { noCaption: true });
+    else if (part.word) await say(part.word, { interrupt: false, slowWord: true, highlight: part.highlight, noCaption: true });
+    else if (part.say) await say(part.say, { ...part, interrupt: false, noCaption: true });
   }
+}
+
+/**
+ * Texte lisible d'une séquence (sous-titres, bulles de Kaya).
+ * @param {Array<string | object>} parts
+ */
+export function captionOf(parts) {
+  return parts
+    .map(p => (typeof p === 'string' ? p : p.word || (p.sound ? `« ${p.sound} »` : p.say || '')))
+    .filter(Boolean)
+    .join(' ')
+    .replace(/\s+([.,…])/g, '$1')
+    .replace(/\s+/g, ' ')
+    .trim();
 }
 
 /** Coupe tout : synthèse, fichier en cours, séquences. */

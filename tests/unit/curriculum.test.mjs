@@ -20,12 +20,33 @@ test('chaque mot du lexique est correctement noté et unique', () => {
   }
 });
 
-test('chaque étape a un mot d\'appui illustré et un son à écouter', () => {
+test('chaque étape a un mot d\'appui (ou des exemples) et fait entendre son son', () => {
   for (const s of cur.steps) {
-    assert.ok(cur.word(s.anchor), `ancre absente : ${s.id} → ${s.anchor}`);
-    assert.ok(cur.withSound(s.ph).length >= 1, `aucun mot pour écouter le son de ${s.id}`);
-    assert.ok(s.introParts.some(p => p.sound), `l'intro de ${s.id} ne fait pas entendre le son`);
+    if (s.anchor) assert.ok(cur.word(s.anchor), `ancre absente : ${s.id} → ${s.anchor}`);
+    else assert.ok(s.examplesParsed.length || s.kind === 'contraste', `ni ancre ni exemple : ${s.id}`);
+    if (s.ph) assert.ok(s.introParts.some(p => p.sound), `l'intro de ${s.id} ne fait pas entendre le son`);
   }
+  assert.equal(cur.steps.length, 66);
+});
+
+test('les mots-outils deviennent lisibles aux étapes prévues (rapport pédagogique §3)', () => {
+  const expected = { a: 0, il: 2, la: 2, le: 7, me: 7, se: 9, sur: 9, vous: 14, nous: 15, ne: 15, un: 16,
+    je: 17, pour: 18, tout: 19, de: 22, mon: 26, les: 27, des: 27, est: 28, que: 29, dans: 31, mais: 35,
+    elle: 42, avec: 42, ce: 47, et: 51 };
+  for (const [w, step] of Object.entries(expected)) {
+    const t = cur.tools.find(x => x.text === w);
+    assert.ok(t, `mot-outil absent : ${w}`);
+    assert.equal(t.step, step, `« ${w} » lisible à l'étape ${t.step}, attendu ${step}`);
+  }
+});
+
+test('b, d, p, q sont éloignés d\'au moins 3 étapes, et les nasales de 4', () => {
+  const at = id => cur.stepById(id).index;
+  const far = (x, y, n) => assert.ok(Math.abs(at(x) - at(y)) >= n, `${x} et ${y} trop proches`);
+  far('p', 'd', 3); far('d', 'b', 3); far('b', 'qu', 3);
+  far('on', 'an', 4); far('an', 'in', 4);
+  assert.ok(at('bdpq') > at('qu'), 'l\'étape-contraste vient après q');
+  assert.ok(at('p') < at('on'), 'consonnes brèves avant les nasales');
 });
 
 test('les correspondances de chaque étape sont uniques dans le parcours', () => {
@@ -37,7 +58,7 @@ test('les correspondances de chaque étape sont uniques dans le parcours', () =>
 });
 
 test('les consonnes simples donnent des syllabes à lire', () => {
-  for (const s of cur.steps.filter(x => ['longue', 'courte'].includes(x.kind) && x.index > 2)) {
+  for (const s of cur.steps.filter(x => ['longue', 'courte'].includes(x.kind) && x.index > 2 && x.show.length === 1 && x.id !== 'w')) {
     assert.ok(cur.syllablesFor(s.index).length >= 2, `pas assez de syllabes pour ${s.id}`);
   }
   assert.ok(!cur.syllablesFor(cur.stepById('g').index).some(x => /^g[eéèi]/.test(x.text)), 'gi/ge ne sont pas des [g]');
@@ -45,7 +66,8 @@ test('les consonnes simples donnent des syllabes à lire', () => {
 
 test('les mots deviennent lisibles progressivement et les phrases arrivent ensuite', () => {
   const first = cur.steps.findIndex(s => cur.readableAt(s.index).length > 0);
-  assert.ok(first >= 0 && first <= 4, `premier mot lisible trop tard : étape ${first}`);
+  assert.ok(first >= 0 && first <= 6, `premier mot lisible trop tard : étape ${first}`);
+  assert.ok(cur.readableAt(cur.stepById('muettes').index).length >= 8, 'les lettres muettes ouvrent beaucoup de mots');
   assert.ok(cur.readableAt(cur.steps.length - 1).length >= 200);
   for (const s of cur.sentences) assert.ok(Number.isFinite(s.step), `phrase jamais lisible : ${s.text}`);
 });

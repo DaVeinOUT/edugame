@@ -11,7 +11,8 @@
 import { shuffle, pick, sample, systemRandom } from './rng.js';
 import { difficultyOf } from './curriculum.js';
 
-const isLetterStep = s => s.kind !== 'regle' && !s.show.includes(' ');
+const LETTER_KINDS = new Set(['voyelle', 'longue', 'courte', 'complexe']);
+const isLetterStep = s => LETTER_KINDS.has(s.kind) && !s.show.includes(' ');
 
 /** Combien de réponses proposer : peu au début et pour les plus jeunes. */
 export function choiceCount(kind, { age = '4-6', step = 0 } = {}) {
@@ -26,8 +27,11 @@ export function choiceCount(kind, { age = '4-6', step = 0 } = {}) {
 /* Graphèmes pièges : jumeaux connus d'abord, puis autres graphèmes connus,
    et au tout début des lettres à venir (bien différentes). */
 function graphemeDistractors(target, cur, upTo, n, rand) {
-  const letters = cur.steps.filter(isLetterStep).map(s => s.show);
-  const known = cur.steps.filter(s => s.index <= upTo && isLetterStep(s) && s.show !== target).map(s => s.show);
+  // Jamais deux bonnes réponses : on écarte les graphèmes du MÊME son (c/k/qu, o/au…).
+  const ph = cur.steps.find(s => s.show === target)?.ph;
+  const usable = cur.steps.filter(s => isLetterStep(s) && s.show !== target && s.ph !== ph);
+  const letters = usable.map(s => s.show);
+  const known = usable.filter(s => s.index <= upTo).map(s => s.show);
   const twins = (cur.confusable[target] || []).filter(g => known.includes(g));
   const others = shuffle(known.filter(g => !twins.includes(g)), rand);
   let out = [...shuffle(twins, rand), ...others];
@@ -40,7 +44,8 @@ function graphemeDistractors(target, cur, upTo, n, rand) {
 }
 
 function soundQuestion(item, cur, ctx) {
-  const step = cur.step(item.step);
+  // L'étape-contraste (b d p q) interroge chaque lettre de la famille.
+  const step = item.target ? cur.stepById(item.target) : cur.step(item.step);
   const target = step.show;
   const n = choiceCount('sound', { age: ctx.age, step: item.step });
   const options = shuffle([target, ...graphemeDistractors(target, cur, ctx.open ?? item.step, n - 1, ctx.rand)], ctx.rand)
@@ -49,7 +54,7 @@ function soundQuestion(item, cur, ctx) {
   return {
     prompt: [`Touche ${what} le son`, { sound: step.ph }, '.'],
     caption: `Touche ${what} le son « ${step.ph} ».`,
-    options, answer: target, guess: 1 / options.length, ph: step.ph,
+    options, answer: target, guess: 1 / options.length, ph: step.ph, anchor: step.anchor,
   };
 }
 
@@ -146,6 +151,24 @@ function buildQuestion(item, cur, ctx) {
   };
 }
 
+/* « Touche le mot que tu entends » : trois mots écrits, dont deux qui
+   commencent pareil — utile pour les petits mots sans image (les, est…). */
+function hearwordQuestion(item, cur, ctx) {
+  const target = item.text;
+  const upTo = Math.max(ctx.open ?? item.step, item.step);
+  const pool = [...cur.tools, ...cur.words].filter(w => w.step <= upTo && w.text !== target);
+  const same = pool.filter(w => w.text[0] === target[0]);
+  const near = pool.filter(w => !same.includes(w) && Math.abs(w.text.length - target.length) <= 1);
+  const others = [...new Set([...shuffle(same, ctx.rand), ...shuffle(near, ctx.rand), ...shuffle(pool, ctx.rand)]
+    .map(w => w.text))].slice(0, 2);
+  return {
+    prompt: ['Touche le mot', { word: target }, '.'],
+    caption: 'Touche le mot que tu entends.',
+    options: shuffle([target, ...others], ctx.rand).map(t => ({ id: t, text: t })),
+    answer: target, guess: 1 / (others.length + 1),
+  };
+}
+
 function sentenceQuestion(item, cur, ctx) {
   const s = cur.sentences.find(x => x.id === item.id);
   return {
@@ -159,7 +182,7 @@ function sentenceQuestion(item, cur, ctx) {
 
 const BUILDERS = {
   listen: listenQuestion, sound: soundQuestion, syllable: syllableQuestion,
-  read: readQuestion, build: buildQuestion, sentence: sentenceQuestion,
+  read: readQuestion, hearword: hearwordQuestion, build: buildQuestion, sentence: sentenceQuestion,
 };
 
 /**

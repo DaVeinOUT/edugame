@@ -1,0 +1,91 @@
+/* ============================================================
+   SCREENS/HUB.JS — L'accueil
+   Un seul gros bouton « Jouer » : Kaya choisit la bonne séance
+   (le son du jour, ou des révisions quand beaucoup de choses sont
+   à revoir). Autour : le chemin, les cartes, les jeux libres,
+   la force de lecture (Élo) et les étoiles gagnées.
+   ============================================================ */
+
+import { h } from '../ui/dom.js';
+import { kayaEl } from '../ui/kaya.js';
+import { eloBadge } from '../ui/elo.js';
+import { toast } from '../ui/fx.js';
+import { display } from '../core/elo.js';
+import { isDue } from '../core/srs.js';
+import { captionOf } from '../services/voice.js';
+
+const greeted = new Set();   // une salutation par enfant et par ouverture de l'app
+let warnedStorage = false;
+const todayKey = () => new Date().toISOString().slice(0, 10);
+
+/** Ce que propose le bouton « Jouer ». */
+export function nextActivity(profile, cur, now = Date.now()) {
+  const step = cur.step(profile.path.open);
+  const due = Object.values(profile.mem).filter(r => r.b > 0 && isDue(r, now)).length;
+  if (profile.stats.sessions > 0 && profile.path.lastKind === 'lesson' && due >= 8) {
+    return { mode: 'practice', label: 'Révisions', parts: ['On révise un peu ce que tu as appris ? Touche le gros bouton !'] };
+  }
+  return { mode: 'lesson', step: step.index, label: `Le son « ${step.show} »`,
+           parts: ['Aujourd\'hui, on apprend le son', { sound: step.ph }, '. Touche le gros bouton !'] };
+}
+
+export const hub = {
+  mount(view, params, ctx) {
+    const { store, voice, router, cur } = ctx;
+    const p = ctx.profile();
+    if (!p) { ctx.home(); return undefined; }
+    const points = display(p.elo);
+    const next = nextActivity(p, cur);
+    const limit = store.device().dailyMinutes || 0;
+    const rested = limit > 0 && (p.stats.days?.[todayKey()] || 0) >= limit * 60;
+    const name = p.name ? ` ${p.name}` : '';
+
+    let parts;
+    if (rested) parts = ['On a bien travaillé aujourd\'hui ! Kaya se repose. À demain !'];
+    else if (params.first) parts = [`Bienvenue${name} ! Je suis tellement content de lire avec toi.`, ...next.parts];
+    else if (params.migrated) parts = [`Te revoilà${name} ! J'ai gardé toutes tes cartes. Maintenant, on apprend le SON des lettres !`, ...next.parts];
+    else parts = [`Salut${name} !`, ...next.parts];
+    const caption = captionOf(parts);
+
+    const kaya = kayaEl();
+    const bubble = h('button', { class: 'bubble', type: 'button', onclick: () => voice.seq(parts) }, caption);
+    const play = h('button', {
+      class: 'btn btn-gold btn-play', type: 'button', 'data-autofocus': true, disabled: rested || null,
+      'aria-label': rested ? 'À demain' : `Jouer : ${next.label}`,
+      onclick: () => router.go('lesson', { mode: next.mode, step: next.step }),
+    }, h('span', { class: 'play-icon', 'aria-hidden': 'true' }, rested ? '😴' : '▶'),
+      h('span', { class: 'stack', style: { gap: '0', alignItems: 'flex-start' } },
+        h('span', null, rested ? 'À demain !' : 'Jouer'),
+        rested ? null : h('span', { style: { fontSize: '1rem', opacity: '.8' } }, next.label)));
+
+    const tile = (ico, label, sub, go) => h('button', { type: 'button', class: 'tile', onclick: go },
+      h('span', { class: 'ico', 'aria-hidden': 'true' }, ico), label, sub ? h('span', { class: 'sub' }, sub) : null);
+    const several = store.profiles().length > 1;
+
+    view.append(
+      h('div', { class: 'hub-head' },
+        h('button', { class: 'avatar', type: 'button', 'aria-label': several ? 'Changer d\'enfant' : 'Mon profil',
+          onclick: () => router.go(several ? 'profiles' : 'ladder') }, p.avatar),
+        h('div', { class: 'grow' }, h('div', { class: 'hub-name' }, p.name || 'Bonjour !'),
+          h('span', { class: 'wallet', 'aria-label': `${p.wallet} étoiles` }, '⭐ ', String(p.wallet))),
+        h('button', { class: 'icon-btn', type: 'button', 'aria-label': 'Espace des grands', onclick: () => router.go('adult') }, '⚙️')),
+      h('div', { class: 'row centered' }, eloBadge(points, () => router.go('ladder'))),
+      h('div', { class: 'kaya-row' }, kaya, bubble),
+      play,
+      h('div', { class: 'tiles' },
+        tile('🗺️', 'Le chemin', `${p.path.open + 1} / ${cur.steps.length}`, () => router.go('path')),
+        tile('🃏', 'Mes cartes', `${p.cards.length}`, () => router.go('collection')),
+        tile('🎮', 'Jeux', 'libres', () => router.go('games'))));
+
+    if (!greeted.has(p.id) || params.first || params.migrated) {
+      greeted.add(p.id);
+      voice.seq(parts);
+    }
+    if (store.degraded && !warnedStorage) {
+      warnedStorage = true;
+      toast('Attention : ce navigateur ne garde pas la progression (navigation privée ?)', { ms: 6000 });
+    }
+    ctx.offerUpdate();
+    return () => voice.stop();
+  },
+};

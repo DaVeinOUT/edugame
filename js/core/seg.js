@@ -27,7 +27,7 @@ export const DEFAULT_PHONEME = Object.freeze({
   an: 'an', am: 'an', en: 'an', em: 'an',
   in: 'in', im: 'in', ain: 'in', aim: 'in', ein: 'in', un: 'in', um: 'in', yn: 'in', ym: 'in',
   oi: 'oi', 'oî': 'oi', oin: 'oin', eu: 'eu', 'œu': 'eu', au: 'o', eau: 'o',
-  ai: 'è', 'aî': 'è', ei: 'è', er: 'é', ez: 'é',
+  ai: 'è', 'aî': 'è', ei: 'è', er: 'é', ez: 'é', es: 'é', et: 'é', est: 'è', ui: 'ui', ien: 'ien',
   // consonnes
   p: 'p', b: 'b', t: 't', d: 'd', k: 'k', c: 'k', q: 'k', qu: 'k', g: 'g', gu: 'g',
   f: 'f', ph: 'f', v: 'v', w: 'w', s: 's', 'ç': 's', z: 'z', j: 'j', ch: 'ch',
@@ -39,12 +39,24 @@ export const DEFAULT_PHONEME = Object.freeze({
 
 /** Phonèmes reconnus (ce que l'oreille entend). */
 export const PHONEMES = Object.freeze([
-  'a', 'i', 'o', 'u', 'ou', 'e', 'é', 'è', 'eu', 'on', 'an', 'in', 'oi', 'oin',
+  'a', 'i', 'o', 'u', 'ou', 'e', 'é', 'è', 'eu', 'on', 'an', 'in', 'oi', 'oin', 'ui', 'ien',
   'p', 'b', 't', 'd', 'k', 'g', 'f', 'v', 's', 'z', 'ch', 'j',
   'm', 'n', 'gn', 'l', 'r', 'y', 'w', 'ks', 'gz',
 ]);
 
 const MUTE = '°';
+
+/* Les lettres muettes s'apprennent aussi (Dehaene et al. 2012 ; Kalulu) :
+   lire « lit » suppose de savoir qu'une lettre grise ne se dit pas.
+   Pseudo-correspondances : « ° » (lettres muettes en général), « h>° »
+   (h muet, enseigné à part) et « ent>° » (terminaison des verbes). */
+export const MUTE_GPC = '°';
+function muteGpc(g) {
+  const x = g.toLowerCase();
+  if (x === 'h') return 'h>°';
+  if (x === 'ent') return 'ent>°';
+  return MUTE_GPC;
+}
 
 /**
  * Identifiant d'une correspondance graphème→phonème : « s>z », « ch>ch ».
@@ -91,7 +103,7 @@ export function parseSeg(seg) {
     return { graphemes, text: graphemes.map(x => x.g).join('') };
   });
   const graphemes = syllables.flatMap(s => s.graphemes);
-  const gpcs = [...new Set(graphemes.filter(x => !x.mute).map(x => gpcId(x.g, x.p)))];
+  const gpcs = [...new Set(graphemes.map(x => (x.mute ? muteGpc(x.g) : gpcId(x.g, x.p))))];
   return { seg, text: syllables.map(s => s.text).join(''), syllables, graphemes, gpcs };
 }
 
@@ -112,7 +124,7 @@ export function checkSeg(seg, word) {
 
 /**
  * Le mot est-il lisible avec les seules correspondances déjà apprises ?
- * Les lettres muettes ne demandent aucune connaissance : elles sont grisées.
+ * (Les lettres muettes comptent : l'étape « lettres muettes » doit être vue.)
  * @param {Parsed} parsed
  * @param {ReadonlySet<string>} known identifiants de CGP connues
  */

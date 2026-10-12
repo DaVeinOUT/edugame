@@ -45,7 +45,7 @@ test('migration v1 : prénom, univers, cartes et confort sont conservés', () =>
   }, NOW);
   assert.equal(m.profile.name, 'Sam');
   assert.equal(m.profile.universe, 'ocean');
-  assert.deepEqual(m.profile.cards, ['A', 'r_first']);
+  assert.deepEqual(m.profile.cards, ['son-a', 'r_first'], 'la carte-lettre A devient la carte du son a');
   assert.equal(m.profile.comfort.font, 'opendyslexic');
   assert.equal(m.profile.comfort.spacing, 'xwide');
   assert.equal(m.profile.legacy.xp, 120);
@@ -74,7 +74,7 @@ test('export puis import : aller-retour sans perte', () => {
 test('import d\'un ancien export v1', () => {
   const back = importBundle({ educa: 1, profile: { name: 'Lou', age: '4-6', cards: ['B'] }, voice: 'Amélie' }, NOW);
   assert.equal(back.profiles[0].name, 'Lou');
-  assert.deepEqual(back.profiles[0].cards, ['B']);
+  assert.deepEqual(back.profiles[0].cards, ['son-b']);
   assert.equal(back.device.voice, 'Amélie');
 });
 

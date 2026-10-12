@@ -15,14 +15,16 @@ import { selectItems } from './select.js';
 import { shuffle, systemRandom } from './rng.js';
 
 export const LESSON_PLAN = Object.freeze([
-  ['listen', 3], ['sound', 4], ['syllable', 3], ['read', 4], ['build', 2], ['sentence', 1],
+  ['listen', 3], ['sound', 4], ['syllable', 3], ['read', 3], ['hearword', 2], ['build', 2], ['sentence', 1],
 ]);
-export const KIND_ORDER = Object.freeze(['listen', 'sound', 'syllable', 'read', 'build', 'sentence']);
+export const KIND_ORDER = Object.freeze(['listen', 'sound', 'syllable', 'read', 'hearword', 'build', 'sentence']);
 export const MIN_ITEMS = 10;
 const REVIEW_SPAN = 8;        // les révisions viennent surtout des 8 dernières étapes
 const MAX_DAYS = 120;
+const CONTRAST_MEMBERS = ['b', 'd', 'p', 'qu'];
 
-const isLetterStep = s => s.kind !== 'regle' && !s.show.includes(' ');
+const LETTER_KINDS = new Set(['voyelle', 'longue', 'courte', 'complexe']);
+const isLetterStep = s => LETTER_KINDS.has(s.kind) && !s.show.includes(' ');
 const buildable = w => w.parsed.graphemes.filter(g => !g.mute).length <= 6;
 const dayKey = t => new Date(t).toISOString().slice(0, 10);
 
@@ -35,11 +37,21 @@ function wordItem(kind, w) {
 export function itemsForStep(cur, s) {
   const step = cur.step(s);
   const words = cur.newWordsAt(s);
+  let sound = [];
+  if (isLetterStep(step)) sound = [{ kind: 'sound', key: `snd:${step.id}`, step: s, guess: 1 / 3 }];
+  else if (step.kind === 'contraste') {
+    sound = CONTRAST_MEMBERS.filter(id => cur.stepById(id))
+      .map(id => ({ kind: 'sound', key: `snd:${id}`, step: s, target: id, guess: 1 / 3 }));
+  }
+  // « Touche le mot que tu entends » : les mots-outils de l'étape, puis quelques mots nouveaux.
+  const heard = [...cur.newToolsAt(s), ...words.slice(0, 3)]
+    .map(w => ({ kind: 'hearword', key: `hw:${w.text}`, step: s, text: w.text, guess: 1 / 3 }));
   return {
-    listen: cur.withSound(step.ph).length ? [{ kind: 'listen', key: `pa:${step.ph}`, step: s, ph: step.ph, guess: 0.45 }] : [],
-    sound: isLetterStep(step) ? [{ kind: 'sound', key: `snd:${step.id}`, step: s, guess: 1 / 3 }] : [],
+    listen: step.ph && cur.withSound(step.ph).length ? [{ kind: 'listen', key: `pa:${step.ph}`, step: s, ph: step.ph, guess: 0.45 }] : [],
+    sound,
     syllable: cur.syllablesFor(s).map(x => ({ kind: 'syllable', key: `syl:${x.text}`, step: s, text: x.text, c: x.c, v: x.v, guess: 1 / 3 })),
     read: words.map(w => wordItem('read', w)),
+    hearword: heard,
     build: words.filter(buildable).map(w => wordItem('build', w)),
     sentence: cur.sentences.filter(x => x.step === s).map(x => ({ kind: 'sentence', key: `ph:${x.id}`, step: s, id: x.id, guess: 1 / 3 })),
   };
@@ -47,7 +59,7 @@ export function itemsForStep(cur, s) {
 
 /** Tout ce qui peut être révisé jusqu'à l'étape upTo (incluse). */
 export function reviewPool(cur, upTo) {
-  const pools = { listen: [], sound: [], syllable: [], read: [], build: [], sentence: [] };
+  const pools = { listen: [], sound: [], syllable: [], read: [], hearword: [], build: [], sentence: [] };
   if (upTo < 0) return pools;
   const seen = new Set();
   for (let s = 0; s <= upTo; s++) {
@@ -104,11 +116,17 @@ export function planLesson(cur, profile, s, { rand = systemRandom, now = Date.no
   }
   let plan = blocks.flat();
   // Tout début de parcours : pas encore de mots à lire, on écoute davantage.
-  while (plan.length < MIN_ITEMS && (here.listen.length || here.sound.length)) {
-    plan = [...plan, ...(plan.length % 2 ? here.sound : here.listen).slice(0, 1)];
-    if (!here.sound.length && !here.listen.length) break;
+  const fresh = [...here.listen, ...here.sound];
+  while (plan.length < MIN_ITEMS && fresh.length && plan.length < MIN_ITEMS + 2) {
+    plan = [...plan, fresh[plan.length % fresh.length]];
   }
-  return plan;
+  // Étape sans grand contenu propre (règle, mot spécial) : on complète par des révisions.
+  if (plan.length < MIN_ITEMS) {
+    const used = new Set(plan.map(it => it.key));
+    const rest = KIND_ORDER.flatMap(k => before[k]).filter(it => !used.has(it.key));
+    plan = [...plan, ...selectItems(rest, { elo: profile.elo, mem: profile.mem, now, n: MIN_ITEMS - plan.length, rand })];
+  }
+  return [...plan].sort((a, b) => KIND_ORDER.indexOf(a.kind) - KIND_ORDER.indexOf(b.kind));
 }
 
 /**

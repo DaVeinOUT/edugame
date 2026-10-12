@@ -27,9 +27,9 @@ export const UNIVERSES = Object.freeze(['jungle', 'space', 'ocean']);
    (espacement élargi, coloration syllabique, pas de chrono). */
 export const DEFAULT_COMFORT = Object.freeze({
   font: 'andika',         // andika | opendyslexic | nunito
-  spacing: 'wide',        // normal | wide | xwide
+  spacing: 'wide',        // normal | wide | xwide (0 / +0,12 em / +0,18 em)
   softBg: false,
-  syllableColors: true,
+  syllableColors: false,  // option : pas de preuve solide (lettres muettes grisées, elles, toujours)
   slowVoice: false,
   reducedMotion: false,
   captions: true,         // sous-titres de ce que dit Kaya
@@ -37,6 +37,14 @@ export const DEFAULT_COMFORT = Object.freeze({
 });
 
 const FONTS = ['andika', 'opendyslexic', 'nunito'];
+
+/* Cartes de la v1 → cartes de la v2 (lettre → carte du son correspondant). */
+const LEGACY_CARDS = {
+  A: 'son-a', I: 'son-i', L: 'son-l', O: 'son-o', R: 'son-r', U: 'son-u', M: 'son-m', E: 'son-e', S: 'son-s',
+  F: 'son-f', V: 'son-v', N: 'son-n', J: 'son-j', P: 'son-p', T: 'son-t', C: 'son-c', D: 'son-d', G: 'son-g',
+  B: 'son-b', Q: 'son-qu', K: 'son-k', Z: 'son-z', X: 'son-x', H: 'son-h', Y: 'son-y', W: 'son-w',
+  r_first: 'r_first', r_streak: 'r_streak', e_perfect: 'e_perfect', e_persist: 'e_persist',
+};
 const SPACINGS = ['normal', 'wide', 'xwide'];
 
 /** Identifiant court et unique. */
@@ -148,7 +156,10 @@ export function migrateLegacy(legacy, now = Date.now()) {
     softBg: !!c.softBg,
     slowVoice: !!c.slowVoice,
   };
-  profile.cards = Array.isArray(old.cards) ? old.cards.filter(x => typeof x === 'string') : [];
+  // Les anciennes cartes-lettres deviennent les cartes-sons correspondantes.
+  profile.cards = Array.isArray(old.cards)
+    ? [...new Set(old.cards.map(x => LEGACY_CARDS[x]).filter(Boolean))]
+    : [];
   profile.legacy = {
     xp: num(old.xp, 0),
     palier: old.palier ?? null,
