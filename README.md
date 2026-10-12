@@ -58,3 +58,11 @@ Sinon les téléphones gardent l'ancienne version en cache.
 6. **Adapté à tous** : réglages confort persistants (police adaptée, espacement, fond doux, voix lente, pas de chrono) pensés avec les pratiques validées pour la dyslexie.
 7. **Trois chemins de lecture** : Découverte (4-6 ans), Déchiffreur (7-9), Lecteur (10-12) — l'âge fixe le point de départ, la réussite propose la montée de palier (jamais imposée).
 8. **Multisensoriel** : voir, entendre, et écrire au doigt — l'équivalent numérique de la lettre en relief.
+
+## Crédits et licences
+
+**Code d'EDUCA** : Licence MIT (voir `LICENSE`). *Choix provisoire, en attente de validation par Dave (MIT ou CC BY-SA).*
+
+**OpenDyslexic** (Abbie Gonzalez) : Licence SIL Open Font License 1.1. Texte de la licence et avis de copyright disponibles dans `fonts/LICENSE.txt`.
+
+**Nunito, Orbitron, Rajdhani** : Polices Google Fonts distribuées sous la Licence SIL Open Font License 1.1. Actuellement chargées depuis Google Fonts ; seront auto-hébergées avec leur licence complète par la tâche T01.

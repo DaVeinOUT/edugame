@@ -1,5 +1,5 @@
 # Dossiers de travail (outils d'assistance, sessions) — jamais sur GitHub
-.claude/
+.claude/*
 _bmad/
 _bmad-output/
 
@@ -10,3 +10,4 @@ IDENTITY.md
 SOUL.md
 USER.md
 memory/
+!.claude/agents/
