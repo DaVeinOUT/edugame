@@ -1,9 +1,12 @@
-# Déploiement GitHub Pages sans Jekyll (HTML/CSS/JS statique pur).
-name: Deploy EDUCA to Pages
+# Tester PUIS déployer EDUCA sur GitHub Pages.
+# Rien n'est publié si un test échoue. Seule l'application est publiée
+# (pas archive/, rapports/, ops/, scripts/, tests/).
+name: Tester et déployer EDUCA
 
 on:
   push:
     branches: [main]
+  pull_request:
   workflow_dispatch:
 
 permissions:
@@ -12,20 +15,45 @@ permissions:
   id-token: write
 
 concurrency:
-  group: pages
+  group: pages-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Tests unitaires (moteur, parcours, Élo)
+        run: npm test
+      - name: Le cache hors-ligne (sw.js) est à jour
+        run: node scripts/release.mjs --check
+      - name: Navigateur pour les tests de bout en bout
+        run: npx playwright-core install --with-deps chromium
+      - name: Tests de bout en bout (profil, leçon, espace adulte, hors-ligne)
+        run: npm run test:e2e
+
   deploy:
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+    needs: test
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Construire le site (l'application seulement)
+        run: |
+          mkdir _site
+          cp -r index.html manifest.json sw.js css js fonts icons LICENSE _site/
+          if [ -d audio ]; then cp -r audio _site/; fi
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:
-          path: '.'
+          path: _site
       - id: deployment
         uses: actions/deploy-pages@v4

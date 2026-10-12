@@ -1,90 +1,114 @@
 /* ============================================================
-   SW.JS — Hors-ligne d'abord : crucial pour les zones où la
-   connexion est rare ou instable (Guyane, zones isolées).
-   Chemins RELATIFS : fonctionne aussi sous /edugame/ (GitHub Pages).
+   SW.JS — Hors-ligne d'abord, mises à jour sous contrôle
+   • Tous les fichiers du jeu sont mis en cache dès l'installation
+     (liste générée par scripts/release.mjs : rien n'est oublié).
+   • Une nouvelle version s'installe EN ATTENTE : elle ne prend la
+     main que lorsqu'on touche « Mettre à jour » depuis l'accueil —
+     jamais au milieu d'une leçon.
+   • Aucun appel à un site tiers : seules les ressources du jeu passent.
+   • Chemins relatifs : fonctionne aussi sous /edugame/ (GitHub Pages).
    ============================================================ */
 
-const CACHE_NAME = 'educa-v12';
-const FONT_CACHE = 'educa-fonts-v2';   // v2 : contient aussi les polices OpenDyslexic
-
+/* <release> — généré par scripts/release.mjs, ne pas éditer à la main */
+const CACHE_NAME = 'educa-9b56ef83b4';
 const ASSETS = [
   './',
-  './index.html',
-  './manifest.json',
-  './css/base.css',
-  './css/a11y.css',
-  './css/educa.css',
-  './css/game.css',
-  './js/audio.js',
-  './js/comfort.js',
-  './js/kaya.js',
-  './js/card3d.js',
-  './js/cards.js',
-  './js/educa.js',
-  './js/letters.js',
-  './js/builder.js',
-  './js/trace.js',
-  './icons/icon.svg',
+  './css/app.css',
+  './css/cards.css',
+  './css/fonts.css',
+  './fonts/OpenDyslexic-Bold.woff',
+  './fonts/OpenDyslexic-Regular.woff',
+  './fonts/andika-400.woff2',
+  './fonts/andika-700.woff2',
+  './fonts/nunito-400-900.woff2',
+  './fonts/orbitron-700.woff2',
+  './fonts/rajdhani-500.woff2',
+  './fonts/rajdhani-700.woff2',
   './icons/icon-192.png',
   './icons/icon-512.png',
-  './fonts/OpenDyslexic-Regular.woff',
-  './fonts/OpenDyslexic-Bold.woff',
+  './icons/icon.svg',
+  './index.html',
+  './js/activities/build.js',
+  './js/activities/choice.js',
+  './js/activities/common.js',
+  './js/activities/intro.js',
+  './js/activities/trace.js',
+  './js/core/curriculum.js',
+  './js/core/elo.js',
+  './js/core/questions.js',
+  './js/core/rng.js',
+  './js/core/schema.js',
+  './js/core/seg.js',
+  './js/core/select.js',
+  './js/core/session.js',
+  './js/core/srs.js',
+  './js/data/curriculum.js',
+  './js/data/sounds.js',
+  './js/main.js',
+  './js/nomodule.js',
+  './js/screens/adult.js',
+  './js/screens/collection.js',
+  './js/screens/games.js',
+  './js/screens/hub.js',
+  './js/screens/index.js',
+  './js/screens/ladder.js',
+  './js/screens/lesson.js',
+  './js/screens/path.js',
+  './js/screens/profiles.js',
+  './js/screens/trace.js',
+  './js/screens/welcome.js',
+  './js/services/errors.js',
+  './js/services/sfx.js',
+  './js/services/store.js',
+  './js/services/voice.js',
+  './js/ui/caption.js',
+  './js/ui/cards.js',
+  './js/ui/dom.js',
+  './js/ui/elo.js',
+  './js/ui/fx.js',
+  './js/ui/kaya.js',
+  './js/ui/overlay.js',
+  './js/ui/router.js',
+  './js/ui/theme.js',
+  './js/ui/word.js',
+  './manifest.json',
 ];
+/* </release> */
 
-self.addEventListener('install', e => {
-  e.waitUntil(
-    caches.open(CACHE_NAME).then(cache => cache.addAll(ASSETS))
-  );
-  self.skipWaiting();
+self.addEventListener('install', event => {
+  event.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(ASSETS)));
 });
 
-self.addEventListener('activate', e => {
-  e.waitUntil(
-    caches.keys().then(keys =>
-      Promise.all(
-        keys.filter(k => k !== CACHE_NAME && k !== FONT_CACHE)
-            .map(k => caches.delete(k))
-      )
-    )
-  );
-  self.clients.claim();
+self.addEventListener('activate', event => {
+  event.waitUntil((async () => {
+    const keys = await caches.keys();
+    // Anciennes versions (dont la v1 : educa-v12, educa-fonts-v2) : on fait le ménage.
+    await Promise.all(keys.filter(k => k.startsWith('educa') && k !== CACHE_NAME).map(k => caches.delete(k)));
+    await self.clients.claim();
+  })());
 });
 
-self.addEventListener('fetch', e => {
-  const url = new URL(e.request.url);
+self.addEventListener('message', event => {
+  if (event.data && event.data.type === 'SKIP_WAITING') self.skipWaiting();
+});
 
-  // Polices Google : cache au premier chargement, puis hors-ligne pour toujours
-  if (url.hostname === 'fonts.googleapis.com' || url.hostname === 'fonts.gstatic.com') {
-    e.respondWith(
-      caches.open(FONT_CACHE).then(cache =>
-        cache.match(e.request).then(cached => {
-          const fresh = fetch(e.request).then(res => {
-            if (res.ok) cache.put(e.request, res.clone());
-            return res;
-          }).catch(() => cached);
-          return cached || fresh;
-        })
-      )
-    );
-    return;
-  }
-
-  // App : stale-while-revalidate — sert le cache immédiatement (rapide,
-  // hors-ligne OK) mais met à jour le cache en arrière-plan, pour que la
-  // prochaine visite ait la dernière version sans action de l'utilisateur.
-  e.respondWith(
-    caches.match(e.request, { ignoreSearch: true }).then(cached => {
-      const fresh = fetch(e.request).then(res => {
-        if (res.ok && e.request.method === 'GET') {
-          const clone = res.clone();
-          caches.open(CACHE_NAME).then(cache => cache.put(e.request, clone));
-        }
-        return res;
-      }).catch(() => {
-        if (!cached && e.request.mode === 'navigate') return caches.match('./index.html');
-        return cached;
-      });
-      return cached || fresh;
-    })
-  );
+self.addEventListener('fetch', event => {
+  const req = event.request;
+  if (req.method !== 'GET') return;
+  const url = new URL(req.url);
+  if (url.origin !== self.location.origin) return;
+  event.respondWith((async () => {
+    const cache = await caches.open(CACHE_NAME);
+    const hit = await cache.match(req, { ignoreSearch: true });
+    if (hit) return hit;
+    try {
+      const res = await fetch(req);
+      // Fichier pas encore en cache (ex. un son ajouté) : gardé pour la prochaine fois.
+      if (res.ok && res.type === 'basic') cache.put(req, res.clone());
+      return res;
+    } catch {
+      if (req.mode === 'navigate') return (await cache.match('./index.html')) || Response.error();
+      return Response.error();
+    }
+  })());
 });

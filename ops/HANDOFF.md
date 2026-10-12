@@ -1,11 +1,10 @@
 # HANDOFF — état du chantier EDUCA (10 lignes max)
 
-- **Chantier en cours : refonte « EDUCA v2 »** (carte blanche de Dave, 2026-10-12) sur la branche `educa-v2` (partie de `openclaw/T02`, commité). Objectif : vraie progression phonique, Élo bienveillant façon échecs (jamais en baisse), usage en classe / dyslexie. Plan détaillé : dernière entrée de `ops/journal.md`.
-- **Fait et testé** (`npm test` = 37 tests verts) : `js/core/rng.js`, `seg.js` (notation « ch-a-t° », « m-ai|s:z-on »), `elo.js` (θ/variance, affichage = record de θ−σ, titres Pion→Roi), `srs.js` (Leitner 10 min/1 j/3 j/7 j/21 j), `schema.js` (multi-profils, migration v1, export/import).
-- **Écrit mais PAS encore testé ni branché** : `js/services/{store,voice,sfx,errors}.js`, `js/ui/{dom,router}.js`. L'ancien jeu (`index.html` + `js/*.js` v1) tourne toujours, intact.
-- **T01 à moitié** : polices woff2 locales + `css/fonts.css` générés par `scripts/fetch-fonts.mjs` (licences dans `fonts/licenses/`) ; reste à retirer Google Fonts de `index.html` et `sw.js`.
-- **Outillage** : Node 22 (`/usr/local/bin/node`), Chromium (`/usr/bin/chromium`), `playwright-core` en dev, `tests/e2e/server.mjs` (serveur statique de test).
-- **Recherches** confiées à des sous-agents → `rapports/2026-10-12-{recherche-elo,progression-lecture,dyslexie-et-classe,audio-phonemes}.md` : vérifier leur présence/complétude, relancer celles qui manquent (consignes résumées dans le journal).
-- **Prochaine étape** : test de `store.js` → `js/i18n/fr.js` → données du parcours `js/data/curriculum.js` (d'après le rapport progression) → `js/core/select.js` + `session.js` → `js/main.js` + écrans (profils, accueil, chemin, activités, résultats Élo, espace adultes) → bascule d'`index.html` en modules → `sw.js` généré + CI.
-- **Hook GateGuard actif** : chaque création de fichier via Write est d'abord refusée ; énoncer les faits (appelants, API, données, consigne) puis relancer.
-- **Attend Dave** : licence (MIT provisoire) ; validation pédagogique du parcours ; police par défaut (Andika proposée).
+- **Chantier : refonte « EDUCA v2 »** (carte blanche de Dave, 2026-10-12), branche `educa-v2` (rien poussé, `gh` non connecté). L'ancienne v1 est supprimée du code (reste dans l'historique git).
+- **Jouable de bout en bout** : `index.html` (CSP stricte) → `js/main.js` ; écrans `js/screens/` (création par animal, Qui joue ?, accueil « Jouer », chemin 66 étapes, leçon + bilan Élo/cartes, collection, échelle d'échecs, jeux libres, tracé, espace des grands protégé) ; exercices `js/activities/`.
+- **Moteur pur testé** `js/core/` : seg (graphèmes, muettes = étape), elo (affichage = record de θ−σ, jamais en baisse), srs (Leitner), select (cible 80 %), session (leçon oreille→écrit, bilan), questions, curriculum ; données `js/data/curriculum.js` (66 étapes sourcées, ~230 mots illustrés, mots-outils, 19 phrases).
+- **Tests** : `npm test` (54 unitaires) · `CHROMIUM_PATH=/usr/bin/chromium npm run test:e2e` (4 bout-en-bout : profil, leçon, espace adulte, hors-ligne). `npm run release` régénère `sw.js` (à lancer après chaque changement de fichier servi ; la CI vérifie).
+- **Recherche** : `rapports/2026-10-12-pedagogie-sources.md` (progression, dys, classe, sources) appliquée au parcours. Rapports Élo et audio pas encore écrits.
+- **Prochaines étapes** : (1) sons des phonèmes ENREGISTRÉS (Piper hors-ligne → `audio/sons/*.mp3` + `js/data/sounds.js`) ; (2) rapport Élo + feuille de route ; (3) README, CONFIDENTIALITE.md, guide enseignant ; (4) revue de code (agents), accessibilité clavier/contacteur, test de positionnement, fiches imprimables.
+- **Hook GateGuard** : chaque 1re création/édition d'un fichier est refusée tant qu'on n'a pas énoncé les faits (appelants, API, données, consigne citée) ; relancer ensuite.
+- **Attend Dave** : licence (MIT provisoire) ; relecture pédagogique par un enseignant/orthophoniste ; choix pour la PR vers `main`.

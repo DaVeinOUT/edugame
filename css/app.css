@@ -285,6 +285,7 @@ body.u-space .dots i { background: rgba(255, 255, 255, .25); }
 .choice.syllable { font-size: clamp(2.2rem, 11vw, 3.6rem); }
 .choice.emoji { font-size: clamp(3rem, 15vw, 4.8rem); line-height: 1; }
 .choice.pair { font-size: clamp(2.4rem, 11vw, 3.6rem); line-height: 1; letter-spacing: .05em; }
+.choice.yesno { font-size: clamp(3.2rem, 16vw, 4.6rem); line-height: 1; }
 .choice-wrap { position: relative; display: grid; }
 .choice-wrap > .choice { width: 100%; }
 .choice-wrap > .hear {
