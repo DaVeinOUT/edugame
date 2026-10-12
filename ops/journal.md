@@ -21,3 +21,10 @@
 - Élo : P = g + (1−g)·σ(θ−d) (g = chance au QCM) ; mise à jour bayésienne approchée + bruit q=0.004/réponse ; affichage = max historique de θ−σ converti (1000 + 174·θ) ; titres Pion 0, Cavalier 600, Fou 800, Tour 1000, Dame 1200, Roi 1400 ; cible ≈ 80 % de réussite ; « je ne sais pas » = demi-information. Paramètres à recaler avec le rapport de recherche.
 - Idées validées pour la suite : séance du jour en un bouton, chemin visuel par univers, cartes par son + cartes de titres, cérémonie de promotion, profils par animal (classe), espace adultes protégé (courbe Élo honnête, sons maîtrisés, confusions, activités hors écran, impression), étape imposée par l'enseignant, sous-titres, mode lecteur d'écran, mode contacteur, sons enregistrés des phonèmes (Piper ?) avec repli sur mot d'appui.
 - Recherches lancées en sous-agents (à vérifier / relancer si absentes) : Élo en éducation (Math Garden, Pelánek, simulation Python) ; progression CGP française (guide orange 2019, CSEN, Kalulu, mots décodables + émojis) ; dyslexie et adoption en classe (espacement, polices, coloration syllabique, RGPD) ; audio des phonèmes hors-ligne (Piper, licences, formats).
+
+## 2026-10-12 16:10-21:35 — Refonte EDUCA v2, session 2
+- Recherche pédagogique sourcée (`rapports/2026-10-12-pedagogie-sources.md`) appliquée : parcours de 66 étapes (muettes en 12, brèves avant nasales, b/d/p/q éloignés + contraste, mots-outils décodables, coloration syllabique en option).
+- Interface v2 complète (écrans, exercices, Kaya, cartes 3D, Élo, espace des grands), ancienne v1 retirée du code.
+- Hors-ligne généré (`scripts/release.mjs`), mise à jour sous contrôle, CI tests → déploiement de l'appli seule, 5 tests e2e + 54 unitaires verts.
+- Sons purs : synthèse WebAudio des consonnes + enregistrement par l'adulte (IndexedDB). Voix locales prioritaires (confidentialité).
+- Docs : README v2, CONFIDENTIALITE.md, rapports Élo et feuille de route v2. Backlog mis à jour (T19, T22 à faire ; T10, T11, T20, T23 partiels).

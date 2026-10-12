@@ -46,12 +46,16 @@ const st = {
   captionFns: new Set(), live: null, audio: null,
 };
 
+/* Confidentialité : une voix « en ligne » (ex. Google français sur
+   ordinateur) envoie le texte — prénom de l'enfant compris — au serveur
+   de l'éditeur. Les voix locales passent donc TOUJOURS devant. */
 function rank(v) {
   const n = v.name.toLowerCase();
+  const online = v.localService ? 0 : 1000;
   const i = VOICE_PREFS.findIndex(p => n.includes(p));
-  if (i >= 0) return i;
-  if (VOICE_AVOID.test(n)) return 900 + (v.localService ? 0 : 1);
-  return v.localService ? 100 : 200;
+  if (i >= 0) return online + i;
+  if (VOICE_AVOID.test(n)) return online + 900;
+  return online + 100;
 }
 
 function frenchVoices() {
