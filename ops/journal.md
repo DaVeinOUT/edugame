@@ -28,3 +28,11 @@
 - Hors-ligne généré (`scripts/release.mjs`), mise à jour sous contrôle, CI tests → déploiement de l'appli seule, 5 tests e2e + 54 unitaires verts.
 - Sons purs : synthèse WebAudio des consonnes + enregistrement par l'adulte (IndexedDB). Voix locales prioritaires (confidentialité).
 - Docs : README v2, CONFIDENTIALITE.md, rapports Élo et feuille de route v2. Backlog mis à jour (T19, T22 à faire ; T10, T11, T20, T23 partiels).
+
+## 2026-10-13 — Nouvelles demandes de Dave (mode autonome, pleine autorisation)
+1. Test de positionnement pour les plus grands ; l'âge choisi (10-12 et plus) élève le niveau de départ ; ajouter « 13 ans et + ».
+2. Au-delà des lettres : niveaux CE1 → 3e (lire et comprendre, orthographe, grammaire, conjugaison, vocabulaire), avec des « contrôles » ; « plus la jauge (Élo) monte, plus le niveau augmente » ; l'enfant commence en bas et progresse.
+3. Voix humaine de référence : trouver une solution (recherches : Lingua Libre / Wikimedia, voix libres) et l'intégrer.
+4. Application mobile : préparer la publication (TWA Android, iOS…).
+5. Créer un agent enseignant CP → 3e (+ orthophoniste) pour relire et rendre les cours « impeccables » : fait (`.claude/agents/educa-enseignant.md`, `educa-orthophoniste.md`).
+6. À chaque limite d'usage : sauvegarder (commit + HANDOFF) puis reprendre jusqu'à un site impeccable.
