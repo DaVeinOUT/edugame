@@ -116,14 +116,27 @@ export async function runChoice(q, api) {
   api.setHelp(help ? () => { helped = true; help(); } : null);
   speakPrompt();
 
-  const chosen = await grid.chosen;
+  // api.skipped : « je ne sais pas » (test de positionnement) — jamais deviner au hasard.
+  const chosen = await (api.skipped ? Promise.race([grid.chosen, api.skipped.then(() => null)]) : grid.chosen);
   api.setReplay(null);
   api.setHelp(null);
   voice.stop();
   lock(grid.buttons);
   grid.buttons.forEach(b => b.classList.remove('speaking'));
+  if (!chosen) {
+    api.feedback('', 'D\'accord !');
+    await sleep(600);
+    return { outcome: 'ko', skipped: true };
+  }
   mark(grid.buttons, chosen.id, q.answer);
   const okBtn = grid.buttons.find(b => b.dataset.id === q.answer);
+  if (api.quick) {   // positionnement : rythme rapide, aucune explication, aucun son d'erreur
+    const right = chosen.id === q.answer;
+    if (right) api.sfx.correct();
+    api.feedback(right ? 'ok' : '', right ? praise(api.rand) : 'D\'accord !');
+    await sleep(700);
+    return { outcome: right ? 'ok' : 'ko' };
+  }
 
   if (chosen.id === q.answer) {
     const text = praise(api.rand);

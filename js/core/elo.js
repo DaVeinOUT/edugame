@@ -22,7 +22,7 @@
 export const ELO = Object.freeze({
   scale: 400 / Math.LN10,   // ≈ 174 points affichés par logit (convention des échecs)
   offset: 1000,             // θ = 0  ↔  1000 points
-  start: { '4-6': -3.0, '7-9': -2.2, '10-12': -1.4 },
+  start: { '4-6': -3.0, '7-9': -2.2, '10-12': -1.4, '13-15': -0.8 },
   v0: 1.0,                  // incertitude de départ (variance, en logit²)
   vMax: 1.0,                // l'incertitude ne dépasse jamais celle du départ
   q: 0.004,                 // l'enfant APPREND : θ doit pouvoir bouger longtemps
@@ -41,6 +41,9 @@ export const TITLES = Object.freeze([
   { id: 'tour',     min: 1000, icon: '♜', name: 'Tour' },
   { id: 'dame',     min: 1200, icon: '♛', name: 'Dame' },
   { id: 'roi',      min: 1400, icon: '♚', name: 'Roi' },
+  // Au-delà du code : les niveaux des grands (CE1 → 3e) mènent aux titres de maîtres.
+  { id: 'maitre',   min: 1700, icon: '♔', name: 'Maître' },
+  { id: 'grand-maitre', min: 2000, icon: '♕', name: 'Grand Maître' },
 ]);
 
 const DAY = 86400000;

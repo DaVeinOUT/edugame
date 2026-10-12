@@ -94,7 +94,9 @@ test('titres d\'échecs et progression vers le suivant', () => {
   assert.equal(titleFor(599).title.id, 'pion');
   assert.equal(titleFor(600).title.id, 'cavalier');
   assert.equal(titleFor(1500).title.id, 'roi');
-  assert.equal(titleFor(1500).next, null);
+  assert.equal(titleFor(1800).title.id, 'maitre');
+  assert.equal(titleFor(2400).title.id, 'grand-maitre');
+  assert.equal(titleFor(2400).next, null);
   assert.equal(titleFor(700).progress, 0.5);
 });
 

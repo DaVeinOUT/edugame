@@ -20,6 +20,7 @@ const AGES = [
   { id: '4-6', ico: '🐣', label: '4 à 6 ans' },
   { id: '7-9', ico: '🌱', label: '7 à 9 ans' },
   { id: '10-12', ico: '🌳', label: '10 à 12 ans' },
+  { id: '13-15', ico: '🎓', label: '13 ans et plus' },
 ];
 const WORLDS = [
   { id: 'jungle', ico: '🌴', label: 'La jungle' },
@@ -113,7 +114,9 @@ export const welcome = {
       try { navigator.storage?.persist?.(); } catch { /* le navigateur décide */ }
       sfx.correct();
       ctx.applyTheme();
-      router.go('hub', { first: true }, { reset: true });
+      // Dès 7 ans, on propose de situer l'enfant : un grand qui lit déjà ne repart pas de « a ».
+      if (pending.age && pending.age !== '4-6') router.go('placement', { first: true }, { reset: true });
+      else router.go('hub', { first: true }, { reset: true });
     }
     stepAvatar();
     return () => { alive = false; voice.stop(); };

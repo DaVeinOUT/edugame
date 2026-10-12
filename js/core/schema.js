@@ -20,7 +20,7 @@ export const AVATARS = Object.freeze([
   '🐻', '🐶', '🐱', '🦄', '🐢', '🐬', '🦉', '🐙',
 ]);
 
-export const AGES = Object.freeze(['4-6', '7-9', '10-12']);
+export const AGES = Object.freeze(['4-6', '7-9', '10-12', '13-15']);
 export const UNIVERSES = Object.freeze(['jungle', 'space', 'ocean']);
 
 /* Réglages de confort par défaut : pensés pour TOUS les enfants

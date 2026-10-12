@@ -37,17 +37,17 @@ async function open({ sw = false } = {}) {
   return { context, page, errors };
 }
 
-async function createChild(page, name = 'Léa') {
+async function createChild(page, name = 'Léa', age = 0) {
   await page.goto(url);
   await page.click('.pick >> nth=0');
   await page.waitForSelector('text=Quel âge as-tu ?');
-  await page.click('.choice-big >> nth=1');
+  await page.click(`.choice-big >> nth=${age}`);
   await page.waitForSelector('text=Dans quel monde veux-tu jouer ?');
   await page.click('.choice-big >> nth=0');
   await page.waitForSelector('input.input');
   await page.fill('input.input', name);
   await page.click('text=C\'est parti');
-  await page.waitForSelector('.btn-play');
+  if (age === 0) await page.waitForSelector('.btn-play');
 }
 
 test('un enfant crée son profil sans lire et arrive à l\'accueil', async () => {
@@ -126,6 +126,28 @@ test('les sons purs synthétisés ont la bonne couleur (s aigu, m grave) et ne s
     assert.ok(r.peak <= 1, `${ph} sature`);
   }
   assert.ok(res.p.dur < 0.6, 'un petit bruit sec reste court');
+  await context.close();
+});
+
+test('dès 10 ans, un test de positionnement situe l\'enfant sur le chemin', async () => {
+  const { context, page, errors } = await open();
+  await createChild(page, 'Sam', 2);
+  await page.waitForSelector('text=On joue !');
+  await page.click('text=On joue !');
+  const deadline = Date.now() + 90000;
+  while (Date.now() < deadline && !(await page.$('text=C\'est parti ▶'))) {
+    const c = await page.$('.choice:not([disabled])');
+    if (c) await c.click({ force: true });
+    await page.waitForTimeout(300);
+  }
+  await page.click('text=C\'est parti ▶');
+  await page.waitForSelector('.btn-play');
+  const path = await page.evaluate(() => {
+    const key = Object.keys(localStorage).find(k => k.startsWith('educa2:p:'));
+    return JSON.parse(localStorage.getItem(key)).path;
+  });
+  assert.equal(path.placed, true);
+  assert.deepEqual(errors, []);
   await context.close();
 });
 
