@@ -11,3 +11,7 @@ SOUL.md
 USER.md
 memory/
 !.claude/agents/
+
+# Outillage de développement (jamais servi aux enfants)
+node_modules/
+test-results/
