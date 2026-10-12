@@ -14,6 +14,54 @@ import { display, toPoints, titleFor } from '../core/elo.js';
 import { isMastered } from '../core/srs.js';
 import { AVATARS, UNIVERSES, AGES, cleanName } from '../core/schema.js';
 import { toast } from '../ui/fx.js';
+import { recordingSupported, startRecording, saveRecording, deleteRecording, loadRecordings } from '../services/recordings.js';
+
+/* Sons que l'adulte peut enregistrer (consonnes d'abord : ce sont elles que
+   la synthèse vocale prononce mal). */
+const RECORDABLE = [
+  ['m', 'moto'], ['n', 'nuage'], ['l', 'lion'], ['r', 'robot'], ['s', 'soleil'], ['z', 'zèbre'], ['f', 'fusée'],
+  ['v', 'vélo'], ['ch', 'chat'], ['j', 'jus'], ['p', 'pomme'], ['t', 'tortue'], ['k', 'canard'], ['b', 'ballon'],
+  ['d', 'dinosaure'], ['g', 'gâteau'], ['gn', 'montagne'], ['y', 'papillon'],
+  ['a', 'ananas'], ['i', 'île'], ['o', 'os'], ['u', 'usine'], ['ou', 'ours'], ['e', 'renard'], ['é', 'éléphant'],
+  ['è', 'chèvre'], ['eu', 'feu'], ['on', 'mouton'], ['an', 'panda'], ['in', 'lapin'], ['oi', 'roi'],
+];
+
+function soundsSection(ctx) {
+  const { voice, router } = ctx;
+  const intro = h('p', { class: 'note' },
+    'Pour apprendre à lire, il faut des sons PURS : « mmm », « sss », jamais « me » ou « se ». Kaya utilise une synthèse de secours. '
+    + 'Pour un son plus naturel, enregistrez votre voix : 2 secondes, sans voyelle (pour p, t, k, b, d, g : un petit bruit très court). '
+    + 'Les enregistrements restent sur cet appareil et servent à tous les enfants.');
+  if (!recordingSupported()) return section('Les sons de Kaya', intro, h('p', { class: 'note' }, 'Ce navigateur ne permet pas d\'enregistrer.'));
+  const rows = RECORDABLE.map(([ph, example]) => {
+    const has = voice.hasRecording(ph);
+    const rec = btn('● Enregistrer', async () => {
+      rec.disabled = true;
+      rec.textContent = '🎙️ Parlez…';
+      try {
+        const session = await startRecording();
+        const blob = await session.done;
+        await saveRecording(ph, blob);
+        voice.setRecordings(await loadRecordings());
+        toast(`Son « ${ph} » enregistré`);
+        router.refresh();
+      } catch {
+        toast('Micro indisponible ou refusé');
+        rec.disabled = false;
+        rec.textContent = '● Enregistrer';
+      }
+    });
+    const del = has ? btn('🗑️', async () => {
+      await deleteRecording(ph);
+      voice.setRecordings(await loadRecordings());
+      router.refresh();
+    }) : null;
+    return h('tr', null, h('td', { class: 'read' }, ph), h('td', null, `comme dans « ${example} »`),
+      h('td', null, h('div', { class: 'row wrap' }, btn('▶', () => voice.sound(ph)), rec, del)),
+      h('td', { class: 'note' }, has ? 'votre voix ✓' : 'synthèse'));
+  });
+  return section('Les sons de Kaya', intro, h('table', { class: 'mini' }, h('tbody', null, rows)));
+}
 
 const WORDS = ['zéro', 'un', 'deux', 'trois', 'quatre', 'cinq', 'six', 'sept', 'huit', 'neuf'];
 const UNLOCK_MS = 10 * 60 * 1000;
@@ -180,6 +228,7 @@ function deviceTab(ctx) {
         ...ctx.cur.steps.map((s, i) => h('button', { type: 'button', class: 'read', 'aria-pressed': d.classStep === i ? 'true' : 'false', onclick: () => { store.updateDevice(x => ({ ...x, classStep: i })); refresh(); } }, s.show))]),
       h('h3', null, 'Temps de jeu maximum par jour'),
       h('div', { class: 'seg' }, [0, 10, 15, 20, 30].map(m => h('button', { type: 'button', 'aria-pressed': (d.dailyMinutes || 0) === m ? 'true' : 'false', onclick: () => { store.updateDevice(x => ({ ...x, dailyMinutes: m })); refresh(); } }, m ? `${m} min` : 'Sans limite')))),
+    soundsSection(ctx),
   ];
 }
 

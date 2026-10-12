@@ -11,6 +11,9 @@
    • se tait si l'enfant utilise un lecteur d'écran (pas de double voix).
    ============================================================ */
 
+import { canSynth, playPhoneme } from './phonemes.js';
+import { audioContext } from './sfx.js';
+
 /* Classement des voix : naturelles d'abord, gadgets jamais. */
 const VOICE_PREFS = [
   'google français', 'natural', 'audrey', 'amélie', 'amelie', 'virginie', 'aurélie',
@@ -39,7 +42,7 @@ const st = {
   muted: false, screenReader: false, slow: false,
   status: synth ? 'unknown' : 'unsupported',   // ok | novoice | unknown | unsupported
   gen: 0,                                        // génération : une nouvelle phrase coupe les séquences en cours
-  soundFiles: new Set(), soundBase: 'audio/sons/',
+  soundFiles: new Set(), soundBase: 'audio/sons/', recordings: new Map(),
   captionFns: new Set(), live: null, audio: null,
 };
 
@@ -158,12 +161,20 @@ function playFile(url) {
  */
 async function sound(ph, { noCaption = false } = {}) {
   const myGen = st.gen;
-  if (st.muted || st.screenReader) { if (!noCaption) caption(`« ${ph} »`); await wait(500); return; }
-  if (st.soundFiles.has(ph)) {
-    if (!noCaption) caption(`« ${ph} »`);
-    const ok = await playFile(`${st.soundBase}${encodeURIComponent(ph)}.mp3`);
+  if (!noCaption) caption(`« ${ph} »`);
+  if (st.muted || st.screenReader) { await wait(500); return; }
+  // 1. la voix de l'adulte (enregistrée sur cet appareil) ; 2. un fichier du jeu
+  const url = st.recordings.get(ph) || (st.soundFiles.has(ph) ? `${st.soundBase}${encodeURIComponent(ph)}.mp3` : null);
+  if (url) {
+    const ok = await playFile(url);
     if (ok || myGen !== st.gen) return;
   }
+  // 3. consonne : son pur synthétisé (jamais « me » pour [m])
+  if (canSynth(ph)) {
+    const ctx = audioContext();
+    if (ctx) { await playPhoneme(ctx, ph); return; }
+  }
+  // 4. voyelles : la synthèse vocale les dit correctement
   const fallback = SOUND_TTS[ph];
   if (fallback && synth) await utter(fallback, { rate: 0.7 });
 }
@@ -257,6 +268,9 @@ export const voice = {
     st.soundFiles = new Set(list);
     if (base) st.soundBase = base;
   },
+  /** Sons purs enregistrés par l'adulte (Map phonème → URL). */
+  setRecordings(map) { st.recordings = map instanceof Map ? map : new Map(); },
+  hasRecording: ph => st.recordings.has(ph),
   say, seq, sound, stop,
   onCaption(fn) { st.captionFns.add(fn); return () => st.captionFns.delete(fn); },
   get status() { return st.status; },

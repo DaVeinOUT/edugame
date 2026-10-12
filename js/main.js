@@ -8,6 +8,7 @@ import { createStore } from './services/store.js';
 import { voice } from './services/voice.js';
 import { sfx } from './services/sfx.js';
 import { installSafetyNet } from './services/errors.js';
+import { loadRecordings } from './services/recordings.js';
 import { createRouter } from './ui/router.js';
 import { mountCaption } from './ui/caption.js';
 import { applyTheme } from './ui/theme.js';
@@ -73,6 +74,7 @@ installSafetyNet({
 document.addEventListener('pointerdown', () => sfx.unlock(), { once: true, capture: true });
 sfx.muted = store.device().muted;
 voice.setSoundFiles(SOUND_FILES);
+loadRecordings().then(map => voice.setRecordings(map)).catch(() => { /* pas d'IndexedDB : synthèse */ });
 voice.configure({ muted: store.device().muted });
 voice.init({ preferred: store.device().voice, liveRegion: document.getElementById('sr-live') })
   .then(() => ctx.applyTheme());

@@ -100,6 +100,35 @@ test('l\'espace des grands demande de lire des chiffres écrits en lettres', asy
   await context.close();
 });
 
+test('les sons purs synthétisés ont la bonne couleur (s aigu, m grave) et ne saturent pas', async () => {
+  const { context, page } = await open();
+  await page.goto(url);
+  const res = await page.evaluate(async () => {
+    const { renderPhoneme } = await import('./js/services/phonemes.js');
+    const measure = async ph => {
+      const ctx = new OfflineAudioContext(1, 44100 * 2, 44100);
+      const dur = renderPhoneme(ctx, ph, 0.01);
+      const data = (await ctx.startRendering()).getChannelData(0);
+      let zc = 0; let sum = 0; let peak = 0;
+      for (let i = 1; i < data.length; i++) {
+        if ((data[i - 1] < 0) !== (data[i] < 0)) zc++;
+        sum += data[i] * data[i];
+        peak = Math.max(peak, Math.abs(data[i]));
+      }
+      const n = Math.max(1, Math.round(dur * 44100));
+      return { zcr: zc / n, rms: Math.sqrt(sum / n), peak, dur };
+    };
+    return { s: await measure('s'), ch: await measure('ch'), m: await measure('m'), p: await measure('p') };
+  });
+  assert.ok(res.s.zcr > res.ch.zcr && res.ch.zcr > res.m.zcr, `ordre aigu→grave attendu : ${JSON.stringify(res)}`);
+  for (const [ph, r] of Object.entries(res)) {
+    assert.ok(r.rms > 0.01, `${ph} trop faible`);
+    assert.ok(r.peak <= 1, `${ph} sature`);
+  }
+  assert.ok(res.p.dur < 0.6, 'un petit bruit sec reste court');
+  await context.close();
+});
+
 test('après une première visite, le jeu marche sans internet', async () => {
   const { context, page } = await open({ sw: true });
   await page.goto(url);

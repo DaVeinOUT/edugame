@@ -7,8 +7,8 @@
 let ctx = null;
 let muted = false;
 
-function audio() {
-  if (muted) return null;
+/** Contexte audio partagé (effets et sons purs des consonnes). */
+export function audioContext() {
   if (!ctx) {
     const AC = globalThis.AudioContext || globalThis.webkitAudioContext;
     if (!AC) return null;
@@ -16,6 +16,10 @@ function audio() {
   }
   if (ctx.state === 'suspended') ctx.resume().catch(() => {});
   return ctx;
+}
+
+function audio() {
+  return muted ? null : audioContext();
 }
 
 function tone(freq, start, dur, type = 'sine', vol = 0.16) {
