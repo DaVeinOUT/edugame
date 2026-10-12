@@ -1,0 +1,173 @@
+/* ============================================================
+   CORE/LEVELS.JS — Les niveaux des grands (CE1 → 3e)
+   Après le code (le chemin des 66 sons) : lire et comprendre,
+   orthographe, grammaire, conjugaison, vocabulaire.
+   « Plus la jauge monte, plus le niveau augmente » :
+   • le 1er niveau s'ouvre quand le chemin des sons est fini (ou que le
+     positionnement l'a montré), ou quand la force de lecture atteint son
+     seuil ET que les sons complexes sont déjà travaillés ;
+   • le niveau suivant s'ouvre quand le contrôle est réussi (70 %) ou
+     quand la force de lecture atteint son seuil ;
+   • dans un niveau, les modules s'ouvrent l'un après l'autre (une étoile,
+     ou deux essais : on ne bloque jamais) ; le contrôle peut être tenté
+     à tout moment — un grand qui sait déjà peut monter vite.
+   Fonctions pures, testées. Données : js/data/levels.js.
+   ============================================================ */
+
+import { systemRandom } from './rng.js';
+import { selectItems } from './select.js';
+import { finishSession, starsFor } from './session.js';
+
+export const PASS = 0.7;
+export const MIN_PHONICS_STEP = 44;
+export const PER_SESSION = 12;
+/* Difficulté a priori (logit) : au-dessus de tout le chemin des sons. */
+export const DIFF = Object.freeze({
+  base: 3.2, perLevel: 1.0, perDifficulty: 0.1,
+  type: { gap: 0, choice: 0, pick: 0.1, order: 0.2, text: 0.3 },
+});
+
+export function buildLevels(data) {
+  const levels = (data.LEVELS || []).map((l, index) => ({ ...l, index }));
+  const levelIndex = new Map(levels.map(l => [l.id, l.index]));
+  const modules = (data.MODULES || [])
+    .filter(m => levelIndex.has(m.level))
+    .map(m => ({ ...m, levelIndex: levelIndex.get(m.level), isControle: m.skill === 'controle' }))
+    .sort((a, b) => a.levelIndex - b.levelIndex || Number(a.isControle) - Number(b.isControle) || a.order - b.order);
+  const byId = new Map(modules.map(m => [m.id, m]));
+  return {
+    levels, modules,
+    level: id => levels.find(l => l.id === id) || null,
+    module: id => byId.get(id) || null,
+    modulesOf: id => modules.filter(m => m.level === id),
+  };
+}
+
+const adv = profile => profile.path.adv || { modules: {}, controles: {} };
+const finished = rec => !!rec && (rec.stars >= 1 || rec.tries >= 2);
+
+/** Le chemin des sons est-il terminé (ou reconnu comme su par le positionnement) ? */
+export function phonicsDone(profile, cur) {
+  const last = cur.steps.length - 1;
+  return !!profile.path.advanced || (profile.path.open >= last && (profile.path.stars[cur.step(last).id] || 0) >= 1);
+}
+
+/** Niveaux ouverts pour cet enfant, dans l'ordre. */
+export function openLevels(L, profile, cur, points) {
+  const out = [];
+  const a = adv(profile);
+  for (const lv of L.levels) {
+    const ok = lv.index === 0
+      ? phonicsDone(profile, cur) || (points >= lv.unlockElo && profile.path.open >= MIN_PHONICS_STEP)
+      : !!a.controles[L.levels[lv.index - 1].id] || points >= lv.unlockElo;
+    if (!ok) break;
+    out.push(lv);
+  }
+  return out;
+}
+
+/** Module ouvert ? Le premier d'un niveau, puis en chaîne ; le contrôle toujours. */
+export function moduleOpen(L, profile, m) {
+  if (m.isControle) return true;
+  const list = L.modulesOf(m.level).filter(x => !x.isControle);
+  const i = list.findIndex(x => x.id === m.id);
+  return i <= 0 || finished(adv(profile).modules[list[i - 1].id]);
+}
+
+export function moduleRecord(profile, id) {
+  return adv(profile).modules[id] || null;
+}
+
+export function controlePassed(profile, levelId) {
+  return !!adv(profile).controles[levelId];
+}
+
+/** Ce que propose « Jouer » quand le chemin des sons est fini : on progresse niveau par niveau. */
+export function nextModule(L, profile, cur, points) {
+  const a = adv(profile);
+  for (const lv of openLevels(L, profile, cur, points)) {
+    if (a.controles[lv.id]) continue;
+    const mods = L.modulesOf(lv.id);
+    const next = mods.find(m => !m.isControle && !finished(a.modules[m.id]) && moduleOpen(L, profile, m));
+    return next || mods.find(m => m.isControle) || null;
+  }
+  return null;
+}
+
+export function itemDifficulty(m, type) {
+  return DIFF.base + DIFF.perLevel * m.levelIndex + DIFF.perDifficulty * (m.difficulty || 1) + (DIFF.type[type] || 0);
+}
+
+/** Mots d'une phrase, sans la ponctuation collée (pour « Touche le verbe »). */
+export function tokens(text) {
+  return text.split(/\s+/)
+    .map(w => w.replace(/^[«"“(]+/, '').replace(/[»"”).,!?;:…]+$/, ''))
+    .filter(w => w && !/^[«»!?;:…—-]+$/.test(w));
+}
+
+function makeQuestion(m, it, idx) {
+  const base = { kind: 'adv', type: it.type, key: `adv:${m.id}:${idx}`, module: m.id, step: 0,
+                 d: itemDifficulty(m, it.type), explain: it.explain || '', item: it };
+  const fromChoices = () => ({ options: it.choices.map(c => ({ id: c, text: c })), answer: it.answer, guess: 1 / it.choices.length });
+  switch (it.type) {
+    case 'gap':
+      return { ...base, ...fromChoices(), text: it.text, prompt: [it.text.replace(/_{2,}/g, '…'), { pause: 200 }, 'Choisis le bon mot.'] };
+    case 'choice':
+      return { ...base, ...fromChoices(), text: it.text, prompt: [it.text] };
+    case 'text':
+      return { ...base, ...fromChoices(), text: it.text, passage: it.passage, prompt: [it.text] };
+    case 'pick': {
+      const words = tokens(it.text);
+      const k = words.findIndex(w => w.toLowerCase() === String(it.answer).toLowerCase());
+      return { ...base, text: it.text, words, options: words.map((w, i) => ({ id: `w${i}`, text: w })),
+               answer: `w${k}`, answerText: it.answer, guess: 1 / Math.max(2, words.length),
+               prompt: [it.prompt, { pause: 200 }, { say: it.text }] };
+    }
+    case 'order':
+      return { ...base, words: it.words, answer: it.answer, options: it.words.map((w, i) => ({ id: `w${i}`, text: w })),
+               guess: 0.05, prompt: ['Remets les mots dans l\'ordre pour faire une phrase.'] };
+    default:
+      throw new Error(`type d'exercice inconnu : ${it.type}`);
+  }
+}
+
+/** Toutes les questions d'un module (un texte donne une question par question posée). */
+export function moduleQuestions(m) {
+  const out = [];
+  m.items.forEach((it, i) => {
+    if (it.type === 'text') {
+      (it.questions || []).forEach((q, j) => out.push(makeQuestion(m, { ...q, type: 'text', passage: it.passage }, `${i}.${j}`)));
+    } else {
+      out.push(makeQuestion(m, it, String(i)));
+    }
+  });
+  return out;
+}
+
+/** Séance d'un module : 12 questions au plus (révisions dues d'abord), dans l'ordre du cours. */
+export function planModule(m, profile, { rand = systemRandom, now = Date.now(), n = PER_SESSION } = {}) {
+  const all = moduleQuestions(m);
+  if (m.isControle || all.length <= n) return all;
+  const chosen = new Set(selectItems(all, { elo: profile.elo, mem: profile.mem, now, n, rand }).map(q => q.key));
+  return all.filter(q => chosen.has(q.key));
+}
+
+/**
+ * Fin d'un module : force de lecture, étoiles du module, contrôle, diplôme.
+ * Les étoiles d'un module ne baissent jamais ; un contrôle se retente à volonté.
+ */
+export function finishModule(profile, { module, results, seconds = 0 }, cur, now = Date.now()) {
+  const { profile: p1, report } = finishSession(profile, { kind: 'practice', results, seconds }, cur, now);
+  const a = adv(p1);
+  const prev = a.modules[module.id] || { stars: 0, tries: 0 };
+  const stars = starsFor(report.accuracy);
+  const modules = { ...a.modules, [module.id]: { stars: Math.max(prev.stars, stars), tries: prev.tries + 1 } };
+  const passed = module.isControle && report.accuracy >= PASS;
+  const controles = passed ? { ...a.controles, [module.level]: true } : a.controles;
+  const diploma = `diplome-${module.level}`;
+  const newCards = passed && !p1.cards.includes(diploma) ? [diploma] : [];
+  return {
+    profile: { ...p1, cards: [...p1.cards, ...newCards], path: { ...p1.path, adv: { modules, controles } } },
+    report: { ...report, stars, passed, isControle: module.isControle, module: module.id, cards: [...report.cards, ...newCards] },
+  };
+}
