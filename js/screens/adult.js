@@ -9,7 +9,7 @@
    • Données : export, import, effacement — rien ne quitte l'appareil.
    ============================================================ */
 
-import { h, clear } from '../ui/dom.js';
+import { h, append } from '../ui/dom.js';
 import { display, toPoints, titleFor } from '../core/elo.js';
 import { isMastered } from '../core/srs.js';
 import { AVATARS, UNIVERSES, AGES, cleanName } from '../core/schema.js';
@@ -329,11 +329,12 @@ export const adult = {
     else if (tab === 'aide') body = helpTab();
     else if (!child) body = [section('Aucun enfant', btn('➕ Ajouter un enfant', () => router.go('welcome', { adding: true }), 'btn btn-primary'))];
     else body = tab === 'reglages' ? settingsTab(child, ctx) : progressTab(child, ctx);
-    view.append(
+    append(view, [
       h('div', { class: 'topbar' },
         h('button', { class: 'icon-btn', type: 'button', 'aria-label': 'Retour', onclick: () => router.back() }, '←'),
         h('h1', { class: 'title' }, 'Espace des grands')),
-      tabs, who, ...body);
+      tabs, who, body,   // append() ignore « who » quand il n'y a qu'un enfant
+    ]);
     return undefined;
   },
 };

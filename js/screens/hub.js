@@ -25,8 +25,17 @@ export function nextActivity(profile, cur, now = Date.now()) {
   if (profile.stats.sessions > 0 && profile.path.lastKind === 'lesson' && due >= 8) {
     return { mode: 'practice', label: 'Révisions', parts: ['On révise un peu ce que tu as appris ? Touche le gros bouton !'] };
   }
-  return { mode: 'lesson', step: step.index, label: `Le son « ${step.show} »`,
-           parts: ['Aujourd\'hui, on apprend le son', { sound: step.ph }, '. Touche le gros bouton !'] };
+  return { mode: 'lesson', step: step.index, label: `Le son « ${step.show} »`, parts: todayParts(step) };
+}
+
+/* Ce que Kaya annonce pour la leçon du jour (jamais un son vide). */
+function todayParts(step) {
+  const end = 'Touche le gros bouton !';
+  if (step.kind === 'contraste') return ['Aujourd\'hui, on apprend à ne plus confondre b, d, p et q !', end];
+  if (!step.ph) return [`Aujourd'hui, on découvre : ${step.show}.`, end];
+  if (step.show === step.ph) return ['Aujourd\'hui, on apprend le son', { sound: step.ph }, '.', end];
+  // Graphème de plusieurs lettres ou règle : on montre l'écriture ET le son.
+  return ['Aujourd\'hui, on apprend à lire', { word: step.show.split(' ')[0] }, ', qui fait le son', { sound: step.ph }, '.', end];
 }
 
 export const hub = {

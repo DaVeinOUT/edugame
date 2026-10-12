@@ -5,7 +5,7 @@
    mystère encourage à continuer.
    ============================================================ */
 
-import { h } from '../ui/dom.js';
+import { h, append } from '../ui/dom.js';
 import { catalogue, cardThumb, revealCard } from '../ui/cards.js';
 
 const SECTIONS = [['son', 'Les sons'], ['exploit', 'Les exploits'], ['titre', 'Les titres d\'échecs']];
@@ -22,12 +22,13 @@ export const collection = {
       if (has) revealCard(ctx, card, all.length, { isNew: false });
       else voice.say('Carte mystère ! Continue le chemin pour la gagner !');
     };
-    view.append(
+    append(view, [
       h('div', { class: 'topbar' },
         h('button', { class: 'icon-btn', type: 'button', 'aria-label': 'Retour', onclick: () => router.back() }, '←'),
         h('h1', { class: 'title' }, `Mes cartes · ${count}/${all.length}`)),
       SECTIONS.map(([kind, label]) => h('section', { class: 'stack' }, h('h2', null, label),
-        h('div', { class: 'collection' }, all.filter(c => c.kind === kind).map(c => cardThumb(c, owned.has(c.id), open))))));
+        h('div', { class: 'collection' }, all.filter(c => c.kind === kind).map(c => cardThumb(c, owned.has(c.id), open))))),
+    ]);
     voice.say(`Ta collection : ${count} cartes sur ${all.length} ! Touche une carte pour la voir en grand.`);
     return () => voice.stop();
   },
