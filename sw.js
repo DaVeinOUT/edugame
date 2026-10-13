@@ -10,7 +10,7 @@
    ============================================================ */
 
 /* <release> — généré par scripts/release.mjs, ne pas éditer à la main */
-const CACHE_NAME = 'educa-f1197d1620';
+const CACHE_NAME = 'educa-519adc2654';
 const ASSETS = [
   './',
   './audio/mots/a-2.mp3',
@@ -281,6 +281,17 @@ const ASSETS = [
   './audio/mots/vous.mp3',
   './audio/mots/zebre.mp3',
   './audio/mots/zero.mp3',
+  './audio/sons/a.mp3',
+  './audio/sons/an.mp3',
+  './audio/sons/e-aigu.mp3',
+  './audio/sons/e-grave.mp3',
+  './audio/sons/i.mp3',
+  './audio/sons/in.mp3',
+  './audio/sons/o.mp3',
+  './audio/sons/oi.mp3',
+  './audio/sons/on.mp3',
+  './audio/sons/ou.mp3',
+  './audio/sons/u.mp3',
   './confidentialite.html',
   './css/app.css',
   './css/cards.css',

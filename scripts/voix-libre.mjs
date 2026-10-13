@@ -8,6 +8,7 @@
      node scripts/voix-libre.mjs fetch    # audio-src/*.wav + audio-src/mots.json (ignorés par git) + audio/ATTRIBUTIONS.md
      node scripts/voix-libre.mjs encode   # audio-src/*.wav -> audio/mots/*.mp3 + js/data/wordaudio.js
      node scripts/voix-libre.mjs check    # contrôle acoustique des fins de mots (voir cmdCheck)
+     node scripts/voix-libre.mjs sounds   # voyelles isolées (même voix) -> audio/sons/*.mp3 + js/data/sounds.js
 
    Aucune dépendance (Node >= 20 : fetch intégré ; ffmpeg dans le PATH pour « encode »).
    Variables : EDUCA_ROOT (racine du dépôt), EDUCA_OUT (dossier de sortie), FFMPEG (binaire).
@@ -298,9 +299,67 @@ async function cmdCheck() {
   if (doubts.length) process.exitCode = 1;
 }
 
+/* Sons isolés des VOYELLES, dits par la même voix que les mots, grâce à des mots d'un seul son
+   (rapport du 13/10, A4.6, option 2). Premier mot trouvé chez le locuteur principal. Les consonnes
+   restent synthétisées (WebAudio) : un enregistrement ajouterait une voyelle d'appui (« me » pour [m]).
+   Noms de fichiers ASCII (é/è : pas de piège de normalisation Unicode d'un système à l'autre). */
+const VOWEL_SOUNDS = [
+  { ph: 'a', file: 'a', words: ['a', 'ah'] },
+  { ph: 'i', file: 'i', words: ['y', 'hi'] },
+  { ph: 'o', file: 'o', words: ['eau', 'au', 'oh'] },
+  { ph: 'u', file: 'u', words: ['eu', 'hu'] },
+  { ph: 'ou', file: 'ou', words: ['ou', 'où', 'houx'] },
+  { ph: 'é', file: 'e-aigu', words: ['et', 'ai'] },
+  { ph: 'è', file: 'e-grave', words: ['est'] },
+  { ph: 'eu', file: 'eu', words: ['eux', 'œufs'] },
+  { ph: 'on', file: 'on', words: ['on', 'ont'] },
+  { ph: 'an', file: 'an', words: ['an', 'en'] },
+  { ph: 'in', file: 'in', words: ['hein', 'un'] },
+  { ph: 'oi', file: 'oi', words: ['oie'] },
+];
+
+async function cmdSounds() {
+  const found = await filesBySpeaker(PRIMARY, [...new Set(VOWEL_SOUNDS.flatMap(v => v.words))]);
+  const chosen = VOWEL_SOUNDS.map(v => {
+    const word = v.words.find(w => found.has(w));
+    return word ? { ...v, word, commons: pickFile(word, PRIMARY, found.get(word)) } : { ...v, word: null };
+  });
+  const info = await commonsInfo(chosen.filter(c => c.word).map(c => c.commons));
+  const srcDir = path.join(OUT, SRC_DIR, 'sons');
+  await mkdir(srcDir, { recursive: true });
+  await mkdir(path.join(OUT, 'audio/sons'), { recursive: true });
+  const done = [];
+  for (const c of chosen) {
+    const i = c.word && info.get(c.commons);
+    if (!i || !OK_LICENSES.has(i.license)) { console.warn(`son [${c.ph}] : pas d'enregistrement libre (reste à la synthèse)`); continue; }
+    const wav = path.join(srcDir, `${c.file}.wav`);
+    await download(i.url, wav);
+    encodeOne(wav, path.join(OUT, 'audio/sons', `${c.file}.mp3`));
+    done.push({ ...c, page: i.page, license: i.license });
+  }
+  await writeFile(path.join(OUT, 'js/data/sounds.js'), [
+    '/* ============================================================',
+    '   DATA/SOUNDS.JS — Sons isolés enregistrés (audio/sons/<fichier>.mp3)',
+    '   Généré par « node scripts/voix-libre.mjs sounds » — ne pas éditer.',
+    '   Voyelles dites par la voix des mots (Poslovitch, Lingua Libre, CC0) ;',
+    '   les consonnes restent synthétisées. Un son enregistré par l\'adulte',
+    '   (espace des grands) passe toujours devant.',
+    '   ============================================================ */',
+    '',
+    `export const SOUND_FILES = ${JSON.stringify(Object.fromEntries(done.map(d => [d.ph, d.file])), null, 1)};`,
+    '',
+  ].join('\n'));
+  await writeFile(path.join(OUT, 'audio/sons/ATTRIBUTIONS.md'), [
+    '# Attributions des sons isolés (voyelles)', '',
+    `Chaque voyelle est tirée d'un mot d'un seul son dit par ${PRIMARY.name} (Lingua Libre, Wikimedia Commons) :`, '',
+    ...done.map(d => `- [${d.ph}] ← « ${d.word} » : ${d.page} (${d.license})`), '',
+  ].join('\n'));
+  console.log(`${done.length}/${VOWEL_SOUNDS.length} voyelles : ${done.map(d => `${d.ph}←${d.word}`).join(', ')}`);
+}
+
 const cmd = process.argv[2];
 if (import.meta.url === pathToFileURL(process.argv[1]).href) {
-  const run = { fetch: cmdFetch, encode: cmdEncode, check: cmdCheck }[cmd];
-  if (!run) { console.error('usage : node scripts/voix-libre.mjs fetch|encode|check'); process.exit(2); }
+  const run = { fetch: cmdFetch, encode: cmdEncode, check: cmdCheck, sounds: cmdSounds }[cmd];
+  if (!run) { console.error('usage : node scripts/voix-libre.mjs fetch|encode|check|sounds'); process.exit(2); }
   run().catch(err => { console.error(err.message); process.exit(1); });
 }

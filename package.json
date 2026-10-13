@@ -13,6 +13,7 @@
     "voix:fetch": "EDUCA_NO_FALLBACK=1 node scripts/voix-libre.mjs fetch",
     "voix:encode": "node scripts/voix-libre.mjs encode",
     "voix:check": "node scripts/voix-libre.mjs check",
+    "voix:sounds": "node scripts/voix-libre.mjs sounds",
     "serve": "python3 -m http.server 8765"
   },
   "devDependencies": {

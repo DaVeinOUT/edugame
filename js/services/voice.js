@@ -48,7 +48,7 @@ const st = {
   muted: false, screenReader: false, slow: false,
   status: synth ? 'unknown' : 'unsupported',   // ok | novoice | unknown | unsupported
   gen: 0,                                        // génération : une nouvelle phrase coupe les séquences en cours
-  soundFiles: new Set(), soundBase: 'audio/sons/', recordings: new Map(),
+  soundFiles: new Map(), soundBase: 'audio/sons/', recordings: new Map(),
   wordFiles: new Map(), wordBase: 'audio/mots/',
   captionFns: new Set(), live: null, audio: null,
 };
@@ -191,7 +191,7 @@ async function sound(ph, { noCaption = false } = {}) {
   if (!noCaption) caption(`« ${ph} »`);
   if (st.muted || st.screenReader) { await wait(500); return; }
   // 1. la voix de l'adulte (enregistrée sur cet appareil) ; 2. un fichier du jeu
-  const url = st.recordings.get(ph) || (st.soundFiles.has(ph) ? `${st.soundBase}${encodeURIComponent(ph)}.mp3` : null);
+  const url = st.recordings.get(ph) || (st.soundFiles.has(ph) ? `${st.soundBase}${st.soundFiles.get(ph)}.mp3` : null);
   if (url) {
     const ok = await playFile(url);
     if (ok || myGen !== st.gen) return;
@@ -290,9 +290,9 @@ export const voice = {
     if (slow !== undefined) st.slow = !!slow;
     if (preferred !== undefined) { st.preferred = preferred; pickVoice(); }
   },
-  /** Liste des sons enregistrés disponibles (fichiers dans audio/sons/). */
-  setSoundFiles(list, base) {
-    st.soundFiles = new Set(list);
+  /** Sons enregistrés disponibles (audio/sons/) : { phonème: fichier } (ou une liste de phonèmes). */
+  setSoundFiles(files, base) {
+    st.soundFiles = new Map(Array.isArray(files) ? files.map(ph => [ph, encodeURIComponent(ph)]) : Object.entries(files || {}));
     if (base) st.soundBase = base;
   },
   /** Mots enregistrés (voix humaine) : { mot en minuscules: nom du fichier sans .mp3 }. */

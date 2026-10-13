@@ -26,3 +26,15 @@ test('seuls des mots du jeu sont enregistrés ; les autres restent à la synthè
   assert.ok(Object.keys(WORD_FILES).length >= 250, 'la grande majorité des mots a une voix humaine');
   assert.ok(missing.length <= 40, `mots sans voix humaine : ${missing.join(', ')}`);
 });
+
+test('les voyelles isolées enregistrées ont leur fichier (les consonnes restent synthétisées)', async () => {
+  const { SOUND_FILES } = await import('../../js/data/sounds.js');
+  const { PHONEMES } = await import('../../js/core/seg.js');
+  const sons = new URL('../../audio/sons/', import.meta.url);
+  for (const [ph, file] of Object.entries(SOUND_FILES)) {
+    assert.ok(PHONEMES.includes(ph), `phonème inconnu : ${ph}`);
+    assert.match(file, /^[a-z0-9-]+$/);
+    assert.ok(existsSync(new URL(`${file}.mp3`, sons)), `fichier manquant : ${file}.mp3`);
+  }
+  assert.ok(!('m' in SOUND_FILES) && !('p' in SOUND_FILES), 'pas de consonne enregistrée avec une voyelle d\'appui');
+});
