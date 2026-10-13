@@ -167,3 +167,37 @@ test('après une première visite, le jeu marche sans internet', async () => {
   assert.ok(fontsOk, 'les polices doivent venir du cache');
   await context.close();
 });
+
+test('la voix enregistrée par l\'adulte (blob:) est bien jouée malgré la CSP', async () => {
+  const { context, page, errors } = await open();
+  await createChild(page, 'Noé');
+  const out = await page.evaluate(async () => {
+    const blocked = [];
+    document.addEventListener('securitypolicyviolation', e => blocked.push(e.violatedDirective));
+    const played = [];
+    const play = HTMLMediaElement.prototype.play;
+    HTMLMediaElement.prototype.play = function () {
+      const p = play.call(this);
+      p.then(() => played.push('ok'), e => played.push(e.name));
+      return p;
+    };
+    // WAV silencieux de 0,2 s : ce que produit un enregistrement, sans micro.
+    const n = 1600;
+    const buf = new ArrayBuffer(44 + n * 2);
+    const v = new DataView(buf);
+    const w = (o, s) => [...s].forEach((c, i) => v.setUint8(o + i, c.charCodeAt(0)));
+    w(0, 'RIFF'); v.setUint32(4, 36 + n * 2, true); w(8, 'WAVE'); w(12, 'fmt ');
+    v.setUint32(16, 16, true); v.setUint16(20, 1, true); v.setUint16(22, 1, true);
+    v.setUint32(24, 8000, true); v.setUint32(28, 16000, true); v.setUint16(32, 2, true); v.setUint16(34, 16, true);
+    w(36, 'data'); v.setUint32(40, n * 2, true);
+    const { voice } = await import('./js/services/voice.js');
+    voice.setRecordings(new Map([['a', URL.createObjectURL(new Blob([buf], { type: 'audio/wav' }))]]));
+    await voice.sound('a');
+    return { blocked, played };
+  });
+  assert.deepEqual(out.blocked, [], 'aucune violation de CSP');
+  // (l'accueil peut aussi faire entendre le son du jour : au moins une lecture, aucun échec)
+  assert.ok(out.played.length >= 1 && out.played.every(x => x === 'ok'), `lecture : ${out.played}`);
+  assert.deepEqual(errors, []);
+  await context.close();
+});

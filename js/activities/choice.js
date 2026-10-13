@@ -100,12 +100,14 @@ export async function runChoice(q, api) {
   const grid = choiceGrid(q.options, { kind, onHear: hear });
   api.stage.replaceChildren(card, grid.el);
   let helped = false;
+  let reading = 0;   // jeton : « Réécouter » ou « Aide » arrêtent la lecture en cours
 
   async function speakPrompt() {
+    const token = ++reading;
     await voice.seq(q.prompt);
     if (q.kind === 'listen' && q.mode === 'initial') {
       for (const b of grid.buttons) {
-        if (!api.alive() || grid.isDone()) return;
+        if (token !== reading || !api.alive() || grid.isDone()) return;
         b.classList.add('speaking');
         await voice.say(b.dataset.say, { interrupt: false, slowWord: true });
         b.classList.remove('speaking');
@@ -113,7 +115,7 @@ export async function runChoice(q, api) {
     }
   }
   api.setReplay(() => speakPrompt());
-  api.setHelp(help ? () => { helped = true; help(); } : null);
+  api.setHelp(help ? () => { reading += 1; helped = true; help(); } : null);
   speakPrompt();
 
   // api.skipped : « je ne sais pas » (test de positionnement) — jamais deviner au hasard.
@@ -139,14 +141,18 @@ export async function runChoice(q, api) {
   }
 
   if (chosen.id === q.answer) {
+    const result = { outcome: helped ? 'help' : 'ok' };
+    api.onAnswer?.(result);   // enregistrée avant le bravo
     const text = praise(api.rand);
     cheer(api, okBtn, text);
     const parts = q.kind === 'read' ? [text, { word: q.word.text }]
       : q.kind === 'syllable' ? [text, { word: q.answer }] : [text];
     await Promise.race([voice.seq(parts), sleep(2200)]);
-    return { outcome: helped ? 'help' : 'ok' };
+    return result;
   }
   const { parts, caption, confusion } = explain(q, chosen, cur);
+  const result = { outcome: 'ko', confusion };
+  api.onAnswer?.(result);     // enregistrée avant la correction
   await comfort(api, parts, caption);
-  return { outcome: 'ko', confusion };
+  return result;
 }

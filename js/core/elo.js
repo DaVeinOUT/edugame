@@ -18,6 +18,8 @@
    mise à jour bayésienne approchée (type Glicko) en échelle logit.
    ============================================================ */
 
+import { localDay } from './time.js';
+
 /* Paramètres réglés par simulation (rapports/2026-10-12-recherche-elo.md). */
 export const ELO = Object.freeze({
   scale: 400 / Math.LN10,   // ≈ 174 points affichés par logit (convention des échecs)
@@ -137,7 +139,6 @@ export function titleFor(points) {
   return { title, next, progress: Math.min(1, Math.max(0, progress)), rank: i };
 }
 
-const dayKey = t => new Date(t).toISOString().slice(0, 10);
 
 /**
  * Fin de séance : le record peut monter (jamais descendre), on garde
@@ -148,7 +149,7 @@ const dayKey = t => new Date(t).toISOString().slice(0, 10);
 export function commitSession(state, now = Date.now()) {
   const before = display(state);
   const after = Math.max(before, prudent(state));
-  const entry = [dayKey(now), after, Math.round(state.theta * 100) / 100];
+  const entry = [localDay(now), after, Math.round(state.theta * 100) / 100];
   const hist = state.history || [];
   const sameDay = hist.length && hist[hist.length - 1][0] === entry[0];
   const history = [...(sameDay ? hist.slice(0, -1) : hist), entry].slice(-ELO.historyMax);

@@ -7,7 +7,7 @@
 import { h } from '../ui/dom.js';
 
 const GAMES = [
-  { ico: '✍️', label: 'Tracer', say: 'Tracer les lettres avec ton doigt', go: r => r.go('trace') },
+  { id: 'trace', ico: '✍️', label: 'Tracer', say: 'Tracer les lettres avec ton doigt', go: r => r.go('trace') },
   { ico: '🔁', label: 'Réviser', say: 'Réviser ce que tu as appris', go: r => r.go('lesson', { mode: 'practice' }) },
   { ico: '👂', label: 'Écouter', say: 'Écouter les sons', go: r => r.go('lesson', { mode: 'practice', kinds: ['listen'] }) },
   { ico: '🔤', label: 'Les sons', say: 'Reconnaître les sons et les syllabes', go: r => r.go('lesson', { mode: 'practice', kinds: ['sound', 'syllable'] }) },
@@ -18,15 +18,19 @@ const GAMES = [
 export const games = {
   mount(view, params, ctx) {
     const { voice, sfx, router } = ctx;
+    // Avec un lecteur d'écran, tracer au doigt une lettre qu'on ne voit pas n'a pas de sens.
+    const screenReader = !!ctx.profile()?.comfort?.screenReader;
+    const list = screenReader ? GAMES.filter(g => g.id !== 'trace') : GAMES;
     view.append(
       h('div', { class: 'topbar' },
         h('button', { class: 'icon-btn', type: 'button', 'aria-label': 'Retour', onclick: () => router.back() }, '←'),
         h('h1', { class: 'title' }, 'Jeux libres')),
-      h('div', { class: 'tiles' }, GAMES.map(g => h('button', {
+      h('div', { class: 'tiles' }, list.map(g => h('button', {
         type: 'button', class: 'tile', 'aria-label': g.say,
         onclick: () => { sfx.tap(); voice.say(g.say); g.go(router); },
       }, h('span', { class: 'ico', 'aria-hidden': 'true' }, g.ico), g.label))));
-    voice.say('Choisis ton jeu ! Tu peux tracer, écouter, lire, écrire ou réviser.');
+    voice.say(screenReader ? 'Choisis ton jeu ! Tu peux écouter, lire, écrire ou réviser.'
+      : 'Choisis ton jeu ! Tu peux tracer, écouter, lire, écrire ou réviser.');
     return () => voice.stop();
   },
 };

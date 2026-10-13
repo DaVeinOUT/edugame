@@ -13,6 +13,7 @@ import { update as eloUpdate, commitSession, decay } from './elo.js';
 import { review } from './srs.js';
 import { selectItems } from './select.js';
 import { shuffle, systemRandom } from './rng.js';
+import { localDay } from './time.js';
 
 export const LESSON_PLAN = Object.freeze([
   ['listen', 3], ['sound', 4], ['syllable', 3], ['read', 3], ['hearword', 2], ['build', 2], ['sentence', 1],
@@ -26,7 +27,6 @@ const CONTRAST_MEMBERS = ['b', 'd', 'p', 'qu'];
 const LETTER_KINDS = new Set(['voyelle', 'longue', 'courte', 'complexe']);
 const isLetterStep = s => LETTER_KINDS.has(s.kind) && !s.show.includes(' ');
 const buildable = w => w.parsed.graphemes.filter(g => !g.mute).length <= 6;
-const dayKey = t => new Date(t).toISOString().slice(0, 10);
 
 function wordItem(kind, w) {
   return { kind, key: `${kind === 'read' ? 'rd' : 'bd'}:${w.text}`, step: w.step, text: w.text, word: w,
@@ -184,6 +184,24 @@ function trimDays(days) {
   return Object.fromEntries(keys.slice(-MAX_DAYS).map(k => [k, days[k]]));
 }
 
+/** Temps de jeu actif du jour (secondes). */
+export function playedToday(profile, now = Date.now()) {
+  return profile.stats.days?.[localDay(now)] || 0;
+}
+
+/** Le plafond quotidien fixé par l'adulte (minutes, 0 = aucun) est-il atteint ? */
+export function restedToday(profile, dailyMinutes, now = Date.now()) {
+  return dailyMinutes > 0 && playedToday(profile, now) >= dailyMinutes * 60;
+}
+
+/** Ajoute du temps de jeu (leçon, jeu libre) au compteur du jour. */
+export function addPlayTime(profile, seconds, now = Date.now()) {
+  const s = Math.max(0, Math.round(seconds));
+  const day = localDay(now);
+  const days = trimDays({ ...profile.stats.days, [day]: (profile.stats.days[day] || 0) + s });
+  return { ...profile, stats: { ...profile.stats, seconds: profile.stats.seconds + s, days } };
+}
+
 /* Les cartes se MÉRITENT : chaque carte correspond à un exploit réel. */
 function earnedCards(before, after, ctx) {
   const ids = [];
@@ -230,9 +248,8 @@ export function finishSession(profile, { kind, step = null, results, seconds = 0
     path = { ...path, open, tries, stars: { ...path.stars, [stepId]: Math.max(prevStars, stars) } };
   }
   const committed = commitSession(profile.elo, now);
-  const day = dayKey(now);
-  const days = trimDays({ ...profile.stats.days, [day]: (profile.stats.days[day] || 0) + Math.round(seconds) });
-  const stats = { ...profile.stats, sessions: profile.stats.sessions + 1, seconds: profile.stats.seconds + Math.round(seconds), days };
+  const timed = addPlayTime(profile, seconds, now).stats;
+  const stats = { ...timed, sessions: profile.stats.sessions + 1 };
   const next = { ...profile, elo: committed.state, path, stats };
   const cards = earnedCards(profile, next, {
     kind, step, stepId, stars, accuracy, total, prevStars, prevTries,

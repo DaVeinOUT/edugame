@@ -16,11 +16,12 @@ import { toast } from './ui/fx.js';
 import * as DATA from './data/curriculum.js';
 import { SOUND_FILES } from './data/sounds.js';
 import { buildCurriculum } from './core/curriculum.js';
+import { restedToday } from './core/session.js';
 import { screens } from './screens/index.js';
 
-const store = createStore();
-const boot = store.load();
 const cur = buildCurriculum(DATA);
+const store = createStore({ maxStep: cur.steps.length - 1 });
+const boot = store.load();
 
 const ctx = {
   store, voice, sfx, cur,
@@ -34,6 +35,15 @@ const ctx = {
     return p ? store.updateProfile(p.id, fn) : null;
   },
   applyTheme() { applyTheme(store.active(), store.device(), voice); },
+  /** Plafond quotidien (réglage de l'adulte) atteint pour l'enfant qui joue ? */
+  rested() {
+    const p = store.active();
+    return !!p && restedToday(p, store.device().dailyMinutes || 0);
+  },
+  /** Un jeu refusé par le plafond : retour à l'accueil, où Kaya explique qu'elle se repose. */
+  restHome() {
+    ctx.router.go('hub', { rest: true }, { reset: true });
+  },
   /** Retour à l'accueil, quel que soit l'état (utilisé aussi par le filet). */
   home() {
     const list = store.profiles();
@@ -82,12 +92,19 @@ mountCaption(document.getElementById('caption'), voice);
 ctx.applyTheme();
 
 const profiles = store.profiles();
-if (!profiles.length) router.go('welcome', {}, { reset: true });
-else if (profiles.length > 1) router.go('profiles', {}, { reset: true });
-else {
-  store.setActive(profiles[0].id);
-  ctx.applyTheme();
-  router.go('hub', { migrated: boot.migrated }, { reset: true });
+try {
+  if (!profiles.length) router.go('welcome', {}, { reset: true });
+  else if (profiles.length > 1) router.go('profiles', {}, { reset: true });
+  else {
+    store.setActive(profiles[0].id);
+    ctx.applyTheme();
+    router.go('hub', { migrated: boot.migrated }, { reset: true });
+  }
+} catch (err) {
+  // Un profil inattendu ne doit jamais empêcher le jeu de démarrer :
+  // on note l'erreur pour l'adulte et on ouvre le choix des enfants.
+  store.logError({ t: Date.now(), msg: String(err?.message || err).slice(0, 200), where: 'démarrage' });
+  router.go(profiles.length ? 'profiles' : 'welcome', {}, { reset: true });
 }
 document.getElementById('boot')?.remove();
 

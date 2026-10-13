@@ -12,6 +12,7 @@
 import { h, append } from '../ui/dom.js';
 import { display, toPoints, titleFor } from '../core/elo.js';
 import { isMastered } from '../core/srs.js';
+import { localDay } from '../core/time.js';
 import { AVATARS, UNIVERSES, AGES, cleanName } from '../core/schema.js';
 import { toast } from '../ui/fx.js';
 import { recordingSupported, startRecording, saveRecording, deleteRecording, loadRecordings } from '../services/recordings.js';
@@ -115,8 +116,9 @@ function curve(history) {
 function daysBars(days) {
   const out = [];
   for (let i = 13; i >= 0; i--) {
-    const k = new Date(Date.now() - i * 86400000).toISOString().slice(0, 10);
-    out.push(Math.round((days?.[k] || 0) / 60));
+    const d = new Date();
+    d.setDate(d.getDate() - i);   // jours du calendrier local (changement d'heure compris)
+    out.push(Math.round((days?.[localDay(d.getTime())] || 0) / 60));
   }
   const max = Math.max(10, ...out);
   const bars = out.map((m, i) => `<rect x="${i * 22 + 4}" y="${100 - (m / max) * 90}" width="16" height="${(m / max) * 90}" rx="4" fill="#7c3aed"/>`).join('');

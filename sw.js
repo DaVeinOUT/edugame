@@ -10,7 +10,7 @@
    ============================================================ */
 
 /* <release> — généré par scripts/release.mjs, ne pas éditer à la main */
-const CACHE_NAME = 'educa-0c608ed58f';
+const CACHE_NAME = 'educa-c16b6833b1';
 const ASSETS = [
   './',
   './css/app.css',
@@ -44,6 +44,7 @@ const ASSETS = [
   './js/core/select.js',
   './js/core/session.js',
   './js/core/srs.js',
+  './js/core/time.js',
   './js/data/curriculum.js',
   './js/data/levels.js',
   './js/data/sounds.js',

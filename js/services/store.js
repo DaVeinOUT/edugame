@@ -9,7 +9,7 @@
    ============================================================ */
 
 import {
-  emptyDevice, sanitizeProfile, migrateLegacy, newProfile, exportBundle, importBundle,
+  emptyDevice, sanitizeProfile, migrateLegacy, newProfile, exportBundle, importBundle, mostAdvanced,
   SCHEMA_VERSION,
 } from '../core/schema.js';
 
@@ -55,12 +55,14 @@ function readJSON(storage, key) {
 }
 
 /**
- * @param {{ storage?: Storage, persistent?: boolean, now?: () => number }} [opts]
+ * @param {{ storage?: Storage, persistent?: boolean, now?: () => number, maxStep?: number }} [opts]
+ *   maxStep : dernière étape du parcours (un profil ne peut pas être plus loin)
  */
 export function createStore(opts = {}) {
   const probe = opts.storage ? { storage: opts.storage, persistent: opts.persistent ?? true } : probeStorage();
   const storage = probe.storage;
   const now = opts.now || (() => Date.now());
+  const limits = Number.isFinite(opts.maxStep) ? { maxStep: opts.maxStep } : {};
   let device = emptyDevice(now());
   let profiles = new Map();
   let degraded = !probe.persistent;
@@ -106,7 +108,7 @@ export function createStore(opts = {}) {
       for (const id of Array.isArray(device.order) ? device.order : []) {
         const raw = readJSON(storage, profileKey(id));
         if (!raw) continue;
-        try { profiles.set(id, sanitizeProfile(raw, now())); } catch { /* profil illisible : ignoré */ }
+        try { profiles.set(id, sanitizeProfile(raw, now(), limits)); } catch { /* profil illisible : ignoré */ }
       }
       device = { ...device, order: [...profiles.keys()] };
       if (!profiles.has(device.activeId)) device = { ...device, activeId: device.order[0] ?? null };
@@ -198,11 +200,12 @@ export function createStore(opts = {}) {
       return exportBundle(device, ids.map(id => profiles.get(id)).filter(Boolean), now());
     },
 
-    /** Ajoute (ou restaure, si même identifiant) les profils d'un fichier. */
+    /** Ajoute les profils d'un fichier ; pour un enfant déjà là, garde la copie la plus avancée. */
     importAll(data) {
-      const { device: d, profiles: list } = importBundle(data, now());
+      const { device: d, profiles: list } = importBundle(data, now(), limits);
       for (const p of list) {
-        profiles.set(p.id, p);
+        const had = profiles.get(p.id);
+        profiles.set(p.id, had ? mostAdvanced(had, p) : p);
         if (!device.order.includes(p.id)) device = { ...device, order: [...device.order, p.id] };
         schedule(profileKey(p.id));
       }

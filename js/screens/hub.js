@@ -16,7 +16,7 @@ import { captionOf } from '../services/voice.js';
 
 const greeted = new Set();   // une salutation par enfant et par ouverture de l'app
 let warnedStorage = false;
-const todayKey = () => new Date().toISOString().slice(0, 10);
+const REST_SAY = 'On a bien travaillé aujourd\'hui ! Kaya se repose. À demain !';
 
 /** Ce que propose le bouton « Jouer ». */
 export function nextActivity(profile, cur, now = Date.now()) {
@@ -45,12 +45,11 @@ export const hub = {
     if (!p) { ctx.home(); return undefined; }
     const points = display(p.elo);
     const next = nextActivity(p, cur);
-    const limit = store.device().dailyMinutes || 0;
-    const rested = limit > 0 && (p.stats.days?.[todayKey()] || 0) >= limit * 60;
+    const rested = ctx.rested();
     const name = p.name ? ` ${p.name}` : '';
 
     let parts;
-    if (rested) parts = ['On a bien travaillé aujourd\'hui ! Kaya se repose. À demain !'];
+    if (rested) parts = [REST_SAY];
     else if (params.first) parts = [`Bienvenue${name} ! Je suis tellement content de lire avec toi.`, ...next.parts];
     else if (params.migrated) parts = [`Te revoilà${name} ! J'ai gardé toutes tes cartes. Maintenant, on apprend le SON des lettres !`, ...next.parts];
     else parts = [`Salut${name} !`, ...next.parts];
@@ -86,7 +85,8 @@ export const hub = {
         tile('🃏', 'Mes cartes', `${p.cards.length}`, () => router.go('collection')),
         tile('🎮', 'Jeux', 'libres', () => router.go('games'))));
 
-    if (!greeted.has(p.id) || params.first || params.migrated) {
+    // params.rest : on arrive d'un jeu refusé par le plafond quotidien — Kaya l'explique.
+    if (!greeted.has(p.id) || params.first || params.migrated || params.rest) {
       greeted.add(p.id);
       voice.seq(parts);
     }

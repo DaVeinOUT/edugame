@@ -67,10 +67,12 @@ export function runBuild(q, api) {
       if (pos < order.length) return;
       api.setReplay(null);
       api.setHelp(null);
+      const result = { outcome: errors === 0 && !helped ? 'ok' : errors <= 1 ? 'help' : 'ko' };
+      api.onAnswer?.(result);   // enregistrée avant le bravo
       const text = praise(api.rand);
       cheer(api, slotEls[slotEls.length - 1], text);
       await Promise.race([voice.seq([text, { word: word.text }]), sleep(2400)]);
-      resolve({ outcome: errors === 0 && !helped ? 'ok' : errors <= 1 ? 'help' : 'ko' });
+      resolve(result);
     }));
   });
 }

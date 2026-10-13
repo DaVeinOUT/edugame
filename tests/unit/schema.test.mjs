@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
-  newProfile, sanitizeProfile, migrateLegacy, exportBundle, importBundle,
+  newProfile, sanitizeProfile, migrateLegacy, exportBundle, importBundle, mostAdvanced,
   emptyDevice, cleanName, SCHEMA_VERSION, DEFAULT_COMFORT,
 } from '../../js/core/schema.js';
 import { seededRandom } from '../../js/core/rng.js';
@@ -33,6 +33,46 @@ test('sanitizeProfile complète un profil abîmé et refuse le n\'importe quoi',
   assert.ok(p.elo && p.stats && p.path);
   assert.throws(() => sanitizeProfile(null), /invalide/);
   assert.throws(() => sanitizeProfile({ name: 'sans id' }), /invalide/);
+});
+
+test('un profil neuf traverse sanitizeProfile à l\'identique', () => {
+  const p = newProfile({ name: 'Ana', age: '7-9' }, NOW, seededRandom(3));
+  assert.deepEqual(sanitizeProfile(JSON.parse(JSON.stringify(p)), NOW), p);
+});
+
+test('sanitizeProfile borne les valeurs absurdes (un fichier abîmé ne bloque jamais le jeu)', () => {
+  const p = sanitizeProfile({
+    id: 'pbad',
+    path: { open: 999, stars: { a: 7, b: 'x' }, tries: null, placed: 'oui', adv: { modules: { m1: { stars: 9, tries: -2 }, m2: 3 }, controles: { n3: true, n4: 'x' } } },
+    stats: { sessions: -4, answers: 'beaucoup', days: null, confusions: { 'b/d': 2, x: null } },
+    mem: { 'snd:a': { b: 42, due: 'demain', s: 3, k: 2 }, cassé: 5 },
+    elo: { theta: 1e9, v: -1, peak: 1e9, history: [['2026-10-12', 900, -1], 'ligne'] },
+    wallet: -10,
+    comfort: { slowVoice: 'oui', font: { x: 1 } },
+    firstTimes: { intro: true, objet: {} },
+  }, NOW, { maxStep: 65 });
+  assert.equal(p.path.open, 65, 'jamais au-delà de la dernière étape');
+  assert.deepEqual(p.path.stars, { a: 3 });
+  assert.equal(p.path.placed, false);
+  assert.deepEqual(p.path.adv, { modules: { m1: { stars: 3, tries: 0 } }, controles: { n3: true } });
+  assert.deepEqual([p.stats.sessions, p.stats.answers], [0, 0]);
+  assert.deepEqual(p.stats.days, {});
+  assert.deepEqual(p.stats.confusions, { 'b/d': 2 });
+  assert.deepEqual(p.mem, { 'snd:a': { b: 5, due: 0, s: 3, k: 2, last: 0 } });
+  assert.ok(p.elo.theta <= 8 && p.elo.v > 0 && p.elo.peak <= 2400);
+  assert.equal(p.elo.history.length, 1);
+  assert.equal(p.wallet, 0);
+  assert.equal(p.comfort.slowVoice, false);
+  assert.equal(p.comfort.font, DEFAULT_COMFORT.font);
+  assert.deepEqual(p.firstTimes, { intro: true });
+});
+
+test('deux copies du même enfant : on garde celle qui a le plus travaillé', () => {
+  const a = newProfile({ name: 'Léo' }, NOW, seededRandom(4));
+  const b = { ...a, stats: { ...a.stats, answers: 40 }, path: { ...a.path, open: 3 } };
+  assert.equal(mostAdvanced(a, b), b);
+  assert.equal(mostAdvanced(b, a), b);
+  assert.equal(mostAdvanced(a, { ...a }), a, 'à égalité, la copie déjà présente reste');
 });
 
 test('migration v1 : prénom, univers, cartes et confort sont conservés', () => {

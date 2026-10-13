@@ -21,6 +21,7 @@ export function createRouter({ root, ctx, onExitWarning }) {
   let cleanup = null;
   let exitArmedAt = 0;
   const overlays = [];       // fonctions de fermeture des fenêtres ouvertes
+  let mounts = 0;
 
   function unmountCurrent() {
     try { cleanup?.(); } catch { /* un écran qui plante en partant ne bloque pas la navigation */ }
@@ -36,7 +37,14 @@ export function createRouter({ root, ctx, onExitWarning }) {
     root.append(view);
     root.scrollTop = 0;
     if (typeof scrollTo === 'function') scrollTo(0, 0);
+    const id = ++mounts;
     const out = screen.mount(view, params || {}, ctx);
+    if (id !== mounts) {
+      // L'écran a redirigé ailleurs pendant son montage (profil absent, plafond
+      // atteint…) : le nouvel écran est déjà en place, on garde SON nettoyage.
+      if (typeof out === 'function') try { out(); } catch { /* idem */ }
+      return;
+    }
     cleanup = typeof out === 'function' ? out : null;
     // Le focus suit l'écran : utile au clavier, aux contacteurs et aux lecteurs d'écran.
     const target = view.querySelector('[data-autofocus]') || view;

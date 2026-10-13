@@ -3,7 +3,10 @@ import assert from 'node:assert/strict';
 import * as DATA from '../../js/data/curriculum.js';
 import { buildCurriculum } from '../../js/core/curriculum.js';
 import { makeQuestion } from '../../js/core/questions.js';
-import { planLesson, planPractice, applyAnswer, finishSession, startSession, starsFor } from '../../js/core/session.js';
+import {
+  planLesson, planPractice, applyAnswer, finishSession, startSession, starsFor,
+  addPlayTime, restedToday, playedToday,
+} from '../../js/core/session.js';
 import { selectItems } from '../../js/core/select.js';
 import { newProfile } from '../../js/core/schema.js';
 import { seededRandom } from '../../js/core/rng.js';
@@ -98,4 +101,17 @@ test('l\'entraînement privilégie ce qui est à réviser', () => {
   let m = 0;
   for (let i = 0; i < 400; i++) if (selectItems(pool, { elo: p.elo, mem, now: NOW, n: 1, rand })[0].key === 'snd:m') m++;
   assert.ok(m > 260, `révision due pas assez prioritaire : ${m}/400`);
+});
+
+test('plafond quotidien : le temps de jeu du jour (jeux libres compris) est compté', () => {
+  const t = new Date(2026, 9, 13, 18, 0).getTime();
+  let p = newProfile({ name: 'Mia' }, t);
+  assert.equal(restedToday(p, 10, t), false);
+  p = addPlayTime(p, 8 * 60, t);                       // 8 min de traçage
+  p = finishSession(p, { kind: 'practice', results: [{ outcome: 'ok' }], seconds: 150 }, cur, t + 1000).profile;
+  assert.equal(playedToday(p, t), 8 * 60 + 150);
+  assert.equal(restedToday(p, 10, t), true, '10 minutes atteintes');
+  assert.equal(restedToday(p, 0, t), false, '0 = pas de limite');
+  assert.equal(restedToday(p, 10, t + 86400000), false, 'demain, on rejoue');
+  assert.equal(p.stats.seconds, 8 * 60 + 150);
 });

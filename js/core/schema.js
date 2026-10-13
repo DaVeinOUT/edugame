@@ -8,7 +8,8 @@
    chaque enfant a son profil, choisi en touchant son animal.
    ============================================================ */
 
-import { initialState } from './elo.js';
+import { initialState, prudent, toPoints, ELO } from './elo.js';
+import { BOX_MAX } from './srs.js';
 import { systemRandom } from './rng.js';
 
 export const SCHEMA_VERSION = 2;
@@ -101,36 +102,119 @@ export function cleanName(name) {
 
 const isObj = x => x !== null && typeof x === 'object' && !Array.isArray(x);
 const num = (x, d) => (Number.isFinite(x) ? x : d);
+const int = (x, lo, hi, d = lo) => (Number.isFinite(x) ? Math.min(hi, Math.max(lo, Math.round(x))) : d);
+const count = x => int(x, 0, Number.MAX_SAFE_INTEGER, 0);
+const THETA_MAX = 8;                       // au-delà, ce n'est plus un enfant : c'est un fichier abîmé
+const DAY_KEY = /^\d{4}-\d{2}-\d{2}$/;
+const DAY_SECONDS = 86400;
+
+/** { clé: nombre } : seules les valeurs numériques sont gardées, bornées. */
+function numbers(x, lo, hi, keyOk = () => true) {
+  if (!isObj(x)) return {};
+  return Object.fromEntries(Object.entries(x)
+    .filter(([k, v]) => Number.isFinite(v) && keyOk(k))
+    .map(([k, v]) => [k, Math.min(hi, Math.max(lo, v))]));
+}
+
+/** { clé: valeur simple } : ni objet ni tableau venus d'un fichier inconnu. */
+function primitives(x) {
+  if (!isObj(x)) return {};
+  return Object.fromEntries(Object.entries(x)
+    .filter(([, v]) => typeof v === 'boolean' || typeof v === 'string' || Number.isFinite(v)));
+}
+
+function memory(x) {
+  if (!isObj(x)) return {};
+  return Object.fromEntries(Object.entries(x).filter(([, r]) => isObj(r)).map(([k, r]) => [k, {
+    b: int(r.b, 0, BOX_MAX), due: num(r.due, 0), s: count(r.s), k: count(r.k), last: num(r.last, 0),
+  }]));
+}
+
+function eloState(x, base) {
+  if (!isObj(x) || !Number.isFinite(x.theta)) return base;
+  const history = Array.isArray(x.history)
+    ? x.history.filter(e => Array.isArray(e) && typeof e[0] === 'string' && Number.isFinite(e[1]) && Number.isFinite(e[2]))
+    : [];
+  const state = {
+    theta: Math.min(THETA_MAX, Math.max(-THETA_MAX, x.theta)),
+    v: Number.isFinite(x.v) && x.v > 0 ? Math.min(ELO.vMax, x.v) : base.v,
+    n: count(x.n),
+    lastAt: num(x.lastAt, base.lastAt),
+    history: history.slice(-ELO.historyMax),
+  };
+  return { ...state, peak: int(x.peak, 0, toPoints(THETA_MAX), prudent(state)) };
+}
+
+function pathState(x, maxStep) {
+  const p = isObj(x) ? x : {};
+  const out = { open: int(p.open, 0, maxStep, 0), stars: numbers(p.stars, 0, 3), placed: p.placed === true };
+  if (isObj(p.tries)) out.tries = numbers(p.tries, 0, Number.MAX_SAFE_INTEGER);
+  if (typeof p.lastKind === 'string') out.lastKind = p.lastKind;
+  if (p.advanced === true) out.advanced = true;
+  if (isObj(p.adv)) {
+    const mods = isObj(p.adv.modules) ? p.adv.modules : {};
+    out.adv = {
+      modules: Object.fromEntries(Object.entries(mods).filter(([, r]) => isObj(r))
+        .map(([id, r]) => [id, { stars: int(r.stars, 0, 3), tries: count(r.tries) }])),
+      controles: Object.fromEntries(Object.entries(isObj(p.adv.controles) ? p.adv.controles : {})
+        .filter(([, v]) => v === true)),
+    };
+  }
+  return out;
+}
+
+function statsState(x) {
+  const s = isObj(x) ? x : {};
+  return {
+    sessions: count(s.sessions), answers: count(s.answers), correct: count(s.correct), seconds: count(s.seconds),
+    days: numbers(s.days, 0, DAY_SECONDS, k => DAY_KEY.test(k)),
+    confusions: numbers(s.confusions, 0, Number.MAX_SAFE_INTEGER),
+  };
+}
 
 /**
  * Remet d'aplomb un profil venu du disque ou d'un fichier importé :
- * champs manquants complétés, valeurs absurdes écartées.
+ * champs manquants complétés, types vérifiés, nombres bornés — un
+ * fichier abîmé ne doit jamais empêcher le jeu de démarrer.
  * @param {any} raw
  * @param {number} [now]
+ * @param {{ maxStep?: number }} [limits] maxStep : dernière étape du parcours
  */
-export function sanitizeProfile(raw, now = Date.now()) {
+export function sanitizeProfile(raw, now = Date.now(), { maxStep = Number.MAX_SAFE_INTEGER } = {}) {
   if (!isObj(raw) || typeof raw.id !== 'string') throw new Error('profil invalide');
   const base = newProfile({ name: raw.name, avatar: raw.avatar, age: raw.age, universe: raw.universe }, now);
-  const comfort = { ...DEFAULT_COMFORT, ...(isObj(raw.comfort) ? raw.comfort : {}) };
+  const comfort = { ...DEFAULT_COMFORT, ...primitives(raw.comfort) };
   if (!FONTS.includes(comfort.font)) comfort.font = DEFAULT_COMFORT.font;
   if (!SPACINGS.includes(comfort.spacing)) comfort.spacing = DEFAULT_COMFORT.spacing;
-  const elo = isObj(raw.elo) && Number.isFinite(raw.elo.theta)
-    ? { ...base.elo, ...raw.elo, history: Array.isArray(raw.elo.history) ? raw.elo.history : [] }
-    : base.elo;
+  for (const k of Object.keys(DEFAULT_COMFORT)) {
+    if (typeof DEFAULT_COMFORT[k] === 'boolean') comfort[k] = comfort[k] === true;
+  }
   return {
     ...base,
     id: raw.id,
     createdAt: num(raw.createdAt, now),
     comfort,
-    elo,
-    mem: isObj(raw.mem) ? raw.mem : {},
-    path: { ...base.path, ...(isObj(raw.path) ? raw.path : {}) },
-    stats: { ...base.stats, ...(isObj(raw.stats) ? raw.stats : {}) },
-    cards: Array.isArray(raw.cards) ? raw.cards.filter(c => typeof c === 'string') : [],
-    wallet: Math.max(0, num(raw.wallet, 0)),
-    firstTimes: isObj(raw.firstTimes) ? raw.firstTimes : {},
-    legacy: isObj(raw.legacy) ? raw.legacy : undefined,
+    elo: eloState(raw.elo, base.elo),
+    mem: memory(raw.mem),
+    path: pathState(raw.path, maxStep),
+    stats: statsState(raw.stats),
+    cards: Array.isArray(raw.cards) ? [...new Set(raw.cards.filter(c => typeof c === 'string'))] : [],
+    wallet: count(raw.wallet),
+    firstTimes: primitives(raw.firstTimes),
+    ...(isObj(raw.legacy) ? { legacy: raw.legacy } : {}),
   };
+}
+
+/**
+ * Deux copies du même enfant (une sauvegarde restaurée sur une tablette où
+ * il a continué de jouer) : on garde celle qui a le plus travaillé, pour ne
+ * jamais lui faire perdre ce qu'il a appris.
+ */
+export function mostAdvanced(a, b) {
+  const rank = p => [p.stats.answers, p.path.open, p.elo.peak || 0];
+  const [x, y] = [rank(a), rank(b)];
+  const i = x.findIndex((v, j) => v !== y[j]);
+  return i >= 0 && y[i] > x[i] ? b : a;
 }
 
 /**
@@ -196,7 +280,7 @@ export function exportBundle(device, profiles, now = Date.now()) {
  * @param {number} [now]
  * @returns {{ device: object, profiles: object[] }}
  */
-export function importBundle(data, now = Date.now()) {
+export function importBundle(data, now = Date.now(), limits = {}) {
   if (!isObj(data)) throw new Error('fichier illisible');
   if (data.educa === 1 && isObj(data.profile)) {
     const m = migrateLegacy({
@@ -208,7 +292,7 @@ export function importBundle(data, now = Date.now()) {
   if (data.educa !== SCHEMA_VERSION || !Array.isArray(data.profiles)) {
     throw new Error('ce fichier ne vient pas d\'EDUCA (ou d\'une version plus récente)');
   }
-  const profiles = data.profiles.map(p => sanitizeProfile(p, now));
+  const profiles = data.profiles.map(p => sanitizeProfile(p, now, limits));
   const device = isObj(data.device) ? data.device : {};
   return { device: { voice: device.voice ?? null, classStep: device.classStep ?? null,
                      dailyMinutes: num(device.dailyMinutes, 0) }, profiles };
