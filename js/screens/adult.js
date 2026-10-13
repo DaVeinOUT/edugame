@@ -14,6 +14,7 @@ import { display, toPoints, titleFor } from '../core/elo.js';
 import { isMastered } from '../core/srs.js';
 import { localDay } from '../core/time.js';
 import { openLevels, moduleRecord, controlePassed } from '../core/levels.js';
+import { classRows, toCSV, CLASS_COLUMNS } from '../core/report.js';
 import { AVATARS, UNIVERSES, AGES, cleanName } from '../core/schema.js';
 import { toast } from '../ui/fx.js';
 import { recordingSupported, startRecording, saveRecording, deleteRecording, loadRecordings } from '../services/recordings.js';
@@ -254,8 +255,8 @@ function deviceTab(ctx) {
   ];
 }
 
-function download(name, data) {
-  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+function download(name, data, type = 'application/json') {
+  const blob = new Blob([typeof data === 'string' ? data : JSON.stringify(data, null, 2)], { type });
   const a = h('a', { href: URL.createObjectURL(blob), download: name });
   document.body.append(a);
   a.click();
@@ -331,7 +332,24 @@ function helpTab() {
   ];
 }
 
-const TABS = [['progres', 'Progrès'], ['reglages', 'Réglages'], ['appareil', 'Appareil'], ['donnees', 'Données'], ['aide', 'Aide']];
+const TABS = [['progres', 'Progrès'], ['classe', 'La classe'], ['reglages', 'Réglages'], ['appareil', 'Appareil'], ['donnees', 'Données'], ['aide', 'Aide']];
+
+/* Tous les enfants de la tablette d'un coup d'œil (imprimable, exportable en tableur). */
+function classTab(ctx, openChild) {
+  const rows = classRows(ctx.store.profiles(), ctx.cur, ctx.levels);
+  const table = h('div', { class: 'table-wrap' }, h('table', { class: 'class-table' },
+    h('thead', null, h('tr', null, CLASS_COLUMNS.map(([, label]) => h('th', { scope: 'col' }, label)))),
+    h('tbody', null, rows.map(r => h('tr', null, CLASS_COLUMNS.map(([key]) => (key === 'name'
+      ? h('td', null, h('button', { type: 'button', class: 'link-btn', onclick: () => openChild(r.id) }, `${r.avatar} ${r.name}`))
+      : h('td', null, String(r[key])))))))));
+  return [
+    section(`La classe (${rows.length} enfants)`, table,
+      h('p', { class: 'note' }, 'Force de lecture : le record de l\'enfant (il ne baisse jamais). « À surveiller » : la confusion la plus fréquente, travaillée automatiquement. Touchez un prénom pour voir ses progrès.'),
+      h('div', { class: 'row wrap no-print' },
+        btn('🖨️ Imprimer', () => print(), 'btn btn-primary btn-sm'),
+        btn('📄 Exporter en tableur (CSV)', () => download(`educa-classe-${localDay()}.csv`, toCSV(rows), 'text/csv;charset=utf-8'), 'btn btn-soft btn-sm'))),
+  ];
+}
 
 export const adult = {
   mount(view, params, ctx) {
@@ -342,7 +360,8 @@ export const adult = {
     const children = store.profiles();
     const child = children.find(p => p.id === params.child) || store.active() || children[0];
     const go = patch => router.go('adult', { ...params, ...patch }, { replace: true });
-    const tabs = h('div', { class: 'tabs', role: 'tablist' }, TABS.map(([id, label]) => h('button', {
+    const shown = children.length > 1 ? TABS : TABS.filter(([id]) => id !== 'classe');
+    const tabs = h('div', { class: 'tabs', role: 'tablist' }, shown.map(([id, label]) => h('button', {
       type: 'button', role: 'tab', 'aria-selected': tab === id ? 'true' : 'false', onclick: () => go({ tab: id }),
     }, label)));
     const who = children.length > 1 && (tab === 'progres' || tab === 'reglages')
@@ -354,6 +373,7 @@ export const adult = {
     if (tab === 'appareil') body = deviceTab(ctx);
     else if (tab === 'donnees') body = dataTab(ctx);
     else if (tab === 'aide') body = helpTab();
+    else if (tab === 'classe') body = classTab(ctx, id => go({ tab: 'progres', child: id }));
     else if (!child) body = [section('Aucun enfant', btn('➕ Ajouter un enfant', () => router.go('welcome', { adding: true }), 'btn btn-primary'))];
     else body = tab === 'reglages' ? settingsTab(child, ctx) : progressTab(child, ctx);
     append(view, [

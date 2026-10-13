@@ -186,3 +186,36 @@ test('niveaux des grands : chaque type d\'exercice, la correction et le bilan', 
   assert.deepEqual(problems, []);
   await context.close();
 });
+
+test('vue de la classe : accessible, et le tableur exporté est lisible', async () => {
+  const { context, page } = await open();
+  await page.goto(url);
+  await page.evaluate(() => {
+    const now = Date.now();
+    const kids = [['pclasse01', 'Léa', '🦊'], ['pclasse02', 'Malik', '🐼']];
+    localStorage.setItem('educa2:device', JSON.stringify({
+      schema: 2, createdAt: now, voice: null, muted: true, activeId: kids[0][0], order: kids.map(k => k[0]), classStep: null, dailyMinutes: 0, errors: [],
+    }));
+    for (const [id, name, avatar] of kids) {
+      localStorage.setItem(`educa2:p:${id}`, JSON.stringify({ id, createdAt: now, name, avatar, age: '7-9', universe: 'jungle', path: { open: 3, stars: {} } }));
+    }
+  });
+  await page.reload();
+  await page.waitForSelector('.who');                                  // plusieurs enfants : « Qui joue ? »
+  const problems = await audit(page, 'qui joue');
+  await page.click('button[aria-label="Espace des grands"]');
+  const words = (await page.textContent('.panel .h1')).split(',').map(w => w.trim());
+  for (const w of words) await page.click(`.gate-pad button:text-is("${WORDS.indexOf(w)}")`);
+  await page.waitForSelector('[role="tablist"]');
+  await page.click('[role="tablist"] >> text="La classe"');
+  await page.waitForSelector('.class-table');
+  problems.push(...await audit(page, 'la classe'));
+  const names = await page.$$eval('.class-table tbody tr', trs => trs.map(tr => tr.querySelector('td').textContent));
+  assert.equal(names.length, 2);
+  const [download] = await Promise.all([page.waitForEvent('download'), page.click('text=Exporter en tableur')]);
+  const csv = readFileSync(await download.path(), 'utf8');
+  assert.ok(csv.startsWith('﻿Enfant;Force de lecture;'), csv.slice(0, 40));
+  assert.ok(csv.includes('Léa;') && csv.includes('Malik;'));
+  assert.deepEqual(problems, []);
+  await context.close();
+});
