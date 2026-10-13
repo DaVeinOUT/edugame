@@ -156,3 +156,25 @@ test('les révisions des niveaux reprennent les modules travaillés (jamais le c
   assert.equal(dueReviews(L, { ...done, mem }, NOW), 1);
   assert.equal(dueReviews(L, { ...done, mem }, NOW - 2000), 0, 'pas encore dû');
 });
+
+test('les réponses sont mélangées : toucher toujours le premier bouton ne suffit jamais', async () => {
+  const DATA = await import('../../js/data/levels.js');
+  const real = buildLevels(DATA);
+  if (!real.modules.length) return;
+  const p = withPath({ advanced: true });
+  let total = 0;
+  let first = 0;
+  real.modules.forEach((m, i) => {
+    for (const q of planModule(m, p, { rand: seededRandom(100 + i), now: NOW })) {
+      if (q.type === 'pick' || q.type === 'order') continue;
+      total += 1;
+      if (q.options[0].id === q.answer) first += 1;
+    }
+  });
+  assert.ok(total > 300, `questions à choix : ${total}`);
+  assert.ok(first / total < 0.6, `bonne réponse en premier : ${Math.round((100 * first) / total)} %`);
+  // Le contrôle aussi (toutes ses questions, dans un ordre de réponses mélangé).
+  const ctl = real.modules.find(m => m.isControle);
+  const plans = [1, 2, 3].map(seed => planModule(ctl, p, { rand: seededRandom(seed), now: NOW }).map(q => q.options.map(o => o.id).join('|')).join('/'));
+  assert.ok(new Set(plans).size > 1, 'l\'ordre des réponses change d\'une fois à l\'autre');
+});

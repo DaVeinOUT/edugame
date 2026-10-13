@@ -14,7 +14,7 @@
    Fonctions pures, testées. Données : js/data/levels.js.
    ============================================================ */
 
-import { systemRandom } from './rng.js';
+import { systemRandom, shuffle } from './rng.js';
 import { selectItems } from './select.js';
 import { finishSession, starsFor } from './session.js';
 import { isDue } from './srs.js';
@@ -153,12 +153,18 @@ export function moduleQuestions(m) {
   return out;
 }
 
+/* Les réponses dans un ordre neuf à chaque séance : toucher « toujours le premier bouton »
+   ne doit jamais suffire. (Mots à toucher : l'ordre de la phrase ; mots à ranger : mélangés à l'écran.) */
+function mixAnswers(q, rand) {
+  return q.type === 'pick' || q.type === 'order' ? q : { ...q, options: shuffle(q.options, rand) };
+}
+
 /** Séance d'un module : 12 questions au plus (révisions dues d'abord), dans l'ordre du cours. */
 export function planModule(m, profile, { rand = systemRandom, now = Date.now(), n = PER_SESSION } = {}) {
   const all = moduleQuestions(m);
-  if (m.isControle || all.length <= n) return all;
+  if (m.isControle || all.length <= n) return all.map(q => mixAnswers(q, rand));
   const chosen = new Set(selectItems(all, { elo: profile.elo, mem: profile.mem, now, n, rand }).map(q => q.key));
-  return all.filter(q => chosen.has(q.key));
+  return all.filter(q => chosen.has(q.key)).map(q => mixAnswers(q, rand));
 }
 
 /* Questions des modules déjà travaillés (les contrôles restent une vraie épreuve, jamais révisée). */
@@ -172,7 +178,7 @@ function reviewQuestions(L, profile) {
  * Ce qui a été appris dans un module revient au bon moment au lieu d'être oublié.
  */
 export function planReview(L, profile, { rand = systemRandom, now = Date.now(), n = PER_SESSION } = {}) {
-  return selectItems(reviewQuestions(L, profile), { elo: profile.elo, mem: profile.mem, now, n, rand });
+  return selectItems(reviewQuestions(L, profile), { elo: profile.elo, mem: profile.mem, now, n, rand }).map(q => mixAnswers(q, rand));
 }
 
 /** Nombre de questions des niveaux à revoir maintenant. */
