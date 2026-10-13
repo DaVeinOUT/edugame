@@ -48,3 +48,9 @@
 - Niveaux : n6 terminé par l'agent enseignant (40 modules + 4 contrôles, 727 questions) ; les 10 questions « Quelle phrase est bien écrite ? » transformées en phrases à trou (ne jamais montrer d'orthographe fautive) ; espaces insécables à l'écran ; contrôle d'entrée dès 10 ans ; l'échelle d'Élo montre les niveaux ouverts par la jauge.
 - Mobile : manifeste, icônes, page de confidentialité, construction du site par script, actions Pages à jour, gabarits Android (TWA) et plan iOS (Capacitor) documentés dans `twa/README.md`.
 - En cours : relecture par l'agent orthophoniste (rapport à appliquer).
+
+## 2026-10-13 (après-midi) — relecture orthophonique appliquée, accessibilité, calibrage
+- Relecture orthophonique des niveaux (63 constats) : bloquant corrigé (bonne réponse toujours en premier → réponses mélangées), 57 constats de contenu appliqués, aide qui dit ET affiche la règle, 🔊 masqué pour les homophones, phrases fautives bannies (garde de test).
+- Seuils d'Élo des niveaux recalés par simulation (un enfant de CE1 aurait ouvert la 4e-3e) ; test de calibrage.
+- Accessibilité : audit axe-core WCAG 2.2 AA de tous les écrans (clair, sombre, adulte, exercices), jouable au clavier ; bug « null » affiché au bilan corrigé.
+- Révisions espacées des niveaux, contrôle d'entrée dès 10 ans, petit téléphone (320 px) vérifié.
