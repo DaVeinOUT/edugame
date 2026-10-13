@@ -68,13 +68,13 @@ test('une leçon complète mène au bilan et enregistre la progression', async (
   while (Date.now() < deadline && !(await page.$('.elo-panel'))) {
     const hint = await page.$('.gtile.hint');
     const tile = hint || await page.$('.gtile:not(.used)');
-    if (tile) await tile.click({ force: true });
+    if (tile) { await tile.evaluate(el => el.scrollIntoView({ block: 'center' })); await tile.click({ force: true }); }
     else {
       const choice = await page.$('.choice:not([disabled])');
-      if (choice) await choice.click({ force: true });
+      if (choice) { await choice.evaluate(el => el.scrollIntoView({ block: 'center' })); await choice.click({ force: true }); }
     }
     const cont = await page.$('button[aria-label="Continuer"]:not([hidden])');
-    if (cont) await cont.click({ force: true });
+    if (cont) { await cont.evaluate(el => el.scrollIntoView({ block: 'center' })); await cont.click({ force: true }); }
     await page.waitForTimeout(250);
   }
   assert.ok(await page.$('.elo-panel'), 'le bilan doit s\'afficher');
@@ -227,9 +227,9 @@ test('un grand déjà lecteur joue un module des niveaux CE1 → 3e', async () =
   while (Date.now() < deadline && !(await page.$('.elo-panel'))) {
     const target = await page.$('.gtile.hint') || await page.$('.gtile:not(.used)')
       || await page.$('.wpick:not([disabled])') || await page.$('.choice:not([disabled])');
-    if (target) await target.click({ force: true });
+    if (target) { await target.evaluate(el => el.scrollIntoView({ block: 'center' })); await target.click({ force: true }); }
     const cont = await page.$('button[aria-label="Continuer"]:not([hidden])');
-    if (cont) await cont.click({ force: true });
+    if (cont) { await cont.evaluate(el => el.scrollIntoView({ block: 'center' })); await cont.click({ force: true }); }
     await page.waitForTimeout(200);
   }
   assert.ok(await page.$('.elo-panel'), 'le bilan du module doit s\'afficher');
@@ -267,9 +267,9 @@ async function playUntilResults(page, ms = 150000) {
   while (Date.now() < deadline && !(await page.$('.elo-panel'))) {
     const target = await page.$('.gtile.hint') || await page.$('.gtile:not(.used)')
       || await page.$('.wpick:not([disabled])') || await page.$('.choice:not([disabled])');
-    if (target) await target.click({ force: true });
+    if (target) { await target.evaluate(el => el.scrollIntoView({ block: 'center' })); await target.click({ force: true }); }
     const cont = await page.$('button[aria-label="Continuer"]:not([hidden])');
-    if (cont) await cont.click({ force: true });
+    if (cont) { await cont.evaluate(el => el.scrollIntoView({ block: 'center' })); await cont.click({ force: true }); }
     await page.waitForTimeout(200);
   }
   return !!(await page.$('.elo-panel'));

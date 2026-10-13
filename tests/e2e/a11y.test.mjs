@@ -46,6 +46,10 @@ async function audit(page, label) {
     return r.violations.filter(v => v.impact === 'serious' || v.impact === 'critical')
       .map(v => `${v.id} : ${v.nodes.slice(0, 3).map(n => n.target.join(' ')).join(' | ')}`);
   }, { src: AXE, tags: TAGS });
+  // Même famille de défauts : une valeur absente affichée telle quelle à l'enfant.
+  const text = await page.evaluate(() => document.body.innerText);
+  const leaked = text.match(/\bnull\b|\bundefined\b|\[object \w+\]|\bNaN\b/);
+  if (leaked) found.push(`texte technique affiché : « ${leaked[0]} »`);
   return found.map(f => `${label} → ${f}`);
 }
 
@@ -157,6 +161,7 @@ test('niveaux des grands : chaque type d\'exercice, la correction et le bilan', 
       const cont = await page.$('button[aria-label="Continuer"]:not([hidden])');
       if (cont) {
         if (!seen.has('correction')) { seen.add('correction'); problems.push(...await audit(page, 'correction')); }
+        await cont.evaluate(el => el.scrollIntoView({ block: 'center' }));
         await cont.click({ force: true });
         continue;
       }
@@ -168,7 +173,7 @@ test('niveaux des grands : chaque type d\'exercice, la correction et le bilan', 
       } else {
         target = await page.$('.gtile.hint') || await page.$('.gtile:not(.used)') || await page.$('.wpick:not([disabled])') || await page.$('.choice:not([disabled])');
       }
-      if (target) await target.click({ force: true });
+      if (target) { await target.evaluate(el => el.scrollIntoView({ block: 'center' })); await target.click({ force: true }); }
       await page.waitForTimeout(150);
     }
     assert.ok(await page.$('.elo-panel'), 'le bilan doit s\'afficher');

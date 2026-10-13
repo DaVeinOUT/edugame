@@ -52,10 +52,12 @@ function wordPicker(options) {
   return { el: h('div', { class: 'wpick-row', lang: 'fr' }, buttons), buttons, chosen };
 }
 
-/** Ce que dit l'aide : lire le texte, rappeler la règle du module, ou lire les réponses. */
+/** Ce que dit l'aide : lire le texte, rappeler la règle, ou lire les réponses. */
 function helpFor(q, api) {
   if (q.type === 'text') return () => api.voice.seq(['Écoute le texte.', { pause: 250 }, { say: q.passage }]);
-  if ((q.type === 'gap' || q.type === 'pick') && api.module?.intro) return () => api.voice.seq([api.module.intro]);
+  // La règle propre à l'item (contrôles), sinon celle du module — jamais l'intro d'un contrôle.
+  const rule = q.item?.rule || (!api.module?.isControle && api.module?.intro);
+  if (rule && (q.item?.rule || q.type === 'gap' || q.type === 'pick')) return () => api.voice.seq([rule]);
   return () => api.voice.seq(q.options.flatMap(o => [{ say: o.text }, { pause: 300 }]));
 }
 
@@ -73,7 +75,8 @@ async function runChoose(q, api) {
     hole = g.hole;
     card.append(g.el);
   } else if (q.type === 'pick') {
-    card.append(h('p', { class: 'adv-consigne' }, typo(q.item.prompt)));
+    // La phrase entière reste visible (ponctuation, guillemets) : les boutons ne la remplacent pas.
+    card.append(h('p', { class: 'adv-consigne' }, typo(q.item.prompt)), h('p', { class: 'read adv-question', lang: 'fr' }, typo(q.text)));
   } else {
     card.append(h('p', { class: 'read adv-question', lang: 'fr' }, typo(q.text)));
   }
@@ -176,6 +179,13 @@ function runOrder(q, api) {
       const text = praise(api.rand);
       cheer(api, line, text);
       await Promise.race([voice.seq([text, { say: q.answer }]), sleep(3200)]);
+      // Après une hésitation, on explique la règle, comme pour les autres exercices.
+      if (errors > 0 && q.explain && api.alive()) {
+        api.feedback('', q.explain);
+        voice.seq([q.explain]);
+        await api.waitContinue();
+        voice.stop();
+      }
       resolve(result);
     }));
   });

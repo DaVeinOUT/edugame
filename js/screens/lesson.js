@@ -244,12 +244,12 @@ export const lesson = {
       setMood(kaya, good ? 'happy' : 'oops', 2000);
       const title = mode === 'practice' || mode === 'review' ? `Belle séance${name} !`
         : report.isControle && report.passed ? `Contrôle réussi${name} !` : good ? `Bravo${name} !` : `Bien essayé${name} !`;
-      stage.replaceChildren(
+      stage.replaceChildren(...[   // sans étoiles (révisions, contrôle) : rien, pas « null »
         h('h1', { class: 'center' }, title),
         starRow,
         h('p', { class: 'center h2' }, `${report.ok} bonnes réponses sur ${report.total}`),
         elo.el,
-        h('div', { class: 'stack' }, next.el, levelsBtn, homeBtn));
+        h('div', { class: 'stack' }, next.el, levelsBtn, homeBtn)].filter(Boolean));
       // L'enfant peut quitter à tout moment : après chaque attente, plus rien
       // (son, voix, fenêtre de carte) ne se déclenche s'il est parti.
       if (starRow) {
