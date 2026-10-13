@@ -42,7 +42,14 @@ async function audit(page, label) {
   await page.waitForTimeout(SETTLE_MS);
   const found = await page.evaluate(async ({ src, tags }) => {
     if (!window.axe) (0, eval)(src);
+    // axe ne sait pas mesurer un contraste sur un dégradé : on pose, le temps de l'audit, la couleur
+    // la plus défavorable du fond (la plus claire en monde sombre, la plus foncée sinon).
+    const dark = document.body.classList.contains('u-space');
+    const worst = getComputedStyle(document.body).getPropertyValue(dark ? '--bg1' : '--bg2').trim();
+    const before = document.body.style.background;
+    document.body.style.background = worst;
     const r = await window.axe.run(document, { runOnly: { type: 'tag', values: tags } });
+    document.body.style.background = before;
     return r.violations.filter(v => v.impact === 'serious' || v.impact === 'critical')
       .map(v => `${v.id} : ${v.nodes.slice(0, 3).map(n => n.target.join(' ')).join(' | ')}`);
   }, { src: AXE, tags: TAGS });
@@ -106,23 +113,25 @@ test('monde sombre (« l\'espace ») : contrastes conformes partout', async () =
   await context.close();
 });
 
-test('espace des grands : la porte et tous les onglets', async () => {
-  const { context, page } = await open();
+test('espace des grands : la porte et tous les onglets, monde clair et monde sombre', async () => {
   const problems = [];
-  await createChild(page, problems);
-  await page.click('button[aria-label="Espace des grands"]');
-  problems.push(...await audit(page, 'porte'));
-  const words = (await page.textContent('.panel .h1')).split(',').map(w => w.trim());
-  for (const w of words) await page.click(`.gate-pad button:text-is("${WORDS.indexOf(w)}")`);
-  await page.waitForSelector('[role="tablist"]');
-  const tabs = await page.$$eval('[role="tablist"] [role="tab"], [role="tablist"] button', els => els.map(e => e.textContent.trim()));
-  for (const t of tabs) {
-    await page.click(`[role="tablist"] >> text="${t}"`);
-    problems.push(...await audit(page, `adulte · ${t}`));
+  for (const [world, tag] of [[0, 'clair'], [2, 'sombre']]) {
+    const { context, page } = await open();
+    await createChild(page, problems, { world });
+    await page.click('button[aria-label="Espace des grands"]');
+    problems.push(...await audit(page, `porte (${tag})`));
+    const words = (await page.textContent('.panel .h1')).split(',').map(w => w.trim());
+    for (const w of words) await page.click(`.gate-pad button:text-is("${WORDS.indexOf(w)}")`);
+    await page.waitForSelector('[role="tablist"]');
+    const tabs = await page.$$eval('[role="tablist"] [role="tab"], [role="tablist"] button', els => els.map(e => e.textContent.trim()));
+    for (const t of tabs) {
+      await page.click(`[role="tablist"] >> text="${t}"`);
+      problems.push(...await audit(page, `adulte (${tag}) · ${t}`));
+    }
+    assert.ok(tabs.length >= 4, `onglets trouvés : ${tabs}`);
+    await context.close();
   }
-  assert.ok(tabs.length >= 4, `onglets trouvés : ${tabs}`);
   assert.deepEqual(problems, []);
-  await context.close();
 });
 
 test('niveaux des grands : chaque type d\'exercice, la correction et le bilan', async () => {
