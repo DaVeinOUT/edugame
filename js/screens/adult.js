@@ -224,6 +224,26 @@ function settingsTab(p, ctx) {
   ];
 }
 
+/* Installer EDUCA comme une application : invite du navigateur (Android) ou instructions (iPhone, iPad). */
+function installSection(ctx) {
+  const standalone = matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
+  if (standalone) return section('Application', h('p', { class: 'note' }, 'EDUCA est installé sur cet appareil : il s\'ouvre comme une application, même sans internet.'));
+  if (ctx.installPrompt) {
+    return section('Installer EDUCA', h('p', { class: 'note' }, 'Une icône sur l\'écran d\'accueil, plein écran, et tout fonctionne sans internet.'),
+      btn('📲 Installer l\'application', async () => {
+        const prompt = ctx.installPrompt;
+        ctx.installPrompt = null;
+        prompt.prompt();
+        await prompt.userChoice.catch(() => null);
+        ctx.router.refresh();
+      }, 'btn btn-primary'));
+  }
+  const ios = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  return section('Installer EDUCA', h('p', { class: 'note' }, ios
+    ? 'Sur iPhone ou iPad (Safari) : touchez Partager, puis « Sur l\'écran d\'accueil ».'
+    : 'Dans le menu du navigateur, choisissez « Installer l\'application » ou « Ajouter à l\'écran d\'accueil ».'));
+}
+
 function deviceTab(ctx) {
   const { store, voice, sfx } = ctx;
   const d = store.device();
@@ -231,6 +251,7 @@ function deviceTab(ctx) {
   const voices = voice.choices();
   const statusText = { ok: 'Voix française trouvée.', novoice: 'Aucune voix française sur cet appareil : installez-en une (Réglages du téléphone → Synthèse vocale) ; en attendant, les sous-titres s\'affichent.', unsupported: 'Ce navigateur ne sait pas parler : les sous-titres remplacent la voix.', unknown: 'Recherche des voix…' }[voice.status];
   return [
+    installSection(ctx),
     section('Voix de Kaya', h('p', { class: 'note' }, statusText),
       voices.length ? h('div', { class: 'stack' }, voices.map(v => btn(`${v.name === voice.current() ? '✓ ' : ''}${v.name.replace(/\(.*\)/, '').trim()} · ${v.lang}`, () => {
         store.updateDevice(x => ({ ...x, voice: v.name }));

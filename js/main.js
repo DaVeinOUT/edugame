@@ -137,3 +137,10 @@ if ('serviceWorker' in navigator && location.protocol !== 'file:') {
 }
 
 addEventListener('offline', () => toast('Pas d\'internet ? Pas grave, tout fonctionne !'));
+
+/* Installation comme une application (Android/Chrome) : l'invite est gardée pour l'espace des grands. */
+addEventListener('beforeinstallprompt', e => {
+  e.preventDefault();
+  ctx.installPrompt = e;
+});
+addEventListener('appinstalled', () => { ctx.installPrompt = null; });
