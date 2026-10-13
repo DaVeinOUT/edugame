@@ -331,3 +331,42 @@ test('au clavier seul (ou au contacteur), on joue une leçon', async () => {
   assert.deepEqual(errors, []);
   await context.close();
 });
+
+test('mode lecteur d\'écran : Kaya se tait et ses phrases vont au lecteur d\'écran', async () => {
+  const { context, page, errors } = await open();
+  await page.addInitScript(() => {
+    window.__spoken = [];
+    if (window.speechSynthesis) {
+      const speak = window.speechSynthesis.speak.bind(window.speechSynthesis);
+      window.speechSynthesis.speak = u => { window.__spoken.push(u.text); return speak(u); };
+    }
+    window.__played = [];
+    const play = HTMLMediaElement.prototype.play;
+    HTMLMediaElement.prototype.play = function () { window.__played.push(this.src); return play.call(this); };
+  });
+  await page.goto(url);
+  await page.evaluate(() => {
+    const now = Date.now();
+    const id = 'plecteur1';
+    localStorage.setItem('educa2:device', JSON.stringify({
+      schema: 2, createdAt: now, voice: null, muted: false, activeId: id, order: [id], classStep: null, dailyMinutes: 0, errors: [],
+    }));
+    localStorage.setItem(`educa2:p:${id}`, JSON.stringify({
+      id, createdAt: now, name: 'Sam', avatar: '🐢', age: '7-9', universe: 'jungle', path: { open: 5, stars: {} },
+      comfort: { screenReader: true },
+    }));
+  });
+  await page.reload();
+  await page.waitForSelector('.btn-play');
+  await page.click('.btn-play');
+  await page.waitForSelector('text=C\'est parti');
+  await page.waitForTimeout(800);
+  const state = await page.evaluate(() => ({
+    spoken: window.__spoken, played: window.__played, live: document.getElementById('sr-live')?.textContent || '',
+  }));
+  assert.deepEqual(state.spoken, [], 'aucune synthèse vocale par-dessus le lecteur d\'écran');
+  assert.deepEqual(state.played, [], 'aucun fichier audio par-dessus le lecteur d\'écran');
+  assert.ok(state.live.length > 0, 'la phrase de Kaya est annoncée au lecteur d\'écran');
+  assert.deepEqual(errors, []);
+  await context.close();
+});
