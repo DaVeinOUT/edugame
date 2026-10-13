@@ -18,17 +18,21 @@
      « raté », « mauvais », « nul » : on montre la bonne réponse ;
    • intro : 2 ou 3 phrases de 12 mots au plus, avec un exemple ;
    • order : les mots dans l'ordre de la bonne réponse (le jeu mélange) ;
-   • pick : le mot à toucher n'apparaît qu'une fois dans la phrase.
+   • pick : le mot à toucher n'apparaît qu'une fois dans la phrase ;
+   • rule (questions des contrôles, juste avant explain) : la règle du
+     module d'origine, que dit le bouton d'aide (2 phrases, 12 mots au plus) ;
+   • pour l'oreille : épeler les lettres muettes (« les lettres e, n, t »),
+     jamais de trou collé à une apostrophe, aucune forme fautive montrée.
    ============================================================ */
 
 export const LEVELS = [
   { id: 'n3', name: 'Lire et comprendre', grade: 'CE1-CE2', unlockElo: 1000,
     intro: 'Bravo, tu sais lire tous les sons ! Maintenant, on va comprendre les phrases et bien écrire les petits mots. À la fin, un contrôle t’ouvrira le niveau suivant.' },
-  { id: 'n4', name: 'Explorer la phrase', grade: 'CM1-CM2', unlockElo: 1250,
+  { id: 'n4', name: 'Explorer la phrase', grade: 'CM1-CM2', unlockElo: 1750,
     intro: 'Te voilà au niveau des grands lecteurs ! On va explorer la phrase : le sujet, les compléments et les temps. Tu vas aussi bien écrire les mots qui se ressemblent.' },
-  { id: 'n5', name: 'Accorder et conjuguer', grade: '6e-5e', unlockElo: 1500,
+  { id: 'n5', name: 'Accorder et conjuguer', grade: '6e-5e', unlockElo: 1950,
     intro: 'Nouveau niveau, nouveaux défis ! On va analyser les phrases, accorder sans hésiter et conjuguer le passé simple. Chaque réponse t’apprend quelque chose.' },
-  { id: 'n6', name: 'Maîtriser la langue', grade: '4e-3e', unlockElo: 1750,
+  { id: 'n6', name: 'Maîtriser la langue', grade: '4e-3e', unlockElo: 2150,
     intro: 'Dernier niveau : celui des experts ! Subjonctif, subordonnées, accords difficiles : tu vas maîtriser la langue. On y va ?' },
 ];
 
@@ -191,7 +195,7 @@ export const MODULES = [
     intro: 'Le présent dit ce qui se passe maintenant. Avec « jouer » : je joue, tu joues, nous jouons. Être et avoir sont à connaître par cœur.',
     items: [
       { type: 'gap', text: 'Nous ___ au ballon.', choices: ['jouons', 'jouez', 'jouent'], answer: 'jouons', explain: 'Avec « nous », le verbe finit par « -ons » : nous jouons.' },
-      { type: 'gap', text: 'Vous ___ une chanson.', choices: ['chantez', 'chantons', 'chante'], answer: 'chantez', explain: 'Avec « vous », le verbe finit par « -ez » : vous chantez.' },
+      { type: 'gap', text: 'Vous ___ une chanson.', choices: ['chantez', 'chantons', 'chante'], answer: 'chantez', explain: 'Avec « vous », le verbe finit par les lettres e, z : vous chantez.' },
       { type: 'gap', text: 'Ils ___ la télévision.', choices: ['regardent', 'regarde', 'regardez'], answer: 'regardent', explain: 'Avec « ils », le verbe prend les lettres e, n, t à la fin, et on ne les entend pas : ils regardent.' },
       { type: 'gap', text: 'Je ___ en CE2.', choices: ['suis', 'es', 'est'], answer: 'suis', explain: 'Le verbe être au présent : je suis, tu es, il est.' },
       { type: 'gap', text: 'Tu ___ un beau dessin.', choices: ['as', 'a', 'ai'], answer: 'as', explain: 'Le verbe avoir au présent : j’ai, tu as, il a.' },
@@ -398,7 +402,7 @@ export const MODULES = [
     ] },
 
   { id: 'n4-temps-simples', level: 'n4', order: 4, skill: 'conjugaison', title: 'Présent, imparfait, futur', difficulty: 3,
-    intro: 'L’imparfait a la marque « ai » ou « i » : je chantais, nous chantions. Le futur a la marque « r » : je chanterai. Exemple avec « finir » : nous finissons, je finirai.',
+    intro: 'L’imparfait raconte ce qui durait : je chantais, nous chantions. Au futur, on garde l’infinitif. On ajoute la fin : je chanterai, je finirai.',
     items: [
       { type: 'gap', text: 'Autrefois, nous ___ au bord de la mer.', choices: ['habitions', 'habiterons', 'habitons'], answer: 'habitions', explain: 'À l’imparfait, avec « nous », on écrit « -ions » : nous habitions.' },
       { type: 'gap', text: 'Quand il était petit, mon père ___ dans les champs de canne.', choices: ['jouait', 'jouera', 'joue'], answer: 'jouait', explain: 'L’imparfait raconte une habitude du passé : il jouait.' },
@@ -577,7 +581,7 @@ export const MODULES = [
         ] },
       { type: 'gap', text: 'Les chiens de la ferme ___ toute la nuit.', choices: ['aboient', 'aboie'], answer: 'aboient', rule: 'Le sujet peut être un pronom, un groupe nominal ou plusieurs noms. Le verbe s’accorde avec lui.', explain: 'Le noyau du sujet est « chiens », au pluriel : on écrit « aboient ».' },
       { type: 'gap', text: 'Tu viens à pied ___ en bus ?', choices: ['ou', 'où'], answer: 'ou', rule: 'Si tu peux dire « ou bien », écris « ou » sans accent. Si le mot parle d’un lieu ou d’un moment, écris « où ».', explain: 'On peut dire « ou bien en bus » : on écrit « ou » sans accent.' },
-      { type: 'gap', text: 'Demain, nous ___ nos devoirs avant de jouer.', choices: ['finirons', 'finissions'], answer: 'finirons', rule: 'L’imparfait a la marque « ai » ou « i » : je chantais, nous chantions. Le futur a la marque « r » : je chanterai.', explain: 'Avec « demain », on emploie le futur : nous finirons.' },
+      { type: 'gap', text: 'Demain, nous ___ nos devoirs avant de jouer.', choices: ['finirons', 'finissions'], answer: 'finirons', rule: 'Au futur, on garde l’infinitif et on ajoute la fin : nous finirons. L’imparfait raconte ce qui durait : nous finissions.', explain: 'Avec « demain », on emploie le futur : nous finirons.' },
       { type: 'gap', text: 'Ils ont ___ toute la journée.', choices: ['travaillé', 'travailler', 'travaillez'], answer: 'travaillé', rule: 'Remplace le verbe par « vendre » ou « vendu ». Si « vendre » va, écris e, r ; si « vendu » va, écris « é ».', explain: 'Après « ont », on écrit le participe passé : on peut dire « ils ont vendu ».' },
       { type: 'pick', text: 'Kenza offre un bracelet à sa sœur.', prompt: 'Touche le nom noyau du COD.', answer: 'bracelet', rule: 'Le COD répond à « quoi ? » ou « qui ? » : je mange une mangue. Le COI répond à « à qui ? », « de quoi ? » : je parle à Léa.', explain: '« un bracelet » répond à « offre quoi ? » : c’est le COD.' },
       { type: 'gap', text: 'Le soir, le chat ___ cache sous le lit.', choices: ['se', 'ce'], answer: 'se', rule: 'Il se lave, je me lave : si « me » va, écris « se ». Pour montrer, on écrit « ce » ou « ces » : ces chats-là.', explain: 'On peut dire « je me cache » : on écrit « se », le chat se cache.' },
@@ -624,11 +628,11 @@ export const MODULES = [
     ] },
 
   { id: 'n5-passe-simple', level: 'n5', order: 2, skill: 'conjugaison', title: 'Le passé simple', difficulty: 2,
-    intro: 'Le passé simple raconte les actions d’un récit : il entra, ils sortirent. Avec les verbes en « er » : il chanta, ils chantèrent. L’imparfait décrit le décor : il pleuvait.',
+    intro: 'Le passé simple raconte les actions d’un récit : il entra, ils sortirent. Avec les verbes comme chanter : il chanta, ils chantèrent. L’imparfait décrit le décor : il pleuvait.',
     items: [
       { type: 'gap', text: 'Soudain, le chat ___ sur la table.', choices: ['sauta', 'sautèrent', 'sautera'], answer: 'sauta', explain: 'Une action soudaine du récit se met au passé simple : il sauta.' },
-      { type: 'gap', text: 'Les pirates ___ le trésor.', choices: ['trouvèrent', 'trouva', 'trouvâmes'], answer: 'trouvèrent', explain: 'Avec un sujet pluriel, le passé simple en « er » fait « -èrent » : ils trouvèrent.' },
-      { type: 'gap', text: 'Le roi ___ un grand festin.', choices: ['donna', 'donnèrent', 'donnas'], answer: 'donna', explain: 'Avec « il », le passé simple des verbes en « er » finit par « -a » : il donna.' },
+      { type: 'gap', text: 'Les pirates ___ le trésor.', choices: ['trouvèrent', 'trouva', 'trouvâmes'], answer: 'trouvèrent', explain: 'Avec « ils », le passé simple de « trouver » donne « ils trouvèrent ».' },
+      { type: 'gap', text: 'Le roi ___ un grand festin.', choices: ['donna', 'donnèrent', 'donnas'], answer: 'donna', explain: 'Avec « il », le passé simple des verbes comme chanter finit par la lettre a : il donna.' },
       { type: 'gap', text: 'Elle ___ la porte et sortit.', choices: ['ouvrit', 'ouvrirent', 'ouvrira'], answer: 'ouvrit', explain: '« ouvrir » fait « elle ouvrit » au passé simple, avec un « i ».' },
       { type: 'gap', text: 'Le loup ___ peur et s’enfuit.', choices: ['eut', 'fut', 'eurent'], answer: 'eut', explain: 'On dit « avoir peur » : le passé simple du verbe avoir est « il eut ».' },
       { type: 'gap', text: 'Ce jour-là, le roi ___ très heureux.', choices: ['fut', 'eut', 'furent'], answer: 'fut', explain: 'Le passé simple du verbe être : il fut.' },
@@ -737,7 +741,7 @@ export const MODULES = [
       { type: 'text', passage: 'Hier, Malik s’est levé avant l’aube. C’est le jour de la grande course ! Il s’est préparé en silence. Sur la ligne de départ, il s’est dit : « C’est maintenant ou jamais ! »',
         questions: [
           { text: 'Dans « Malik s’est levé », quel est l’infinitif du verbe ?', choices: ['se lever', 'lever', 'être'], answer: 'se lever', explain: '« s’est levé » vient du verbe pronominal « se lever ».' },
-          { text: 'Pourquoi écrit-on « C’est le jour de la grande course » ?', choices: ['On peut dire « cela est ».', 'Il est suivi d’un participe passé.'], answer: 'On peut dire « cela est ».', explain: 'On peut dire « Cela est le jour de la grande course » : on écrit « C’est ».' },
+          { text: 'Pourquoi écrit-on « C’est le jour de la grande course » ?', choices: ['On peut dire « cela est ».', 'On peut dire « je me suis ».'], answer: 'On peut dire « cela est ».', explain: 'On peut dire « Cela est le jour de la grande course » : on écrit « C’est ».' },
           { text: 'Quand Malik s’est-il levé ?', choices: ['avant l’aube', 'à midi', 'le soir'], answer: 'avant l’aube', explain: 'Le texte dit qu’il s’est levé avant l’aube.' },
         ] },
       { type: 'order', words: ['Elle', 's’est', 'endormie', 'très', 'tard'], answer: 'Elle s’est endormie très tard.', explain: '« s’est endormie » vient de « s’endormir » : au présent, elle s’endort.' },
@@ -772,10 +776,10 @@ export const MODULES = [
   { id: 'n5-imperatif-conditionnel', level: 'n5', order: 8, skill: 'conjugaison', title: 'Impératif et conditionnel', difficulty: 6,
     intro: 'L’impératif donne un ordre, sans sujet : range ta chambre. Le conditionnel exprime un souhait ou une situation imaginée : je voudrais. Il se forme comme le futur, avec les terminaisons de l’imparfait.',
     items: [
-      { type: 'gap', text: '___ tes mains avant de manger !', choices: ['Lave', 'Laves', 'Lavez'], answer: 'Lave', explain: 'À l’impératif, les verbes en « er » n’ont pas de « s » avec « tu » : lave.' },
+      { type: 'gap', text: '___ tes mains avant de manger !', choices: ['Lave', 'Laves', 'Lavez'], answer: 'Lave', explain: 'À l’impératif, avec « tu », les verbes comme chanter s’écrivent sans s : lave.' },
       { type: 'gap', text: '___ sages pendant mon absence.', choices: ['Soyez', 'Êtes', 'Serez'], answer: 'Soyez', explain: 'L’impératif du verbe être : sois, soyons, soyez.' },
       { type: 'gap', text: '___ au tableau, s’il te plaît.', choices: ['Va', 'Vas', 'Allez'], answer: 'Va', explain: 'À l’impératif, « aller » fait « va » avec « tu », sans « s ».' },
-      { type: 'gap', text: 'Finis ton assiette et ___ la table !', choices: ['débarrasse', 'débarrasses', 'débarrassez'], answer: 'débarrasse', explain: 'À l’impératif, avec « tu », les verbes en « er » s’écrivent sans « s » : débarrasse.' },
+      { type: 'gap', text: 'Finis ton assiette et ___ la table !', choices: ['débarrasse', 'débarrasses', 'débarrassez'], answer: 'débarrasse', explain: 'À l’impératif, avec « tu », les verbes comme chanter s’écrivent sans s : débarrasse.' },
       { type: 'gap', text: '___ confiance en toi !', choices: ['Aie', 'As', 'Avez'], answer: 'Aie', explain: 'L’impératif du verbe avoir : aie, ayons, ayez.' },
       { type: 'gap', text: 'Je ___ un verre d’eau, s’il vous plaît.', choices: ['voudrais', 'voudrai'], answer: 'voudrais', explain: 'Pour demander poliment, on emploie le conditionnel : je voudrais, avec un « s ».' },
       { type: 'gap', text: 'Si j’avais des ailes, je ___ jusqu’à la Martinique.', choices: ['volerais', 'volerai', 'volais'], answer: 'volerais', explain: 'Après « si » et l’imparfait, on emploie le conditionnel : je volerais.' },
@@ -848,7 +852,7 @@ export const MODULES = [
     items: [
       { type: 'text', passage: 'Il était une fois un pêcheur très pauvre. Un matin, il attrapa un poisson d’or. « Laisse-moi partir, supplia le poisson, et je t’offrirai ce que tu voudras. » Le pêcheur, qui avait bon cœur, le relâcha.',
         questions: [
-          { text: 'À quel temps est « attrapa » ?', choices: ['au passé simple', 'à l’imparfait', 'au futur'], answer: 'au passé simple', rule: 'Le passé simple raconte les actions d’un récit : il entra, ils sortirent. Avec les verbes en « er » : il chanta, ils chantèrent.', explain: '« attrapa » est le passé simple de « attraper » : c’est une action du récit.' },
+          { text: 'À quel temps est « attrapa » ?', choices: ['au passé simple', 'à l’imparfait', 'au futur'], answer: 'au passé simple', rule: 'Le passé simple raconte les actions d’un récit : il entra, ils sortirent. Avec les verbes en e, r : il chanta, ils chantèrent.', explain: '« attrapa » est le passé simple de « attraper » : c’est une action du récit.' },
           { text: 'Pourquoi le pêcheur relâche-t-il le poisson ?', choices: ['Il a bon cœur.', 'Il a peur du poisson.', 'Le poisson est trop petit.'], answer: 'Il a bon cœur.', rule: 'Un bon lecteur repère les indices et comprend ce qui est sous-entendu. Il cherche aussi qui parle et à qui.', explain: 'Le texte dit que le pêcheur avait bon cœur.' },
           { text: 'Que veut dire « avoir bon cœur » ?', choices: ['être généreux', 'être en bonne santé', 'courir vite'], answer: 'être généreux', rule: 'Le sens propre est le sens premier du mot. Le sens figuré fait une image : un cœur de pierre.', explain: 'C’est une expression au sens figuré : il est bon et généreux.' },
         ] },
@@ -860,7 +864,7 @@ export const MODULES = [
       { type: 'choice', text: 'Dans « un panier de mangues », quelle est la fonction de « de mangues » ?', choices: ['complément du nom', 'épithète', 'COD'], answer: 'complément du nom', rule: 'Le groupe nominal minimal, c’est un déterminant et un nom : un vélo. On l’enrichit avec des expansions : un adjectif épithète, un complément du nom.', explain: '« de mangues » complète le nom « panier » avec la préposition « de ».' },
       { type: 'gap', text: 'Si nous étions riches, nous ___ une maison au bord de la mer.', choices: ['achèterions', 'achèterons', 'achetions'], answer: 'achèterions', rule: 'Le conditionnel exprime un souhait ou une situation imaginée : je voudrais. Il se forme comme le futur, avec les terminaisons de l’imparfait.', explain: 'Après « si » et l’imparfait, on emploie le conditionnel : nous achèterions.' },
       { type: 'gap', text: '___ ton manteau, il fait froid !', choices: ['Mets', 'Met', 'Mettez'], answer: 'Mets', rule: 'L’impératif donne un ordre, sans sujet : range ta chambre.', explain: 'À l’impératif, « mettre » fait « mets » avec « tu ».' },
-      { type: 'gap', text: 'Le roi et la reine ___ au bal.', choices: ['allèrent', 'alla', 'allions'], answer: 'allèrent', rule: 'Le passé simple raconte les actions d’un récit : il entra, ils sortirent. Avec les verbes en « er » : il chanta, ils chantèrent.', explain: 'Le sujet est au pluriel : au passé simple, ils allèrent.' },
+      { type: 'gap', text: 'Le roi et la reine ___ au bal.', choices: ['allèrent', 'alla', 'allions'], answer: 'allèrent', rule: 'Le passé simple raconte les actions d’un récit : il entra, ils sortirent. Avec les verbes en e, r : il chanta, ils chantèrent.', explain: 'Le sujet est au pluriel : au passé simple, ils allèrent.' },
       { type: 'choice', text: 'Combien de propositions y a-t-il dans « Il pleut, je reste à la maison » ?', choices: ['deux', 'une', 'trois'], answer: 'deux', rule: 'Une proposition contient un verbe conjugué. Une phrase complexe a plusieurs propositions.', explain: 'Il y a deux verbes conjugués : « pleut » et « reste ».' },
       { type: 'pick', text: 'Je reste au lit parce que je suis malade.', prompt: 'Touche le verbe de la subordonnée.', answer: 'suis', rule: 'Une proposition contient un verbe conjugué. La subordonnée commence par un mot comme « quand » ou « parce que ».', explain: '« parce que je suis malade » est la subordonnée : son verbe est « suis ».' },
       { type: 'choice', text: 'Que veut dire le préfixe « anti- » dans « antivol » ?', choices: ['contre', 'avant', 'encore'], answer: 'contre', rule: 'Un mot dérivé ajoute un préfixe ou un suffixe au radical : décollage.', explain: 'Un antivol protège contre le vol.' },
@@ -930,15 +934,15 @@ export const MODULES = [
       { type: 'gap', text: 'Je veux que vous ___ à l’heure.', choices: ['soyez', 'êtes', 'serez'], answer: 'soyez', explain: '« vouloir que » est suivi du subjonctif : que vous soyez.' },
       { type: 'gap', text: 'Bien qu’il ___ froid, nous sortons.', choices: ['fasse', 'fait', 'fera'], answer: 'fasse', explain: '« bien que » est suivi du subjonctif : bien qu’il fasse froid.' },
       { type: 'gap', text: 'Il faut que j’___ mon passeport.', choices: ['aie', 'ai', 'aurai'], answer: 'aie', explain: 'Le subjonctif du verbe avoir : que j’aie, avec un « e ».' },
-      { type: 'gap', text: 'Ma mère veut que j’___ chez le dentiste.', choices: ['aille', 'vais', 'irai'], answer: 'aille', explain: 'Le subjonctif du verbe aller : que j’aille.' },
+      { type: 'gap', text: 'Ma mère veut que tu ___ chez le dentiste.', choices: ['ailles', 'vas', 'iras'], answer: 'ailles', explain: 'Le subjonctif du verbe aller : que tu ailles.' },
       { type: 'gap', text: 'Il est important que nous ___ la vérité.', choices: ['sachions', 'savons', 'saurons'], answer: 'sachions', explain: 'Le subjonctif du verbe savoir : que nous sachions.' },
       { type: 'gap', text: 'Je suis content que tu ___ venir.', choices: ['puisses', 'peux', 'pourras'], answer: 'puisses', explain: 'Après un sentiment comme « je suis content que », on emploie le subjonctif : que tu puisses.' },
       { type: 'gap', text: 'Le professeur attend que les élèves ___ le silence.', choices: ['fassent', 'font', 'feront'], answer: 'fassent', explain: '« attendre que » est suivi du subjonctif : qu’ils fassent.' },
-      { type: 'gap', text: 'Il faut que vous ___ ce livre.', choices: ['lisiez', 'lisez', 'lirez'], answer: 'lisiez', explain: 'Au subjonctif, « vous » prend « -iez » : que vous lisiez.' },
+      { type: 'gap', text: 'Il faut que vous ___ ce livre.', choices: ['lisiez', 'lisez', 'lirez'], answer: 'lisiez', explain: 'Au subjonctif, avec « vous », le verbe finit par « -iez » : que vous lisiez.' },
       { type: 'pick', text: 'Je doute qu’il vienne ce soir.', prompt: 'Touche le verbe au subjonctif.', answer: 'vienne', explain: '« douter que » est suivi du subjonctif : qu’il vienne.' },
       { type: 'pick', text: 'Bien qu’elle soit fatiguée, Léa continue.', prompt: 'Touche le verbe au subjonctif.', answer: 'soit', explain: 'Après « bien que », le verbe être est au subjonctif : qu’elle soit.' },
       { type: 'choice', text: 'Quelle phrase contient un verbe au subjonctif ?', choices: ['Il faut que tu partes.', 'Je sais que tu pars.', 'Il dit que tu pars.'], answer: 'Il faut que tu partes.', explain: '« Il faut que » exprime une obligation : il est suivi du subjonctif « partes ».' },
-      { type: 'choice', text: 'Quel est le subjonctif présent de « prendre » avec « nous » ?', choices: ['que nous prenions', 'que nous prenons', 'que nous prendrons'], answer: 'que nous prenions', explain: 'Au subjonctif, « nous » prend « -ions » : que nous prenions.' },
+      { type: 'choice', text: 'Quel est le subjonctif présent de « prendre » avec « nous » ?', choices: ['que nous prenions', 'que nous prenons', 'que nous prendrons'], answer: 'que nous prenions', explain: 'Au subjonctif, avec « nous », le verbe finit par « -ions » : que nous prenions.' },
       { type: 'text', passage: 'Mamie prépare le carnaval de Fort-de-France. « Il faut que tout soit prêt dimanche ! » dit-elle. Elle veut que nous cousions les costumes. Bien que ce soit long, nous adorons ça.',
         questions: [
           { text: 'Dans « Il faut que tout soit prêt », pourquoi « soit » est-il au subjonctif ?', choices: ['Il suit « il faut que ».', 'Il suit « dimanche ».'], answer: 'Il suit « il faut que ».', explain: '« Il faut que » exprime une obligation : il est suivi du subjonctif.' },
@@ -956,10 +960,10 @@ export const MODULES = [
       { type: 'pick', text: 'Voici le film dont je t’ai parlé.', prompt: 'Touche l’antécédent du pronom relatif.', answer: 'film', explain: '« dont » reprend le nom « film » : c’est son antécédent.' },
       { type: 'gap', text: 'Le gâteau ___ tu as fait est délicieux.', choices: ['que', 'qui', 'dont'], answer: 'que', explain: '« que » est COD de « as fait » : tu as fait le gâteau.' },
       { type: 'gap', text: 'L’amie ___ nous a écrit habite à Cayenne.', choices: ['qui', 'que', 'dont'], answer: 'qui', explain: '« qui » est sujet de « a écrit » : c’est l’amie qui nous a écrit.' },
-      { type: 'gap', text: 'Le village ___ vit ma tante est près d’un volcan.', choices: ['où', 'que', 'qui'], answer: 'où', explain: '« où » indique le lieu : ma tante vit dans ce village.' },
+      { type: 'gap', text: 'Le village ___ ma tante est née est près d’un volcan.', choices: ['où', 'que', 'qui'], answer: 'où', explain: '« où » indique le lieu : ma tante est née dans ce village.' },
       { type: 'gap', text: 'C’est un outil ___ on se sert pour pêcher.', choices: ['dont', 'que', 'où'], answer: 'dont', explain: 'On dit « se servir de » : « dont » remplace « de cet outil ».' },
       { type: 'choice', text: 'Dans « Les fruits que nous avons cueillis sont mûrs », quelle est la relative ?', choices: ['que nous avons cueillis', 'Les fruits', 'sont mûrs'], answer: 'que nous avons cueillis', explain: 'La relative commence par le pronom « que » et complète « Les fruits ».' },
-      { type: 'choice', text: 'Quelle est la fonction de la relative dans « J’aime les histoires qui font peur » ?', choices: ['complément de l’antécédent', 'sujet', 'COD du verbe « aime »'], answer: 'complément de l’antécédent', explain: 'La relative complète le nom « histoires » : elle est complément de l’antécédent.' },
+      { type: 'choice', text: 'Quelle est la fonction de la relative dans « J’aime les histoires qui font peur » ?', choices: ['complément de l’antécédent', 'sujet', 'COD du verbe « aime »'], answer: 'complément de l’antécédent', explain: 'La relative complète le nom « histoires », son antécédent : elle est complément de l’antécédent (on dit aussi complément du nom).' },
       { type: 'choice', text: 'Quelle phrase contient une proposition relative ?', choices: ['Le chien que j’ai adopté est joueur.', 'Je pense que le chien est joueur.', 'Le chien joue dans le jardin.'], answer: 'Le chien que j’ai adopté est joueur.', explain: '« que j’ai adopté » complète le nom « chien » : c’est une relative.' },
       { type: 'choice', text: 'Dans « Je sais que tu viendras », quelle est la classe de « que » ?', choices: ['conjonction de subordination', 'pronom relatif', 'déterminant'], answer: 'conjonction de subordination', explain: 'Ici, « que » ne reprend aucun nom : c’est une conjonction de subordination.' },
       { type: 'text', passage: 'Le marché que j’aime le plus est celui de Cayenne. On y trouve des épices dont l’odeur est incroyable. La vendeuse qui tient le stand de fruits me connaît bien. C’est un endroit où je me sens chez moi.',
@@ -980,7 +984,7 @@ export const MODULES = [
       { type: 'pick', text: 'La course a été gagnée par Fatou.', prompt: 'Touche le nom du complément d’agent.', answer: 'Fatou', explain: '« par Fatou » indique qui a fait l’action : c’est le complément d’agent.' },
       { type: 'gap', text: 'Les élèves sont ___ par la directrice.', choices: ['félicités', 'félicitent', 'féliciter'], answer: 'félicités', explain: 'Au passif, on emploie être et le participe passé, accordé avec le sujet : félicités.' },
       { type: 'gap', text: 'La lettre a été ___ par mon frère.', choices: ['écrite', 'écrit', 'écrivait'], answer: 'écrite', explain: 'Au passif, le participe s’accorde avec le sujet « La lettre » : écrite.' },
-      { type: 'gap', text: 'Ces maisons ___ construites en 1950.', choices: ['ont été', 'ont', 'avaient'], answer: 'ont été', explain: 'Au passif, on utilise l’auxiliaire être : elles ont été construites.' },
+      { type: 'gap', text: 'Ces maisons ___ construites en 1950.', choices: ['ont été', 'ont', 'avaient'], answer: 'ont été', explain: 'Au passif, il faut le verbe être : « été » est son participe passé. Elles ont été construites.' },
       { type: 'choice', text: 'À quel temps est « La fête sera organisée par la mairie » ?', choices: ['au futur', 'au présent', 'au passé composé'], answer: 'au futur', explain: 'L’auxiliaire « sera » est au futur : le verbe passif est au futur.' },
       { type: 'choice', text: 'Mets à la voix active : « Le chat est soigné par la vétérinaire. »', choices: ['La vétérinaire soigne le chat.', 'Le chat soigne la vétérinaire.', 'La vétérinaire est soignée.'], answer: 'La vétérinaire soigne le chat.', explain: 'Le complément d’agent « la vétérinaire » devient sujet du verbe actif.' },
       { type: 'choice', text: 'Quelle phrase est à la voix active ?', choices: ['Il est arrivé hier.', 'Il est attendu par ses amis.', 'Il a été invité par sa tante.'], answer: 'Il est arrivé hier.', explain: '« est arrivé » est le passé composé actif du verbe « arriver ».' },
@@ -1000,7 +1004,7 @@ export const MODULES = [
     intro: 'Cherche toujours le vrai sujet, même s’il est loin du verbe. Toi et moi, c’est « nous » : toi et moi partons. Après « qui », le verbe s’accorde avec l’antécédent : c’est moi qui chante.',
     items: [
       { type: 'gap', text: 'Les fleurs que tu m’as offertes ___ magnifiques.', choices: ['sont', 'est'], answer: 'sont', explain: 'Le sujet est « Les fleurs », au pluriel : elles sont magnifiques.' },
-      { type: 'gap', text: 'Le bruit des vagues m’___.', choices: ['apaise', 'apaisent'], answer: 'apaise', explain: 'Le noyau du sujet est « bruit », au singulier : il m’apaise.' },
+      { type: 'gap', text: 'Le bruit des vagues ___ les enfants.', choices: ['apaise', 'apaisent'], answer: 'apaise', explain: 'Le noyau du sujet est « bruit », au singulier : il apaise.' },
       { type: 'gap', text: 'Toi et moi ___ les meilleurs amis du monde.', choices: ['sommes', 'êtes', 'sont'], answer: 'sommes', explain: '« Toi et moi », c’est « nous » : nous sommes.' },
       { type: 'gap', text: 'Ton frère et toi ___ invités.', choices: ['êtes', 'sont', 'sommes'], answer: 'êtes', explain: '« Ton frère et toi », c’est « vous » : vous êtes.' },
       { type: 'gap', text: 'C’est moi qui ___ la vaisselle ce soir.', choices: ['fais', 'fait'], answer: 'fais', explain: 'Après « moi qui », le verbe se conjugue avec « je » : je fais, donc moi qui fais.' },
@@ -1009,7 +1013,7 @@ export const MODULES = [
       { type: 'gap', text: 'Les enfants, à la fin de la journée, ___ fatigués.', choices: ['sont', 'est'], answer: 'sont', explain: 'Le groupe entre virgules ne change rien : « Les enfants » sont fatigués.' },
       { type: 'gap', text: 'Les élèves que le professeur ___ sont attentifs.', choices: ['interroge', 'interrogent'], answer: 'interroge', explain: 'Dans la relative, le sujet de « interroge » est « le professeur », au singulier.' },
       { type: 'pick', text: 'Dans la forêt vivent des singes hurleurs.', prompt: 'Touche le nom noyau du sujet.', answer: 'singes', explain: 'Le sujet « des singes hurleurs » est placé après le verbe « vivent ».' },
-      { type: 'choice', text: 'Pourquoi écrit-on « Les feuilles de l’arbre tombent » ?', choices: ['Le noyau du sujet est « feuilles ».', 'Le noyau du sujet est « arbre ».'], answer: 'Le noyau du sujet est « feuilles ».', explain: '« de l’arbre » complète « feuilles », qui est le noyau pluriel du sujet.' },
+      { type: 'choice', text: 'Pourquoi « tombent » est-il au pluriel dans « Les feuilles de l’arbre tombent » ?', choices: ['Le noyau du sujet est « feuilles ».', 'Le noyau du sujet est « arbre ».'], answer: 'Le noyau du sujet est « feuilles ».', explain: '« de l’arbre » complète « feuilles », qui est le noyau pluriel du sujet.' },
       { type: 'text', passage: 'Mes cousins et moi partons demain pour la Dominique. Le bateau qui nous emmène part à huit heures. Chacun prépare son sac. Les passeports, que Maman a rangés, sont dans sa valise.',
         questions: [
           { text: 'Pourquoi écrit-on « partons » ?', choices: ['« Mes cousins et moi », c’est « nous ».', 'Le sujet est « demain ».'], answer: '« Mes cousins et moi », c’est « nous ».', explain: '« Mes cousins et moi » équivaut à « nous » : nous partons.' },
@@ -1020,7 +1024,7 @@ export const MODULES = [
     ] },
 
   { id: 'n6-subordonnees', level: 'n6', order: 7, skill: 'grammaire', title: 'Les subordonnées conjonctives', difficulty: 6,
-    intro: 'La complétive complète un verbe : je crois que tu as raison. La circonstancielle dit quand, pourquoi ou dans quel but. Exemple : je reste parce qu’il pleut.',
+    intro: 'La complétive complète un verbe : je crois que tu as raison. La circonstancielle dit quand, pourquoi, dans quel but ou avec quelle conséquence. Elle peut aussi marquer une opposition ou une condition.',
     items: [
       { type: 'choice', text: 'Dans « J’espère que tu viendras », quelle est la fonction de « que tu viendras » ?', choices: ['COD du verbe « espère »', 'complément de cause', 'sujet'], answer: 'COD du verbe « espère »', explain: 'On peut dire « J’espère cela » : la complétive est COD du verbe.' },
       { type: 'choice', text: 'Que marque la subordonnée dans « Je reste à la maison parce qu’il pleut » ?', choices: ['la cause', 'le but', 'le temps'], answer: 'la cause', explain: '« parce que » introduit la cause : il pleut.' },
@@ -1030,7 +1034,7 @@ export const MODULES = [
       { type: 'choice', text: 'Que marque la subordonnée dans « Si tu veux, nous irons à la plage » ?', choices: ['la condition', 'le but', 'la cause'], answer: 'la condition', explain: '« Si » pose une condition : la sortie dépend de ton envie.' },
       { type: 'choice', text: 'Que marque la subordonnée dans « Quand la cloche sonne, les élèves sortent » ?', choices: ['le temps', 'la cause', 'l’opposition'], answer: 'le temps', explain: '« Quand » situe l’action dans le temps.' },
       { type: 'gap', text: 'Je t’explique la règle ___ tu la comprennes.', choices: ['pour que', 'parce que', 'si bien que'], answer: 'pour que', explain: '« pour que » exprime le but et appelle le subjonctif « comprennes ».' },
-      { type: 'gap', text: 'Il pleuvait fort, ___ le match a été reporté.', choices: ['si bien que', 'bien que', 'pour que'], answer: 'si bien que', explain: '« si bien que » introduit la conséquence : le match a été reporté.' },
+      { type: 'gap', text: 'Il pleuvait fort, ___ le match a été reporté.', choices: ['si bien que', 'bien que', 'pour que'], answer: 'si bien que', explain: 'Avec « si » devant, « si bien que » annonce la conséquence ; « bien que », sans « si », marque l’opposition.' },
       { type: 'gap', text: 'Nous restons dedans ___ le temps soit beau.', choices: ['bien que', 'parce que', 'puisque'], answer: 'bien que', explain: '« bien que » marque l’opposition et appelle le subjonctif « soit ».' },
       { type: 'pick', text: 'Je crois que la mer est calme.', prompt: 'Touche le mot qui introduit la complétive.', answer: 'que', explain: '« que » est une conjonction de subordination : il introduit « que la mer est calme ».' },
       { type: 'pick', text: 'Puisque tu es là, aide-moi.', prompt: 'Touche le mot qui introduit la cause.', answer: 'Puisque', explain: '« Puisque » présente une cause évidente : tu es là.' },
@@ -1044,7 +1048,7 @@ export const MODULES = [
     ] },
 
   { id: 'n6-participe-avoir', level: 'n6', order: 8, skill: 'orthographe', title: 'Le participe passé avec avoir', difficulty: 7,
-    intro: 'Avec « avoir », le participe s’accorde avec le COD placé avant. Exemple : la robe que j’ai cousue. Si le COD suit le verbe, pas d’accord : j’ai cousu une robe.',
+    intro: 'Avec « avoir », le participe s’accorde avec le COD placé avant. Exemple : la robe que j’ai cousue. Si le COD suit le verbe, pas d’accord : j’ai cousu une robe. Les verbes pronominaux suivent la même règle : elle s’est lavé les mains.',
     items: [
       { type: 'gap', text: 'Les lettres que j’ai ___ sont arrivées.', choices: ['écrites', 'écrit', 'écrits'], answer: 'écrites', explain: 'Le COD « que » reprend « Les lettres », placé avant : écrites.' },
       { type: 'gap', text: 'J’ai ___ des lettres à mes amis.', choices: ['écrit', 'écrites'], answer: 'écrit', explain: 'Le COD « des lettres » est placé après le verbe : le participe ne s’accorde pas.' },
@@ -1054,10 +1058,10 @@ export const MODULES = [
       { type: 'gap', text: 'Mes sœurs ont ___ toute la soirée.', choices: ['chanté', 'chantées'], answer: 'chanté', explain: 'Aucun COD n’est placé avant : avec « avoir », le participe reste invariable.' },
       { type: 'gap', text: 'La maison qu’ils ont ___ est immense.', choices: ['construite', 'construit'], answer: 'construite', explain: 'Le COD « qu’ » reprend « La maison », placé avant : construite.' },
       { type: 'gap', text: 'Ta grand-mère, je l’ai ___ au marché.', choices: ['vue', 'vu'], answer: 'vue', explain: 'Le COD « l’ » reprend « Ta grand-mère », placé avant : vue.' },
-      { type: 'gap', text: 'Elle s’est ___ les mains.', choices: ['lavé', 'lavée'], answer: 'lavé', explain: 'Le COD « les mains » est placé après : le participe reste invariable.' },
-      { type: 'gap', text: 'Elle s’est ___ avant de dîner.', choices: ['lavée', 'lavé'], answer: 'lavée', explain: 'Le COD « s’ », c’est elle-même, placé avant : lavée.' },
+      { type: 'gap', text: 'Elle s’est ___ les mains.', choices: ['lavé', 'lavée'], answer: 'lavé', explain: 'Verbe pronominal : on accorde comme avec « avoir ». Le COD « les mains » est après le verbe : pas d’accord.' },
+      { type: 'gap', text: 'Elle s’est ___ avant de dîner.', choices: ['lavée', 'lavé'], answer: 'lavée', explain: 'Verbe pronominal : on accorde comme avec « avoir ». Le COD « s’ », c’est elle-même, placé avant : lavée.' },
       { type: 'pick', text: 'Les histoires que Mamie nous a racontées étaient magiques.', prompt: 'Touche le participe passé accordé.', answer: 'racontées', explain: '« racontées » s’accorde avec « que », qui reprend « Les histoires ».' },
-      { type: 'choice', text: 'Quelle phrase est correctement accordée ?', choices: ['Les photos que tu as prises sont belles.', 'Les photos que tu as pris sont belles.'], answer: 'Les photos que tu as prises sont belles.', explain: 'Le COD « que » reprend « Les photos », placé avant : prises.' },
+      { type: 'gap', text: 'Les photos que tu as ___ sont belles.', choices: ['prises', 'pris'], answer: 'prises', explain: 'Le COD « que » reprend « Les photos », placé avant : prises.' },
       { type: 'text', passage: 'Les pirogues que les pêcheurs ont réparées sont prêtes. Ils les ont repeintes en rouge et en jaune. Hier, ils ont attrapé beaucoup de poissons. Les dorades qu’ils ont vendues étaient superbes.',
         questions: [
           { text: 'Pourquoi écrit-on « réparées » ?', choices: ['Le COD « que » (les pirogues) est placé avant.', 'Le sujet est « les pêcheurs ».'], answer: 'Le COD « que » (les pirogues) est placé avant.', explain: '« que » reprend « Les pirogues », féminin pluriel, placé avant le verbe.' },
@@ -1070,10 +1074,10 @@ export const MODULES = [
   { id: 'n6-discours', level: 'n6', order: 9, skill: 'grammaire', title: 'Les paroles rapportées', difficulty: 7,
     intro: 'Au discours direct, on cite les paroles entre guillemets. Au discours indirect, on les rapporte après « que » ou « si ». Les pronoms changent, et parfois les temps : il dit qu’il viendra.',
     items: [
-      { type: 'choice', text: 'Mets au discours indirect : Léa dit : « Je suis fatiguée. »', choices: ['Léa dit qu’elle est fatiguée.', 'Léa dit que je suis fatiguée.', 'Léa dit : elle est fatiguée.'], answer: 'Léa dit qu’elle est fatiguée.', explain: '« je » devient « elle » et les paroles sont introduites par « que ».' },
-      { type: 'choice', text: 'Mets au discours indirect : Il me demande : « Viens-tu ? »', choices: ['Il me demande si je viens.', 'Il me demande que je viens.', 'Il me demande viens-tu.'], answer: 'Il me demande si je viens.', explain: 'Une interrogation totale devient une subordonnée introduite par « si ».' },
-      { type: 'choice', text: 'Mets au discours indirect : Elle demande : « Où habites-tu ? »', choices: ['Elle demande où j’habite.', 'Elle demande où habites-tu.', 'Elle demande que j’habite.'], answer: 'Elle demande où j’habite.', explain: 'On garde « où », mais le sujet revient avant le verbe et le point d’interrogation disparaît.' },
-      { type: 'choice', text: 'Mets au discours indirect : Elle répondit : « Je partirai demain. »', choices: ['Elle répondit qu’elle partirait le lendemain.', 'Elle répondit qu’elle partira demain.', 'Elle répondit que je partirai demain.'], answer: 'Elle répondit qu’elle partirait le lendemain.', explain: 'Dans un récit au passé, le futur devient conditionnel et « demain » devient « le lendemain ».' },
+      { type: 'choice', text: 'Mets au discours indirect : Léa dit : « Je suis fatiguée. »', choices: ['Léa dit qu’elle est fatiguée.', 'Léa dit que je suis fatiguée.', 'Léa dit qu’elle était fatiguée.'], answer: 'Léa dit qu’elle est fatiguée.', explain: '« je » devient « elle » et les paroles sont introduites par « que » ; le verbe « dit » est au présent, le temps ne change pas.' },
+      { type: 'choice', text: 'Il me demande : « Viens-tu ? » Au discours indirect, quel mot introduit la question ?', choices: ['si', 'que', 'où'], answer: 'si', explain: 'Une interrogation totale rapportée commence par « si » : il me demande si je viens.' },
+      { type: 'order', words: ['Elle', 'demande', 'où', 'j’habite'], answer: 'Elle demande où j’habite.', explain: 'La question « Où habites-tu ? » devient « où j’habite » : le sujet vient avant le verbe, sans point d’interrogation.' },
+      { type: 'gap', text: 'Elle répondit qu’elle ___ le lendemain.', choices: ['partirait', 'partira'], answer: 'partirait', explain: 'Dans un récit au passé, le futur devient conditionnel : elle partirait le lendemain.' },
       { type: 'choice', text: 'Dans « Elle cria qu’elle avait trouvé la clé », quel discours est employé ?', choices: ['le discours indirect', 'le discours direct'], answer: 'le discours indirect', explain: 'Les paroles sont rapportées après « que », sans guillemets : c’est le discours indirect.' },
       { type: 'choice', text: 'Quels signes encadrent les paroles au discours direct ?', choices: ['les guillemets', 'les parenthèses', 'les points de suspension'], answer: 'les guillemets', explain: 'Au discours direct, les paroles sont placées entre guillemets.' },
       { type: 'pick', text: '« Je reviens vite », murmura Sami.', prompt: 'Touche le verbe de parole.', answer: 'murmura', explain: '« murmura » est un verbe de parole : il indique comment Sami parle.' },
@@ -1121,24 +1125,24 @@ export const MODULES = [
     items: [
       { type: 'text', passage: 'Les tortues marines reviennent pondre sur la plage où elles sont nées. Bien que ce voyage soit long, elles se trompent rarement. Les scientifiques qui les étudient pensent qu’elles utilisent le champ magnétique de la Terre.',
         questions: [
-          { text: 'Que marque « Bien que ce voyage soit long » ?', choices: ['une opposition', 'une cause', 'un but'], answer: 'une opposition', explain: '« Bien que » oppose la longueur du voyage à la précision des tortues.' },
-          { text: 'Quel est l’antécédent de « qui » dans « Les scientifiques qui les étudient » ?', choices: ['Les scientifiques', 'les tortues', 'la Terre'], answer: 'Les scientifiques', explain: '« qui » reprend « Les scientifiques » : ce sont eux qui étudient les tortues.' },
-          { text: 'Que pensent les scientifiques ?', choices: ['Les tortues utilisent le champ magnétique.', 'Les tortues suivent les bateaux.', 'Les tortues restent toujours au même endroit.'], answer: 'Les tortues utilisent le champ magnétique.', explain: 'La dernière phrase rapporte leur hypothèse sur le champ magnétique de la Terre.' },
+          { text: 'Que marque « Bien que ce voyage soit long » ?', choices: ['une opposition', 'une cause', 'un but'], answer: 'une opposition', rule: 'La circonstancielle dit quand, pourquoi, dans quel but ou avec quelle conséquence. Elle peut aussi marquer une opposition ou une condition.', explain: '« Bien que » oppose la longueur du voyage à la précision des tortues.' },
+          { text: 'Quel est l’antécédent de « qui » dans « Les scientifiques qui les étudient » ?', choices: ['Les scientifiques', 'les tortues', 'la Terre'], answer: 'Les scientifiques', rule: 'La relative complète un nom, son antécédent. Elle commence par un pronom relatif : qui, que, dont, où.', explain: '« qui » reprend « Les scientifiques » : ce sont eux qui étudient les tortues.' },
+          { text: 'Que pensent les scientifiques ?', choices: ['Les tortues utilisent le champ magnétique.', 'Les tortues suivent les bateaux.', 'Les tortues restent toujours au même endroit.'], answer: 'Les tortues utilisent le champ magnétique.', rule: 'Dans un texte qui argumente, l’auteur défend une thèse avec des arguments. Repère aussi les mots qui montrent son avis : hélas, heureusement.', explain: 'La dernière phrase rapporte leur hypothèse sur le champ magnétique de la Terre.' },
         ] },
-      { type: 'gap', text: 'Il faut que nous ___ avant la nuit.', choices: ['partions', 'partons', 'partirons'], answer: 'partions', explain: 'Après « il faut que », on emploie le subjonctif : que nous partions.' },
-      { type: 'gap', text: 'Si j’avais su, je ___ venu.', choices: ['serais', 'serai'], answer: 'serais', explain: 'Après « si » et le plus-que-parfait, on emploie le conditionnel passé : je serais venu.' },
-      { type: 'gap', text: 'Demain, je te ___ mon cahier.', choices: ['prêterai', 'prêterais'], answer: 'prêterai', explain: 'Avec « nous », on dirait « nous prêterons » : c’est le futur, sans « s ».' },
-      { type: 'gap', text: 'Les chansons que tu as ___ sont magnifiques.', choices: ['choisies', 'choisi'], answer: 'choisies', explain: 'Le COD « que » reprend « Les chansons », placé avant : choisies.' },
-      { type: 'gap', text: 'C’est toi qui ___ gagné.', choices: ['as', 'a'], answer: 'as', explain: 'Après « toi qui », le verbe se conjugue avec « tu » : tu as gagné.' },
-      { type: 'gap', text: 'La ville ___ je suis née est au bord de la mer.', choices: ['où', 'que', 'dont'], answer: 'où', explain: '« où » reprend « La ville » et indique le lieu.' },
-      { type: 'choice', text: 'Mets à la voix passive : « Les pompiers éteignent l’incendie. »', choices: ['L’incendie est éteint par les pompiers.', 'L’incendie éteint les pompiers.', 'Les pompiers sont éteints par l’incendie.'], answer: 'L’incendie est éteint par les pompiers.', explain: 'Le COD « l’incendie » devient sujet et « les pompiers » devient complément d’agent.' },
-      { type: 'choice', text: 'Mets au discours indirect : Il demande : « As-tu faim ? »', choices: ['Il demande si j’ai faim.', 'Il demande que j’ai faim.', 'Il demande as-tu faim.'], answer: 'Il demande si j’ai faim.', explain: 'Une question totale rapportée commence par « si ».' },
-      { type: 'choice', text: 'Que marque « pour que tu comprennes » ?', choices: ['le but', 'la cause', 'la conséquence'], answer: 'le but', explain: '« pour que » introduit le but, avec le subjonctif.' },
-      { type: 'pick', text: 'Bien qu’il pleuve, nous sortons.', prompt: 'Touche le verbe au subjonctif.', answer: 'pleuve', explain: 'Après « bien que », le verbe est au subjonctif : qu’il pleuve.' },
-      { type: 'choice', text: 'Quelle figure de style dans « Ses yeux sont des étoiles » ?', choices: ['une métaphore', 'une comparaison', 'une hyperbole'], answer: 'une métaphore', explain: 'Les yeux sont assimilés à des étoiles sans « comme » : c’est une métaphore.' },
-      { type: 'choice', text: 'Que veut dire « géo » dans « géographie » ?', choices: ['la terre', 'l’eau', 'le ciel'], answer: 'la terre', explain: 'Le grec « gê » veut dire « terre » : la géographie décrit la Terre.' },
-      { type: 'order', words: ['Les', 'élèves', 'que', 'je', 'connais', 'sont', 'sérieux'], answer: 'Les élèves que je connais sont sérieux.', explain: 'La relative « que je connais » suit son antécédent « élèves ».' },
-      { type: 'choice', text: 'Pourquoi écrit-on « Chacun prend son sac » au singulier ?', choices: ['« Chacun » est singulier.', 'Le sac est unique.'], answer: '« Chacun » est singulier.', explain: '« Chacun » désigne une personne à la fois : le verbe est au singulier.' },
+      { type: 'gap', text: 'Il faut que nous ___ avant la nuit.', choices: ['partions', 'partons', 'partirons'], answer: 'partions', rule: 'Après « il faut que » ou « bien que », on emploie le subjonctif. Exemple : il faut que tu viennes.', explain: 'Après « il faut que », on emploie le subjonctif : que nous partions.' },
+      { type: 'gap', text: 'Si j’avais su, je ___ venu.', choices: ['serais', 'serai'], answer: 'serais', rule: 'Après « si » et l’imparfait ou le plus-que-parfait, on emploie le conditionnel. Conditionnel : je chanterais, avec un « s ».', explain: 'Après « si » et le plus-que-parfait, on emploie le conditionnel passé : je serais venu.' },
+      { type: 'gap', text: 'Demain, je te ___ mon cahier.', choices: ['prêterai', 'prêterais'], answer: 'prêterai', rule: 'Futur : je chanterai, sans « s » ; conditionnel : je chanterais, avec un « s ». Astuce : passe à « nous » : chanterons au futur, chanterions au conditionnel.', explain: 'Avec « nous », on dirait « nous prêterons » : c’est le futur, sans « s ».' },
+      { type: 'gap', text: 'Les chansons que tu as ___ sont magnifiques.', choices: ['choisies', 'choisi'], answer: 'choisies', rule: 'Avec « avoir », le participe s’accorde avec le COD placé avant. Exemple : la robe que j’ai cousue.', explain: 'Le COD « que » reprend « Les chansons », placé avant : choisies.' },
+      { type: 'gap', text: 'C’est toi qui ___ gagné.', choices: ['as', 'a'], answer: 'as', rule: 'Après « qui », le verbe s’accorde avec l’antécédent : c’est moi qui chante.', explain: 'Après « toi qui », le verbe se conjugue avec « tu » : tu as gagné.' },
+      { type: 'gap', text: 'La ville ___ je suis née est au bord de la mer.', choices: ['où', 'que', 'dont'], answer: 'où', rule: 'La relative commence par un pronom relatif : qui, que, dont, où. « Où » reprend un lieu ou un moment.', explain: '« où » reprend « La ville » et indique le lieu.' },
+      { type: 'choice', text: 'Mets à la voix passive : « Les pompiers éteignent l’incendie. »', choices: ['L’incendie est éteint par les pompiers.', 'L’incendie éteint les pompiers.', 'Les pompiers sont éteints par l’incendie.'], answer: 'L’incendie est éteint par les pompiers.', rule: 'À la voix passive, le sujet subit l’action. Le complément d’agent, introduit par « par », fait l’action.', explain: 'Le COD « l’incendie » devient sujet et « les pompiers » devient complément d’agent.' },
+      { type: 'order', words: ['Il', 'demande', 'si', 'j’ai', 'faim'], answer: 'Il demande si j’ai faim.', rule: 'Au discours indirect, on rapporte les paroles après « que » ou « si ». Les pronoms changent, et parfois les temps.', explain: 'Une question totale rapportée commence par « si ».' },
+      { type: 'choice', text: 'Que marque « pour que tu comprennes » ?', choices: ['le but', 'la cause', 'la conséquence'], answer: 'le but', rule: 'La circonstancielle dit quand, pourquoi, dans quel but ou avec quelle conséquence. Elle peut aussi marquer une opposition ou une condition.', explain: '« pour que » introduit le but, avec le subjonctif.' },
+      { type: 'pick', text: 'Bien qu’il pleuve, nous sortons.', prompt: 'Touche le verbe au subjonctif.', answer: 'pleuve', rule: 'Après « il faut que » ou « bien que », on emploie le subjonctif. Exemple : il faut que tu viennes.', explain: 'Après « bien que », le verbe est au subjonctif : qu’il pleuve.' },
+      { type: 'choice', text: 'Quelle figure de style dans « Ses yeux sont des étoiles » ?', choices: ['une métaphore', 'une comparaison', 'une hyperbole'], answer: 'une métaphore', rule: 'Les figures de style créent des images : comparaison, métaphore, hyperbole. La comparaison relie deux choses avec « comme » ; la métaphore, sans « comme ».', explain: 'Les yeux sont assimilés à des étoiles sans « comme » : c’est une métaphore.' },
+      { type: 'choice', text: 'Que veut dire « géo » dans « géographie » ?', choices: ['la terre', 'l’eau', 'le ciel'], answer: 'la terre', rule: 'L’étymologie aide à comprendre un mot : « chrono » veut dire « temps ».', explain: 'Le grec « gê » veut dire « terre » : la géographie décrit la Terre.' },
+      { type: 'order', words: ['Les', 'élèves', 'que', 'je', 'connais', 'sont', 'sérieux'], answer: 'Les élèves que je connais sont sérieux.', rule: 'La relative complète un nom, son antécédent. Elle commence par un pronom relatif : qui, que, dont, où.', explain: 'La relative « que je connais » suit son antécédent « élèves ».' },
+      { type: 'choice', text: 'Pourquoi écrit-on « Chacun prend son sac » au singulier ?', choices: ['« Chacun » est singulier.', 'Le sac est unique.'], answer: '« Chacun » est singulier.', rule: 'Cherche toujours le vrai sujet, même s’il est loin du verbe.', explain: '« Chacun » désigne une personne à la fois : le verbe est au singulier.' },
     ] },
   // ───────────── fin des modules ─────────────
 ];

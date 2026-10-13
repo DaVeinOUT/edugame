@@ -4,8 +4,9 @@
 > dyslexiques et pour la classe. Aucun compte, aucune publicité, aucune donnée ne quitte l'appareil.
 
 EDUCA apprend à lire en français aux enfants de 4 à 12 ans qui ne savent pas encore lire (y compris les
-lecteurs plus âgés en difficulté). **Tout est parlé** par Kaya, un bébé jaguar : un enfant peut jouer sans
-lire un seul mot et sans clavier.
+lecteurs plus âgés en difficulté), puis les accompagne **du CE1 à la 3e** (comprendre, orthographe,
+grammaire, conjugaison, vocabulaire). **Tout est parlé** par Kaya, un bébé jaguar : un enfant peut jouer
+sans lire un seul mot et sans clavier.
 
 ## Ce que fait EDUCA
 
@@ -17,12 +18,21 @@ lire un seul mot et sans clavier.
 - **Chaque leçon va de l'oreille à l'écrit** : écouter le son → le reconnaître → lire des syllabes →
   lire des mots → reconnaître un mot entendu → l'écrire avec des tuiles-graphèmes → lire une phrase.
   Tout mot à lire est **100 % décodable** avec ce qui a déjà été appris (calculé, testé).
+- **Une vraie voix humaine** pour les mots du jeu et les voyelles (268 mots et 11 voyelles enregistrés par
+  un bénévole de Lingua Libre, domaine public), contrôlée automatiquement ; la synthèse vocale complète.
 - **Des sons purs** (« mmm », jamais « me ») : synthétisés pour les consonnes, ou — mieux — **enregistrés
   par l'enseignant ou le parent** au micro, dans l'espace des grands.
+- **Test de positionnement** dès 7 ans : un grand qui lit déjà ne refait pas tout le chemin.
+- **Les niveaux des grands (CE1 → 3e)** : 4 niveaux, 40 modules et 4 contrôles (~730 questions) d'après
+  les programmes en vigueur, relus par un regard d'orthophoniste (jamais d'orthographe fautive montrée,
+  réponses mélangées, règle rappelée par l'aide). Un niveau s'ouvre par son contrôle (70 %) **ou** quand
+  la force de lecture monte ; dès 10 ans, le contrôle d'un niveau est proposé d'abord ; révisions espacées.
+  Détail : [`rapports/2026-10-13-niveaux-ce1-3e.md`](rapports/2026-10-13-niveaux-ce1-3e.md).
 - **Répétition espacée** (boîtes de Leitner) : ce qui est fragile revient au bon moment.
 - **L'Élo bienveillant**, comme aux échecs : chaque exercice est un adversaire ; la « force de lecture »
   de l'enfant monte quand il réussit et **ne baisse jamais** (on affiche son record, calculé avec
-  prudence). Titres : Pion → Cavalier → Fou → Tour → Dame → Roi. Aucun classement entre enfants.
+  prudence). Titres : Pion → Cavalier → Fou → Tour → Dame → Roi → Maître → Grand Maître ; l'échelle montre
+  aussi les niveaux que la jauge ouvre. Aucun classement entre enfants.
   Détail : [`rapports/2026-10-12-elo-bienveillant.md`](rapports/2026-10-12-elo-bienveillant.md).
 - **Réglages pour les enfants dyslexiques, par enfant** : police Andika (conçue pour les lecteurs
   débutants) ou OpenDyslexic, espacement des lettres en 3 crans, lettres muettes grisées, coloration
@@ -32,10 +42,13 @@ lire un seul mot et sans clavier.
   imposée par l'enseignant, temps de jeu maximum par jour, mode silencieux, tableau de bord par enfant
   (force de lecture honnête et sa courbe, sons maîtrisés, confusions b/d…, temps de jeu, idées
   d'activités hors écran, impression), export/import de sauvegarde.
-- **Motivation** : un seul gros bouton « Jouer », le chemin des 66 sons, 77 cartes à collectionner
+- **Motivation** : un seul gros bouton « Jouer », le chemin des 66 sons, 83 cartes à collectionner
   (méritées, jamais au hasard) révélées en 3D, cérémonie de promotion d'échecs, étoiles d'effort.
 - **Hors-ligne d'abord** : après la première visite, tout fonctionne sans internet ; mise à jour proposée
   depuis l'accueil, jamais au milieu d'une leçon.
+- **Accessible** : audit automatique WCAG 2.2 AA (axe-core) de chaque écran, jouable au clavier seul ou au
+  contacteur, mode lecteur d'écran.
+- **Bientôt sur les magasins** : PWA installable ; gabarits Android (TWA) et plan iOS dans [`twa/README.md`](twa/README.md).
 
 ## Jouer
 
@@ -53,7 +66,9 @@ Aucune dépendance à l'exécution (HTML, CSS, JavaScript en modules natifs). Ou
 ```bash
 npm install                     # playwright-core (tests navigateur) — développement seulement
 npm test                        # tests unitaires : moteur, parcours, Élo, séances (Node, sans navigateur)
-CHROMIUM_PATH=/usr/bin/chromium npm run test:e2e   # bout en bout : profil, leçon, espace adulte, sons, hors-ligne
+CHROMIUM_PATH=/usr/bin/chromium npm run test:e2e   # bout en bout + accessibilité (axe-core) : profils, leçons,
+                                                    # niveaux, voix, clavier, espace adulte, hors-ligne
+npm run check                   # tests unitaires + liste hors-ligne à jour (ce que vérifie la CI)
 npm run release                 # régénère la liste hors-ligne de sw.js (à lancer après chaque changement)
 ```
 
@@ -66,13 +81,18 @@ sw.js                 hors-ligne (liste générée par scripts/release.mjs)
 css/                  app.css (thèmes, confort dys, écrans), cards.css (cartes 3D), fonts.css (généré)
 js/main.js            démarrage
 js/core/              logique pure, testée : seg (graphèmes/syllabes), curriculum, elo, srs, select,
-                      questions, session, schema, rng
-js/data/              curriculum.js (66 étapes, ~230 mots illustrés, mots-outils, phrases), sounds.js
+                      questions, session, placement, levels, schema, time, rng
+js/data/              curriculum.js (66 étapes, ~230 mots illustrés, mots-outils, phrases), levels.js
+                      (niveaux CE1 → 3e), wordaudio.js et sounds.js (générés : voix humaine)
+audio/                mots/ et sons/ (MP3, voix humaine libre) + ATTRIBUTIONS.md
 js/services/          store (sauvegarde locale), voice (Kaya, sous-titres), phonemes (sons purs),
                       recordings (voix de l'adulte), sfx, errors (filet de sécurité)
 js/ui/                router, dom, kaya, word (coloration), cards, elo, overlay, fx, theme, caption
-js/screens/           welcome, profiles, hub, path, lesson, collection, ladder, games, trace, adult
-js/activities/        choice (écoute, son, syllabe, mot, phrase), build (écrire), intro, trace
+js/screens/           welcome, profiles, hub, path, lesson, collection, ladder, games, trace, adult,
+                      placement, levels
+js/activities/        choice (écoute, son, syllabe, mot, phrase), build (écrire), intro, trace,
+                      text (exercices des niveaux : trou, question, texte, mot à toucher, ordre)
+scripts/              release (hors-ligne), voix-libre (voix humaine), make-icons, build-site, fetch-fonts
 tests/unit/, tests/e2e/   tests node:test (+ Playwright pour le navigateur)
 rapports/             recherches et décisions ; ops/ : suivi du chantier (HANDOFF, backlog, journal)
 ```

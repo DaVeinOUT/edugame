@@ -107,6 +107,22 @@ export function itemDifficulty(m, type) {
   return DIFF.base + DIFF.perLevel * m.levelIndex + DIFF.perDifficulty * (m.difficulty || 1) + (DIFF.type[type] || 0);
 }
 
+/* Prononciation approximative d'une forme écrite : sert seulement à savoir si des réponses
+   se PRONONCENT pareil (a/à, et/est, son/sont, mangé/manger, c'est/s'est, leur/leurs…). */
+function sayLike(text) {
+  let w = String(text).toLowerCase().replace(/[’'\s-]/g, '');
+  w = w.replace(/(ées|ée|és|é|ez|er|aient|ait|ais|ai)$/, 'É')   // finale [e] / [ɛ] (é, er, ez, ait…)
+    .replace(/(es|ent)$/, 'e');                                  // chantes, chantent = chante
+  w = w.normalize('NFD').replace(/\p{M}/gu, '').replace(/c(?=[eiy])/g, 's');
+  for (let i = 0; i < 3; i++) w = w.replace(/(?<=.)(s|t|x|z|d)$/, '');   // consonnes finales muettes
+  return w;
+}
+
+/** Toutes les réponses se prononcent-elles pareil ? (Alors 🔊 n'aiderait pas : on n'entend aucune différence.) */
+export function homophones(texts) {
+  return texts.length > 1 && new Set(texts.map(sayLike)).size === 1;
+}
+
 /** Mots d'une phrase, sans la ponctuation collée (pour « Touche le verbe »). */
 export function tokens(text) {
   return text.split(/\s+/)

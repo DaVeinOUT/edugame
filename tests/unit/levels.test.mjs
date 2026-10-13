@@ -4,7 +4,7 @@ import { existsSync } from 'node:fs';
 import * as CUR from '../../js/data/curriculum.js';
 import { buildCurriculum } from '../../js/core/curriculum.js';
 import {
-  buildLevels, openLevels, moduleOpen, nextModule, moduleQuestions, planModule, finishModule, planReview, dueReviews,
+  buildLevels, openLevels, moduleOpen, nextModule, moduleQuestions, planModule, finishModule, planReview, dueReviews, homophones,
   itemDifficulty, tokens, phonicsDone,
 } from '../../js/core/levels.js';
 import { newProfile } from '../../js/core/schema.js';
@@ -177,4 +177,38 @@ test('les réponses sont mélangées : toucher toujours le premier bouton ne suf
   const ctl = real.modules.find(m => m.isControle);
   const plans = [1, 2, 3].map(seed => planModule(ctl, p, { rand: seededRandom(seed), now: NOW }).map(q => q.options.map(o => o.id).join('|')).join('/'));
   assert.ok(new Set(plans).size > 1, 'l\'ordre des réponses change d\'une fois à l\'autre');
+});
+
+test('repère les réponses qui se prononcent pareil (le 🔊 n\'y aiderait pas)', () => {
+  for (const g of [['a', 'à'], ['et', 'est'], ['on', 'ont'], ['son', 'sont'], ['ou', 'où'], ['ce', 'se'], ['ces', 'ses'],
+    ['c’est', 's’est'], ['leur', 'leurs'], ['mangé', 'manger', 'mangez'], ['chanté', 'chantée', 'chantés'], ['chante', 'chantes', 'chantent']]) {
+    assert.equal(homophones(g), true, g.join('/'));
+  }
+  for (const g of [['lampe', 'pomme', 'plage'], ['pain', 'lait', 'sable'], ['sommes', 'est', 'êtes'], ['habite', 'habitera', 'habitait'], ['habite', 'habitait'], ['Moussa', 'Inès']]) {
+    assert.equal(homophones(g), false, g.join('/'));
+  }
+});
+
+test('plus la jauge monte, plus le niveau augmente : chaque seuil correspond à la maîtrise du niveau d\'avant', async () => {
+  const DATA = await import('../../js/data/levels.js');
+  const { ELO } = await import('../../js/core/elo.js');
+  const real = buildLevels(DATA);
+  const logit = x => Math.log(x / (1 - x));
+  for (let k = 1; k < real.levels.length; k++) {
+    const qs = real.modulesOf(real.levels[k - 1].id).flatMap(moduleQuestions);
+    const d = qs.reduce((sum, q) => sum + q.d, 0) / qs.length;
+    const g = qs.reduce((sum, q) => sum + q.guess, 0) / qs.length;
+    // Points affichés d'un enfant qui réussit 80 % du niveau d'avant (σ résiduel ≈ 0,1).
+    const mastery = ELO.offset + ELO.scale * (d + logit((0.8 - g) / (1 - g)) - 0.1);
+    const lv = real.levels[k];
+    assert.ok(Math.abs(lv.unlockElo - mastery) <= 100, `${lv.id} : seuil ${lv.unlockElo}, maîtrise du niveau d'avant ≈ ${Math.round(mastery)}`);
+  }
+  assert.ok(real.levels.every((lv, i) => i === 0 || lv.unlockElo > real.levels[i - 1].unlockElo), 'seuils croissants');
+});
+
+test('aucune question ne montre de phrase fautive à juger (« Quelle phrase est correcte ? »)', async () => {
+  const DATA = await import('../../js/data/levels.js');
+  const texts = DATA.MODULES.flatMap(m => m.items.flatMap(it => [it.text, ...(it.questions || []).map(q => q.text)])).filter(Boolean);
+  const bad = texts.filter(t => /(phrase|forme)s? (est|sont) (bien écrite|correcte|correctement)|bien orthographi/i.test(t));
+  assert.deepEqual(bad, []);
 });

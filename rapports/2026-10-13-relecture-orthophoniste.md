@@ -570,3 +570,18 @@ Recommandations (par ordre de priorité) :
 3. **Des procédés fiables, pas des indices de position** : « se » → on peut dire « me » ; « s’est » → verbe en « se » ; futur → infinitif + terminaison ; « leur » s'accorde avec le nom ; COI → « à qui ? ». Un enfant dyslexique applique la règle à la lettre : chaque intro doit donner un test qui marche pour tous les items du module et qui ne sera pas contredit au module suivant (ce/se puis c’est/s’est ; « avec être » puis verbes pronominaux).
 4. **Écrire pour l'oreille** : tout est lu par la synthèse. Épeler les lettres muettes (« e, n, t »), ne jamais nommer une lettre pour un son (« le son j »), pas de trou collé à une apostrophe, et un 🔊 qui distingue les homophones.
 5. **Une aide qui aide partout** : règle propre à chaque item dans les contrôles (T2), `explain` des items d'ordre enfin montrés (T4), phrase entière affichée au-dessus des mots à toucher (T6), répliques de théâtre sur des lignes séparées.
+
+---
+
+## 7. Suites données (13/10)
+
+- **T1** (bloquant) : réponses mélangées à chaque séance (modules, contrôles, révisions), test sur les données réelles.
+- **T2** : champ `rule` sur chaque item des 4 contrôles (67 règles) ; l'aide dit la règle **et l'affiche** à l'écran
+  (homophones : à l'oreille, « ces » et « ses » se confondent) ; pour une question sur un texte, la règle suit la lecture du texte.
+- **T3, T5** et les 57 constats des niveaux : appliqués dans `js/data/levels.js` (plus quelques traces voisines :
+  « verbes comme chanter » au lieu de « verbes en « er » », lettres épelées, futur = infinitif + fin).
+- **T4** : l'explication des mots à remettre dans l'ordre est montrée et lue après une hésitation. **T6** : la phrase
+  entière reste affichée au-dessus des mots à toucher. Répliques de théâtre : une ligne chacune (`white-space: pre-line`).
+- **§ 5.1** : garde de test « aucune phrase fautive à juger ». **§ 5.7** : le 🔊 est **masqué** quand les réponses se
+  prononcent pareil (a/à, et/est, son/sont, mangé/manger…, détection testée) plutôt que de dire une étiquette.
+- **§ 5.10** : seuils d'Élo recalés sur la difficulté réelle (voir le rapport de l'enseignant, « Calibrage »).

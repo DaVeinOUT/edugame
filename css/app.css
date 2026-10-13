@@ -339,7 +339,7 @@ body.u-space .feedback.ko { color: #fdba74; }
 .adv-intro, .adv-question { font-size: clamp(1.35rem, 5.6vw, 1.9rem); margin: 0; }
 .adv-passage {
   font-size: clamp(1.25rem, 5vw, 1.7rem); line-height: 1.6; margin: 0; padding: 12px 14px; border-radius: 18px;
-  background: rgba(124, 58, 237, .07);
+  background: rgba(124, 58, 237, .07); white-space: pre-line;   /* répliques, vers : une ligne chacun */
 }
 .adv-consigne { margin: 0; font-weight: 900; color: var(--muted); text-align: center; font-size: 1.15rem; }
 .gap-hole { display: inline-block; min-width: 3.2em; border-bottom: 4px solid var(--brand); margin: 0 .2em; text-align: center; }
@@ -474,6 +474,10 @@ body.reduced-motion *, body.reduced-motion *::before, body.reduced-motion *::aft
 @media (max-width: 380px) {
   .tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .choice { min-height: 104px; }
+  .choice.textopt { min-height: 64px; }
+  /* Petit téléphone : Kaya plus petite, la bulle plus large — « Jouer » reste visible sans défiler. */
+  .kaya-row .kaya { width: 72px; }
+  .kaya-row .bubble { font-size: 1rem; padding: 10px 14px; }
 }
 @media print {
   body { background: #fff !important; color: #000; }

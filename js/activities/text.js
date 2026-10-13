@@ -14,7 +14,7 @@
 import { h, sleep } from '../ui/dom.js';
 import { setMood } from '../ui/kaya.js';
 import { shuffle } from '../core/rng.js';
-import { PASS } from '../core/levels.js';
+import { PASS, homophones } from '../core/levels.js';
 import { choiceGrid, lock, mark, cheer, comfort, praise } from './common.js';
 
 const SKILL_ICON = {
@@ -52,12 +52,21 @@ function wordPicker(options) {
   return { el: h('div', { class: 'wpick-row', lang: 'fr' }, buttons), buttons, chosen };
 }
 
-/** Ce que dit l'aide : lire le texte, rappeler la règle, ou lire les réponses. */
+/** Ce que fait l'aide : lire le texte, rappeler la règle (dite ET affichée), ou lire les réponses. */
 function helpFor(q, api) {
-  if (q.type === 'text') return () => api.voice.seq(['Écoute le texte.', { pause: 250 }, { say: q.passage }]);
   // La règle propre à l'item (contrôles), sinon celle du module — jamais l'intro d'un contrôle.
   const rule = q.item?.rule || (!api.module?.isControle && api.module?.intro);
-  if (rule && (q.item?.rule || q.type === 'gap' || q.type === 'pick')) return () => api.voice.seq([rule]);
+  // Une règle se lit aussi : à l'oreille, « ces » et « ses » se confondent.
+  const show = () => { if (rule) api.feedback('', typo(rule)); };
+  if (q.type === 'text') {
+    const own = q.item?.rule;   // texte d'un module ordinaire : on relit le texte, sans règle générale
+    return () => {
+      if (own) api.feedback('', typo(own));
+      api.voice.seq(['Écoute le texte.', { pause: 250 }, { say: q.passage }, ...(own ? [{ pause: 400 }, own] : [])]);
+    };
+  }
+  const sameSound = q.type !== 'pick' && homophones(q.options.map(o => o.text));
+  if (rule && (q.item?.rule || q.type === 'gap' || q.type === 'pick' || sameSound)) return () => { show(); api.voice.seq([rule]); };
   return () => api.voice.seq(q.options.flatMap(o => [{ say: o.text }, { pause: 300 }]));
 }
 
@@ -83,8 +92,11 @@ async function runChoose(q, api) {
   let grid;
   if (q.type === 'pick') grid = wordPicker(q.options);
   else {
-    // Une réponse par ligne, pleine largeur : grandes cibles, texte aligné à gauche, 🔊 à droite.
-    grid = choiceGrid(q.options.map(o => ({ ...o, text: typo(o.text), say: o.text })), { kind: 'textopt', onHear: o => voice.say(o.say) });
+    // Une réponse par ligne, pleine largeur : grandes cibles, texte aligné à gauche, 🔊 à droite —
+    // sauf si les réponses se prononcent pareil (a / à…) : les entendre n'aiderait pas, et tromperait.
+    const sameSound = homophones(q.options.map(o => o.text));
+    grid = choiceGrid(q.options.map(o => ({ ...o, text: typo(o.text), say: o.text })),
+      { kind: 'textopt', onHear: sameSound ? null : o => voice.say(o.say) });
     grid.el.classList.add('one-col');
   }
   api.stage.replaceChildren(card, grid.el);
