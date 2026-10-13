@@ -15,6 +15,7 @@ const ITEMS = [
   'index.html', 'manifest.json', 'sw.js', 'LICENSE',
   'css', 'js', 'fonts', 'icons', 'audio',
   'confidentialite.html',           // politique de confidentialité publique (exigée par les deux magasins)
+  'guide.html',                     // guide de l'enseignant (imprimable, hors-ligne)
   '.well-known',                     // assetlinks.json (TWA) : seulement si le site a son propre domaine
   'CNAME',                           // domaine personnalisé GitHub Pages
 ];

@@ -228,3 +228,15 @@ test('vue de la classe : accessible, et le tableur exporté est lisible', async 
   assert.deepEqual(problems, []);
   await context.close();
 });
+
+test('pages publiques (guide de l\'enseignant, confidentialité) : accessibles', async () => {
+  const { context, page } = await open();
+  const problems = [];
+  for (const [file, label] of [['guide.html', 'guide'], ['confidentialite.html', 'confidentialité']]) {
+    await page.goto(url + file);
+    await page.waitForSelector('h1');
+    problems.push(...await audit(page, label));
+  }
+  assert.deepEqual(problems, []);
+  await context.close();
+});
