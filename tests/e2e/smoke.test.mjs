@@ -301,3 +301,33 @@ test('les révisions des niveaux reprennent un module déjà travaillé', async 
   assert.deepEqual(errors, []);
   await context.close();
 });
+
+test('au clavier seul (ou au contacteur), on joue une leçon', async () => {
+  const { context, page, errors } = await open();
+  await createChild(page, 'Tom');
+  await page.focus('.btn-play');
+  await page.keyboard.press('Enter');
+  await page.waitForSelector('text=C\'est parti');
+  assert.equal(await page.evaluate(() => document.activeElement?.textContent.includes('C\'est parti')), true, 'le bouton de départ a le focus');
+  await page.keyboard.press('Enter');
+  let answered = 0;
+  for (let k = 0; k < 120 && answered < 4; k++) {
+    const kind = await page.evaluate(() => {
+      const a = document.activeElement;
+      if (!a) return 'none';
+      if (a.matches('button[aria-label="Continuer"]')) return 'continue';
+      if (a.matches('.choice:not([disabled]), .gtile:not(.used)')) return 'answer';
+      return 'other';
+    });
+    if (kind === 'continue' || kind === 'answer') {
+      await page.keyboard.press('Enter');
+      if (kind === 'answer') answered = await page.$$eval('.dots i.ok, .dots i.ko', d => d.length);
+      await page.waitForTimeout(300);
+    } else {
+      await page.keyboard.press('Tab');
+    }
+  }
+  assert.ok(answered >= 4, `réponses données au clavier : ${answered}`);
+  assert.deepEqual(errors, []);
+  await context.close();
+});

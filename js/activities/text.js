@@ -204,6 +204,7 @@ export function runModuleIntro(m, level, api, { total = 10 } = {}) {
     h('p', { class: 'read adv-intro', lang: 'fr' }, typo(say)));
   const go = h('button', { class: 'btn btn-primary btn-block', type: 'button', 'data-autofocus': true }, 'C\'est parti ! ▶');
   api.stage.replaceChildren(card, go);
+  go.focus({ preventScroll: true });
   api.setReplay(() => voice.seq([say]));
   api.setHelp(null);
   voice.seq([say]);

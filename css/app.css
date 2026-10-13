@@ -63,6 +63,7 @@ button { font: inherit; color: inherit; }
 .screen { flex: 1; display: flex; flex-direction: column; gap: 16px; outline: none; animation: screenIn .3s ease both; }
 @keyframes screenIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
 :focus-visible { outline: 4px solid var(--gold); outline-offset: 3px; border-radius: 12px; }
+.stage:focus { outline: none; }   /* le focus y est posé à chaque question ; l'anneau suit ensuite les réponses */
 h1, .h1 { font-size: 1.7rem; font-weight: 900; line-height: 1.2; }
 h2, .h2 { font-size: 1.3rem; font-weight: 900; line-height: 1.25; }
 h3 { font-size: 1.1rem; font-weight: 900; }

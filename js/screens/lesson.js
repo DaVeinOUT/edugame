@@ -99,7 +99,7 @@ export const lesson = {
     const kaya = kayaEl({ size: 'tiny' });
     const dots = h('div', { class: 'dots', 'aria-hidden': 'true' }, items.map(() => h('i')));
     const quitBtn = h('button', { class: 'icon-btn', type: 'button', 'aria-label': 'Arrêter', onclick: () => quit() }, '✕');
-    const stage = h('div', { class: 'stage', 'aria-live': 'off' });
+    const stage = h('div', { class: 'stage', 'aria-live': 'off', tabindex: '-1' });
     const fb = h('div', { class: 'feedback', role: 'status' });
     const replayBtn = h('button', { class: 'icon-btn big', type: 'button', 'aria-label': 'Réécouter la consigne', hidden: true }, '🔊');
     const helpBtn = h('button', { class: 'btn btn-soft help-btn', type: 'button', 'aria-label': 'Aide de Kaya', hidden: true }, '💡 Aide');
@@ -178,8 +178,10 @@ export const lesson = {
         const q = mode === 'module' || mode === 'review' ? items[i] : makeQuestion(items[i], cur, { rand, age: api.age, open: api.open });
         if (q.kind === 'adv') api.module = L.module(q.module);   // l'aide rappelle la règle du bon module
         api.onAnswer = res => { if (alive) commit(i, q, res); };
-        const res = q.kind === 'adv' ? await runText(q, api)
-          : q.kind === 'build' ? await runBuild(q, api) : await runChoice(q, api);
+        const pending = q.kind === 'adv' ? runText(q, api)
+          : q.kind === 'build' ? runBuild(q, api) : runChoice(q, api);
+        stage.focus({ preventScroll: true });   // clavier, contacteur : la tabulation suivante mène aux réponses
+        const res = await pending;
         if (!alive) return;
         commit(i, q, res);
         if (!breakOffered && clock.ms() > BREAK_AFTER_MS && i < items.length - 2) {

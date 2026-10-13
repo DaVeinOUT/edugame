@@ -10,7 +10,7 @@
    ============================================================ */
 
 /* <release> — généré par scripts/release.mjs, ne pas éditer à la main */
-const CACHE_NAME = 'educa-9b2f77a5a3';
+const CACHE_NAME = 'educa-b0857b0a23';
 const ASSETS = [
   './',
   './audio/mots/a-2.mp3',
