@@ -1,15 +1,21 @@
 {
-  "name": "EDUCA — Apprendre en Jouant",
-  "short_name": "EDUCA",
-  "description": "Une école complète dans la poche — gratuite, sans honte, pour chaque enfant du monde.",
   "id": "./",
+  "name": "EDUCA — Apprendre à lire avec Kaya",
+  "short_name": "EDUCA",
+  "description": "Apprendre à lire en français en jouant avec Kaya, le bébé jaguar. Gratuit, hors-ligne, aucune donnée ne quitte l'appareil.",
+  "lang": "fr",
+  "dir": "ltr",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
+  "orientation": "any",
   "background_color": "#0F172A",
-  "theme_color": "#7C3AED",
-  "orientation": "portrait",
-  "lang": "fr",
+  "theme_color": "#15803d",
+  "categories": [
+    "education",
+    "kids"
+  ],
+  "prefer_related_applications": false,
   "icons": [
     {
       "src": "icons/icon.svg",
@@ -27,7 +33,13 @@
       "src": "icons/icon-512.png",
       "sizes": "512x512",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
+    },
+    {
+      "src": "icons/icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
     }
   ]
 }

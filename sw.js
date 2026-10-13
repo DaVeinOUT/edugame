@@ -10,7 +10,7 @@
    ============================================================ */
 
 /* <release> — généré par scripts/release.mjs, ne pas éditer à la main */
-const CACHE_NAME = 'educa-b635d37694';
+const CACHE_NAME = 'educa-f1197d1620';
 const ASSETS = [
   './',
   './audio/mots/a-2.mp3',
@@ -281,6 +281,7 @@ const ASSETS = [
   './audio/mots/vous.mp3',
   './audio/mots/zebre.mp3',
   './audio/mots/zero.mp3',
+  './confidentialite.html',
   './css/app.css',
   './css/cards.css',
   './css/fonts.css',
@@ -292,8 +293,10 @@ const ASSETS = [
   './fonts/orbitron-700.woff2',
   './fonts/rajdhani-500.woff2',
   './fonts/rajdhani-700.woff2',
+  './icons/apple-touch-icon.png',
   './icons/icon-192.png',
   './icons/icon-512.png',
+  './icons/icon-maskable-512.png',
   './icons/icon.svg',
   './index.html',
   './js/activities/build.js',

@@ -326,7 +326,8 @@ function helpTab() {
     section('Les niveaux des grands (CE1 → 3e)',
       h('p', null, 'Après le chemin des sons : comprendre, orthographe, grammaire, conjugaison, vocabulaire, d\'après les programmes officiels en vigueur. Chaque niveau se termine par un contrôle (70 % de réussite), qui se retente à volonté. Dès 10 ans, le contrôle d\'un niveau est proposé d\'abord : un enfant qui sait déjà monte tout de suite.')),
     section('Crédits',
-      h('p', null, 'Voix des mots : enregistrements de Poslovitch sur Lingua Libre (Wikimédia France), domaine public (CC0). Polices : Andika (SIL), OpenDyslexic, Nunito (licence OFL). Le jeu ne télécharge rien pendant qu\'on joue : tout est sur l\'appareil.')),
+      h('p', null, 'Voix des mots : enregistrements de Poslovitch sur Lingua Libre (Wikimédia France), domaine public (CC0). Polices : Andika (SIL), OpenDyslexic, Nunito (licence OFL). Le jeu ne télécharge rien pendant qu\'on joue : tout est sur l\'appareil.'),
+      h('p', null, h('a', { href: 'confidentialite.html', target: '_blank', rel: 'noopener' }, 'Politique de confidentialité'))),
   ];
 }
 

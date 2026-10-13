@@ -24,7 +24,9 @@ Aucune de ces données n'est transmise. Les fichiers d'export sont créés par l
 
 ## La voix de Kaya
 
-Kaya parle avec la **synthèse vocale de l'appareil**. EDUCA choisit en priorité une **voix locale**.
+Les **mots du jeu** sont dits par une vraie voix humaine : des enregistrements libres (Lingua Libre, domaine
+public) **livrés avec le jeu** et lus sur l'appareil, sans aucune requête réseau.
+Pour le reste, Kaya parle avec la **synthèse vocale de l'appareil**. EDUCA choisit en priorité une **voix locale**.
 Certaines voix « en ligne » (par exemple « Google français » dans Chrome sur ordinateur) envoient le texte
 à prononcer — qui peut contenir le prénom — au service de l'éditeur : EDUCA ne les utilise que s'il
 n'existe aucune voix française locale. Pour l'éviter complètement : installer une voix française locale
