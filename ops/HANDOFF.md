@@ -1,5 +1,4 @@
 # HANDOFF — état du chantier EDUCA (10 lignes max)
-
 - **Chantier « EDUCA v2 »** (carte blanche de Dave), branche `educa-v2` (rien poussé, `gh` non connecté). v1 retirée du code (reste dans l'historique git).
 - **Jouable de bout en bout** : `index.html` (CSP stricte) → `js/main.js` ; écrans `js/screens/` (profils, accueil « Jouer », chemin 66 sons, leçon, positionnement dès 7 ans, **niveaux CE1→3e** avec contrôles et contrôle d'entrée dès 10 ans, collection + diplômes, échelle d'échecs reliée aux niveaux, jeux libres, tracé, espace des grands).
 - **Moteur pur testé** `js/core/` : seg, elo, srs, select, session (+ plafond, temps actif), placement, levels, schema (profils bornés), time (jour local).
