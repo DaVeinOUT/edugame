@@ -4,7 +4,7 @@ import { existsSync } from 'node:fs';
 import * as CUR from '../../js/data/curriculum.js';
 import { buildCurriculum } from '../../js/core/curriculum.js';
 import {
-  buildLevels, openLevels, moduleOpen, nextModule, moduleQuestions, planModule, finishModule,
+  buildLevels, openLevels, moduleOpen, nextModule, moduleQuestions, planModule, finishModule, planReview, dueReviews,
   itemDifficulty, tokens, phonicsDone,
 } from '../../js/core/levels.js';
 import { newProfile } from '../../js/core/schema.js';
@@ -143,4 +143,16 @@ test('les données réelles des niveaux (si présentes) sont bien formées', asy
       assert.ok(!/\b(faux|raté|mauvais|nul)\b/i.test(q.explain), `retour négatif ${where}`);
     }
   }
+});
+
+test('les révisions des niveaux reprennent les modules travaillés (jamais le contrôle), au bon moment', () => {
+  const fresh = withPath({ advanced: true });
+  assert.deepEqual(planReview(L, fresh, { rand: seededRandom(1), now: NOW }), [], 'rien à réviser avant le premier module');
+  const done = withPath({ advanced: true, adv: { modules: { 'n3-a': { stars: 2, tries: 1 }, 'n3-controle': { stars: 1, tries: 1 } }, controles: {} } });
+  const plan = planReview(L, done, { rand: seededRandom(2), now: NOW });
+  assert.ok(plan.length > 0 && plan.every(q => q.module === 'n3-a'), 'seulement le module travaillé');
+  const key = moduleQuestions(L.module('n3-a'))[0].key;
+  const mem = { [key]: { b: 2, due: NOW - 1000, s: 1, k: 1, last: NOW - 700000 } };
+  assert.equal(dueReviews(L, { ...done, mem }, NOW), 1);
+  assert.equal(dueReviews(L, { ...done, mem }, NOW - 2000), 0, 'pas encore dû');
 });

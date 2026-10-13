@@ -12,7 +12,7 @@ import { eloBadge } from '../ui/elo.js';
 import { toast } from '../ui/fx.js';
 import { display } from '../core/elo.js';
 import { isDue } from '../core/srs.js';
-import { phonicsDone, nextModule, openLevels, moduleRecord } from '../core/levels.js';
+import { phonicsDone, nextModule, openLevels, moduleRecord, dueReviews } from '../core/levels.js';
 import { captionOf } from '../services/voice.js';
 
 const greeted = new Set();   // une salutation par enfant et par ouverture de l'app
@@ -23,6 +23,10 @@ const REST_SAY = 'On a bien travaillé aujourd\'hui ! Kaya se repose. À demain 
 export function nextActivity(profile, cur, now = Date.now(), L = null) {
   // Chemin des sons fini (ou déjà su d'après le positionnement) : on monte de niveau en niveau.
   if (L?.levels.length && phonicsDone(profile, cur)) {
+    // Beaucoup de choses à revoir après un module : on révise d'abord (répétition espacée).
+    if (profile.path.lastKind === 'module' && dueReviews(L, profile, now) >= 8) {
+      return { mode: 'review', label: 'Révisions', parts: ['On révise un peu ce que tu as appris dans les niveaux ? Touche le gros bouton !'] };
+    }
     const m = nextModule(L, profile, cur, display(profile.elo));
     if (m?.isControle) {
       const { grade } = L.level(m.level);

@@ -19,7 +19,7 @@ import { choiceGrid, lock, mark, cheer, comfort, praise } from './common.js';
 
 const SKILL_ICON = {
   lecture: '📖', comprehension: '🧠', orthographe: '✏️', grammaire: '🧩',
-  conjugaison: '⏰', vocabulaire: '💬', controle: '🏁',
+  conjugaison: '⏰', vocabulaire: '💬', controle: '🏁', revision: '🔁',
 };
 
 export const skillIcon = skill => SKILL_ICON[skill] || '📘';

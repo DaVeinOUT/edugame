@@ -260,3 +260,44 @@ test('les mots du jeu sont dits par une vraie voix humaine (fichier enregistré)
   assert.deepEqual(errors, []);
   await context.close();
 });
+
+/* Répond à tout (tuiles, mots, choix ; « Continuer » après une correction) jusqu'au bilan. */
+async function playUntilResults(page, ms = 150000) {
+  const deadline = Date.now() + ms;
+  while (Date.now() < deadline && !(await page.$('.elo-panel'))) {
+    const target = await page.$('.gtile.hint') || await page.$('.gtile:not(.used)')
+      || await page.$('.wpick:not([disabled])') || await page.$('.choice:not([disabled])');
+    if (target) await target.click({ force: true });
+    const cont = await page.$('button[aria-label="Continuer"]:not([hidden])');
+    if (cont) await cont.click({ force: true });
+    await page.waitForTimeout(200);
+  }
+  return !!(await page.$('.elo-panel'));
+}
+
+test('les révisions des niveaux reprennent un module déjà travaillé', async () => {
+  const { context, page, errors } = await open();
+  await page.goto(url);
+  await page.evaluate(() => {
+    const now = Date.now();
+    const id = 'pgrand002';
+    localStorage.setItem('educa2:device', JSON.stringify({
+      schema: 2, createdAt: now, voice: null, muted: false, activeId: id, order: [id], classStep: null, dailyMinutes: 0, errors: [],
+    }));
+    localStorage.setItem(`educa2:p:${id}`, JSON.stringify({
+      id, createdAt: now, name: 'Yanis', avatar: '🐼', age: '10-12', universe: 'jungle',
+      path: { open: 65, stars: {}, placed: true, advanced: true, adv: { modules: { 'n3-comprendre': { stars: 1, tries: 1 } }, controles: {} } },
+    }));
+  });
+  await page.reload();
+  await page.waitForSelector('.btn-play');
+  await page.click('.tile:has-text("Jeux")');
+  await page.click('.tile:has-text("Niveaux")');
+  await page.click('text=C\'est parti');
+  assert.ok(await playUntilResults(page), 'le bilan des révisions doit s\'afficher');
+  const p = await page.evaluate(() => JSON.parse(localStorage.getItem('educa2:p:pgrand002')));
+  assert.ok(Object.keys(p.mem).every(k => k.startsWith('adv:n3-comprendre:')), 'seulement le module travaillé');
+  assert.equal(p.path.lastKind, 'review');
+  assert.deepEqual(errors, []);
+  await context.close();
+});

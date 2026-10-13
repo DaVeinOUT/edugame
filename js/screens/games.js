@@ -15,12 +15,17 @@ const GAMES = [
   { ico: '🧱', label: 'Écrire', say: 'Écrire des mots avec les tuiles', go: r => r.go('lesson', { mode: 'practice', kinds: ['build'] }) },
 ];
 
+const LEVELS_REVIEW = { id: 'review', ico: '📚', label: 'Niveaux', say: 'Réviser les niveaux des grands', go: r => r.go('lesson', { mode: 'review' }) };
+
 export const games = {
   mount(view, params, ctx) {
     const { voice, sfx, router } = ctx;
     // Avec un lecteur d'écran, tracer au doigt une lettre qu'on ne voit pas n'a pas de sens.
     const screenReader = !!ctx.profile()?.comfort?.screenReader;
-    const list = screenReader ? GAMES.filter(g => g.id !== 'trace') : GAMES;
+    const base = screenReader ? GAMES.filter(g => g.id !== 'trace') : GAMES;
+    // Un module des niveaux déjà travaillé : on peut aussi le réviser librement.
+    const didModule = Object.keys(ctx.profile()?.path.adv?.modules || {}).length > 0;
+    const list = didModule ? [...base, LEVELS_REVIEW] : base;
     view.append(
       h('div', { class: 'topbar' },
         h('button', { class: 'icon-btn', type: 'button', 'aria-label': 'Retour', onclick: () => router.back() }, '←'),

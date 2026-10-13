@@ -17,6 +17,7 @@
 import { systemRandom } from './rng.js';
 import { selectItems } from './select.js';
 import { finishSession, starsFor } from './session.js';
+import { isDue } from './srs.js';
 
 export const PASS = 0.7;
 export const MIN_PHONICS_STEP = 44;
@@ -158,6 +159,25 @@ export function planModule(m, profile, { rand = systemRandom, now = Date.now(), 
   if (m.isControle || all.length <= n) return all;
   const chosen = new Set(selectItems(all, { elo: profile.elo, mem: profile.mem, now, n, rand }).map(q => q.key));
   return all.filter(q => chosen.has(q.key));
+}
+
+/* Questions des modules déjà travaillés (les contrôles restent une vraie épreuve, jamais révisée). */
+function reviewQuestions(L, profile) {
+  const a = adv(profile);
+  return L.modules.filter(m => !m.isControle && a.modules[m.id]).flatMap(moduleQuestions);
+}
+
+/**
+ * Révisions des niveaux : ce qui est dû d'abord (répétition espacée), à la bonne difficulté.
+ * Ce qui a été appris dans un module revient au bon moment au lieu d'être oublié.
+ */
+export function planReview(L, profile, { rand = systemRandom, now = Date.now(), n = PER_SESSION } = {}) {
+  return selectItems(reviewQuestions(L, profile), { elo: profile.elo, mem: profile.mem, now, n, rand });
+}
+
+/** Nombre de questions des niveaux à revoir maintenant. */
+export function dueReviews(L, profile, now = Date.now()) {
+  return reviewQuestions(L, profile).filter(q => profile.mem[q.key]?.b > 0 && isDue(profile.mem[q.key], now)).length;
 }
 
 /**
