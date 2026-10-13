@@ -48,6 +48,17 @@ test('le retard se mesure pour prioriser les révisions', () => {
   assert.ok(overdue(r, NOW + DAY) > 0);
 });
 
+test('répéter un son dans la même séance ne le fait pas passer pour maîtrisé', () => {
+  let r = review(undefined, 'ok', NOW);          // boîte 2, revu dans 10 min
+  r = review(r, 'ok', NOW + 60000);
+  r = review(r, 'ok', NOW + 120000);
+  assert.equal(r.b, 2, 'pas de promotion avant l\'échéance');
+  assert.deepEqual([r.s, r.k], [3, 3], 'les réponses sont tout de même comptées');
+  assert.equal(review(r, 'help', NOW + 180000).b, 1, 'l\'aide compte toujours');
+  assert.equal(review(r, 'ko', NOW + 180000).b, 1, 'une erreur compte toujours');
+  assert.equal(review(r, 'ok', r.due).b, 3, 'à l\'échéance, on monte');
+});
+
 test('review ne modifie pas l\'enregistrement reçu', () => {
   const r = Object.freeze(review(undefined, 'ok', NOW));
   const r2 = review(r, 'ok', NOW + DAY);

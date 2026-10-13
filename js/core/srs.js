@@ -40,6 +40,11 @@ export function emptyRecord() {
  */
 export function review(rec, outcome, now = Date.now()) {
   const r = rec || emptyRecord();
+  // Réussi avant l'échéance (même séance) : on compte, sans monter de boîte —
+  // sinon un son revu 4 fois en 5 minutes passerait pour « maîtrisé ».
+  if (outcome === 'ok' && r.b > 0 && r.due > now) {
+    return { ...r, s: r.s + 1, k: r.k + 1, last: now };
+  }
   let b;
   if (outcome === 'ok') {
     // Une première réponse juste peut être un coup de chance (QCM) :

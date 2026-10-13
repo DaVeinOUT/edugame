@@ -105,10 +105,11 @@ test('contrôle réussi : niveau suivant ouvert et diplôme ; les étoiles ne ba
   assert.ok(r2.profile.path.adv.modules['n3-controle'].stars >= r.profile.path.adv.modules['n3-controle'].stars);
 });
 
-test('les données réelles des niveaux (si présentes) sont bien formées', async () => {
+test('les données réelles des niveaux (si présentes) sont bien formées', async t => {
   const file = new URL('../../js/data/levels.js', import.meta.url);
   if (!existsSync(file)) return;
   const DATA = await import(file.href);
+  if (!DATA.LEVELS?.length) { t.skip('niveaux pas encore écrits'); return; }
   const real = buildLevels(DATA);
   assert.ok(real.levels.length >= 1);
   for (const lv of real.levels) assert.ok(real.modulesOf(lv.id).some(m => m.isControle), `contrôle manquant : ${lv.id}`);

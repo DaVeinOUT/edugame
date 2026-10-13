@@ -92,6 +92,9 @@ else {
 document.getElementById('boot')?.remove();
 
 if ('serviceWorker' in navigator && location.protocol !== 'file:') {
+  // Première installation : le SW prend la main sans qu'il faille recharger
+  // (sinon la page se rechargerait toute seule pendant la création du profil).
+  const hadController = !!navigator.serviceWorker.controller;
   navigator.serviceWorker.register('sw.js').then(reg => {
     const offer = w => { ctx.pendingUpdate = w; ctx.offerUpdate(); };
     if (reg.waiting && navigator.serviceWorker.controller) offer(reg.waiting);
@@ -104,7 +107,7 @@ if ('serviceWorker' in navigator && location.protocol !== 'file:') {
   }).catch(() => { /* hors-ligne impossible : le jeu marche quand même en ligne */ });
   let reloading = false;
   navigator.serviceWorker.addEventListener('controllerchange', () => {
-    if (reloading) return;
+    if (reloading || !hadController) return;
     reloading = true;
     store.flush();
     location.reload();

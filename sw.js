@@ -10,7 +10,7 @@
    ============================================================ */
 
 /* <release> — généré par scripts/release.mjs, ne pas éditer à la main */
-const CACHE_NAME = 'educa-26fc5c2bcc';
+const CACHE_NAME = 'educa-0c608ed58f';
 const ASSETS = [
   './',
   './css/app.css',
@@ -35,6 +35,7 @@ const ASSETS = [
   './js/activities/trace.js',
   './js/core/curriculum.js',
   './js/core/elo.js',
+  './js/core/levels.js',
   './js/core/placement.js',
   './js/core/questions.js',
   './js/core/rng.js',
@@ -44,6 +45,7 @@ const ASSETS = [
   './js/core/session.js',
   './js/core/srs.js',
   './js/data/curriculum.js',
+  './js/data/levels.js',
   './js/data/sounds.js',
   './js/main.js',
   './js/nomodule.js',
@@ -80,7 +82,8 @@ const ASSETS = [
 /* </release> */
 
 self.addEventListener('install', event => {
-  event.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(ASSETS)));
+  // cache: 'reload' : jamais de fichier périmé du cache HTTP rangé sous le nouveau nom.
+  event.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(ASSETS.map(u => new Request(u, { cache: 'reload' })))));
 });
 
 self.addEventListener('activate', event => {

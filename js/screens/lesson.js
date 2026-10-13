@@ -52,6 +52,7 @@ export const lesson = {
 
     let alive = true;
     let finished = false;
+    let breakOffered = false;
     const results = [];
     const t0 = Date.now();
 
@@ -129,7 +130,8 @@ export const lesson = {
         results.push(res);
         ctx.update(p => applyAnswer(p, q, res, Date.now()));
         setDot(i, res.outcome === 'ok' ? 'ok' : 'ko');
-        if (Date.now() - t0 > BREAK_AFTER_MS && i < items.length - 2) {
+        if (!breakOffered && Date.now() - t0 > BREAK_AFTER_MS && i < items.length - 2) {
+          breakOffered = true;   // proposée une seule fois par leçon
           if (await askBreak()) break;
           if (!alive) return;
         }

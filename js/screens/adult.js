@@ -335,6 +335,7 @@ export const adult = {
         h('h1', { class: 'title' }, 'Espace des grands')),
       tabs, who, body,   // append() ignore « who » quand il n'y a qu'un enfant
     ]);
-    return undefined;
+    // En quittant l'espace des grands (pas en changeant d'onglet), on reverrouille.
+    return () => setTimeout(() => { if (router.current !== 'adult') unlockedUntil = 0; }, 0);
   },
 };
