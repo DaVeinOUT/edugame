@@ -206,6 +206,8 @@ body.u-space .bar { background: rgba(255, 255, 255, .18); }
 .ladder li.reached { opacity: 1; }
 .ladder li.current { border-color: var(--gold); box-shadow: 0 0 0 4px rgba(245, 158, 11, .25); opacity: 1; }
 .ladder .ladder-name { font-weight: 900; font-size: 1.15rem; }
+.ladder .ladder-level { font-weight: 800; font-size: .95rem; color: var(--brand); }
+body.u-space .ladder .ladder-level { color: #c4b5fd; }
 
 /* === FENÊTRES (cartes, promotion, confirmations) === */
 .overlay {

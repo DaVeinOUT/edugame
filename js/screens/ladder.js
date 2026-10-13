@@ -2,7 +2,8 @@
    SCREENS/LADDER.JS — « Ta force de lecture » expliquée à l'enfant
    Comme aux échecs : chaque exercice est un adversaire, réussir fait
    grandir la force. Elle ne baisse JAMAIS. L'échelle montre les
-   pièces à conquérir, du pion au roi.
+   pièces à conquérir, du pion au grand maître, et les niveaux des
+   grands que la force ouvre en montant.
    ============================================================ */
 
 import { h } from '../ui/dom.js';
@@ -26,7 +27,7 @@ export const ladder = {
         h('div', { class: 'grow stack' }, h('span', { class: 'num' }, String(pts)), h('div', { class: 'bar' }, fill),
           h('span', { class: 'muted' }, next ? `Prochaine pièce : ${next.name} (${next.min})` : 'Tu es tout en haut !'))),
       h('p', { class: 'panel' }, 'Comme aux échecs, chaque exercice est un adversaire. Quand tu réussis, ta force grandit. Elle ne baisse jamais !'),
-      ladderEl(pts));
+      ladderEl(pts, ctx.levels.levels));
     voice.seq(['Comme aux échecs, chaque exercice est un adversaire. Quand tu réussis, ta force de lecture grandit.',
       'Et elle ne baisse jamais !', eloSentence(pts)]);
     return () => voice.stop();

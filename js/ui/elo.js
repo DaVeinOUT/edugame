@@ -61,11 +61,24 @@ export function eloPanel({ before, after, gained }) {
 }
 
 /** L'échelle des pièces (écran d'explication pour l'enfant). */
-export function ladder(points) {
+/**
+ * L'échelle des pièces ; les niveaux des grands s'y accrochent à leur seuil
+ * (« plus la jauge monte, plus le niveau augmente »).
+ * @param {number} points
+ * @param {{ grade: string, unlockElo: number }[]} [levels]
+ */
+export function ladder(points, levels = []) {
   const { rank } = titleFor(points);
-  return h('ul', { class: 'ladder' }, TITLES.map((t, i) => h('li', {
-    class: [i <= rank ? 'reached' : '', i === rank ? 'current' : ''].join(' ').trim(),
-  }, piece(t.icon, 'big'), h('div', null, h('div', { class: 'ladder-name' }, t.name), h('div', { class: 'muted' }, i ? `à partir de ${t.min}` : 'le départ')))));
+  return h('ul', { class: 'ladder' }, TITLES.map((t, i) => {
+    const upTo = TITLES[i + 1]?.min ?? Infinity;
+    const opens = levels.filter(l => l.unlockElo >= t.min && l.unlockElo < upTo);
+    return h('li', { class: [i <= rank ? 'reached' : '', i === rank ? 'current' : ''].join(' ').trim() },
+      piece(t.icon, 'big'),
+      h('div', null,
+        h('div', { class: 'ladder-name' }, t.name),
+        h('div', { class: 'muted' }, i ? `à partir de ${t.min}` : 'le départ'),
+        opens.map(l => h('div', { class: 'ladder-level' }, `📚 ${l.unlockElo} : le niveau ${l.grade} s'ouvre`))));
+  }));
 }
 
 /**
