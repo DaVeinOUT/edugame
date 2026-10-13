@@ -36,3 +36,9 @@
 4. Application mobile : préparer la publication (TWA Android, iOS…).
 5. Créer un agent enseignant CP → 3e (+ orthophoniste) pour relire et rendre les cours « impeccables » : fait (`.claude/agents/educa-enseignant.md`, `educa-orthophoniste.md`).
 6. À chaque limite d'usage : sauvegarder (commit + HANDOFF) puis reprendre jusqu'à un site impeccable.
+
+## 2026-10-13 (reprise après limite) — revue corrigée, niveaux jouables
+- Les 15 constats de la revue de code sont corrigés (commits 1ed7fed, 608413e) : SRS, profils bornés, CSP blob, temps actif/jour local, plafond partout, réponses enregistrées tout de suite, tracé accessible, SW.
+- Niveaux des grands jouables (857cab3) : écran « Les niveaux », mode module dans la leçon, exercices `text.js`, contrôles, diplômes, progression dans l'espace des grands ; « Jouer » propose le module suivant une fois le chemin acquis.
+- Revue visuelle (captures) : réponses-phrases sur une colonne (le 🔊 recouvrait la réponse), marge basse pour les sous-titres.
+- Agents relancés après la limite : enseignant (niveaux, écrit au fil de l'eau) et recherche voix/mobile.

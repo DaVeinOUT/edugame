@@ -56,7 +56,8 @@ button { font: inherit; color: inherit; }
 .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 #app {
   max-width: 760px; margin: 0 auto; min-height: 100vh; min-height: 100dvh; display: flex; flex-direction: column;
-  padding: max(12px, env(safe-area-inset-top)) 16px calc(96px + env(safe-area-inset-bottom));
+  /* bas : place pour les sous-titres de Kaya (jusqu'à 3 lignes) au-dessus des boutons */
+  padding: max(12px, env(safe-area-inset-top)) 16px calc(120px + env(safe-area-inset-bottom));
 }
 .boot { position: fixed; inset: 0; display: grid; place-items: center; font-weight: 900; font-size: 1.3rem; }
 .screen { flex: 1; display: flex; flex-direction: column; gap: 16px; outline: none; animation: screenIn .3s ease both; }
@@ -331,6 +332,7 @@ body.u-space .feedback.ko { color: #fdba74; }
 /* Niveaux des grands : texte à lire, phrase à trou, mot à toucher, mots à remettre dans l'ordre */
 .adv-card { align-items: stretch; text-align: left; gap: 14px; }
 .adv-title { margin: 0; text-align: center; }
+.adv-card > .big-emoji { align-self: center; }
 .adv-intro, .adv-question { font-size: clamp(1.35rem, 5.6vw, 1.9rem); margin: 0; }
 .adv-passage {
   font-size: clamp(1.25rem, 5vw, 1.7rem); line-height: 1.6; margin: 0; padding: 12px 14px; border-radius: 18px;
