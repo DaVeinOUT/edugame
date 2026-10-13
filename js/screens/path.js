@@ -45,6 +45,11 @@ export const path = {
       list.append(node);
     });
 
+    // Au bout du chemin : les niveaux des grands (CE1 → 3e).
+    if (ctx.levels.levels.length) {
+      list.append(h('div', { class: 'path-label' }, 'Après le chemin'),
+        h('button', { type: 'button', class: 'btn btn-gold', onclick: () => { sfx.tap(); router.go('levels'); } }, '📚 Les niveaux des grands'));
+    }
     view.append(
       h('div', { class: 'topbar' },
         h('button', { class: 'icon-btn', type: 'button', 'aria-label': 'Retour', onclick: () => router.back() }, '←'),

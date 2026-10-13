@@ -15,16 +15,19 @@ import { applyTheme } from './ui/theme.js';
 import { toast } from './ui/fx.js';
 import * as DATA from './data/curriculum.js';
 import { SOUND_FILES } from './data/sounds.js';
+import * as LEVEL_DATA from './data/levels.js';
 import { buildCurriculum } from './core/curriculum.js';
 import { restedToday } from './core/session.js';
+import { buildLevels } from './core/levels.js';
 import { screens } from './screens/index.js';
 
 const cur = buildCurriculum(DATA);
+const levels = buildLevels(LEVEL_DATA);   // les niveaux des grands, CE1 → 3e
 const store = createStore({ maxStep: cur.steps.length - 1 });
 const boot = store.load();
 
 const ctx = {
-  store, voice, sfx, cur,
+  store, voice, sfx, cur, levels,
   router: null,
   pendingUpdate: null,
   /** Profil de l'enfant qui joue. */

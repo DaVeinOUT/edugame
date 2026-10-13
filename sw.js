@@ -10,7 +10,7 @@
    ============================================================ */
 
 /* <release> — généré par scripts/release.mjs, ne pas éditer à la main */
-const CACHE_NAME = 'educa-ec13217c05';
+const CACHE_NAME = 'educa-571c2e44c6';
 const ASSETS = [
   './',
   './css/app.css',
@@ -32,6 +32,7 @@ const ASSETS = [
   './js/activities/choice.js',
   './js/activities/common.js',
   './js/activities/intro.js',
+  './js/activities/text.js',
   './js/activities/trace.js',
   './js/core/curriculum.js',
   './js/core/elo.js',
@@ -57,6 +58,7 @@ const ASSETS = [
   './js/screens/index.js',
   './js/screens/ladder.js',
   './js/screens/lesson.js',
+  './js/screens/levels.js',
   './js/screens/path.js',
   './js/screens/placement.js',
   './js/screens/profiles.js',

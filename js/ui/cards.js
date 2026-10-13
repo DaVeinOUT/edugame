@@ -4,7 +4,8 @@
    • une carte « son » par étape réussie du chemin (40) ;
    • des cartes d'exploit (première leçon, série, régularité,
      sans faute, persévérance, chemin complet) ;
-   • une carte de titre à chaque promotion d'échecs.
+   • une carte de titre à chaque promotion d'échecs ;
+   • un diplôme par contrôle de niveau réussi (CE1 → 3e).
    La révélation est en 3D : la carte suit le doigt ou l'inclinaison
    du téléphone, et son reflet holographique glisse dessus.
    ============================================================ */
@@ -24,6 +25,7 @@ const ART = {
   calendar: c => `<svg class="art-svg" viewBox="0 0 140 130" fill="none"><rect x="34" y="30" width="72" height="66" rx="8" fill="${c}" fill-opacity=".12" stroke="${c}" stroke-width="1.5"/><line x1="34" y1="48" x2="106" y2="48" stroke="${c}" stroke-width="1.5"/>${[0, 1, 2].map(i => `<circle cx="${50 + i * 20}" cy="70" r="6" fill="${c}" fill-opacity=".85"/>`).join('')}</svg>`,
   shield: c => `<svg class="art-svg" viewBox="0 0 140 130" fill="none"><path d="M70,18 L100,28 L100,58 Q100,90 70,105 Q40,90 40,58 L40,28 Z" fill="${c}" fill-opacity=".14" stroke="${c}" stroke-width="1.5"/><text x="70" y="72" text-anchor="middle" font-family="Orbitron, sans-serif" font-size="18" font-weight="900" fill="${c}">100%</text></svg>`,
   retry: c => `<svg class="art-svg" viewBox="0 0 140 130" fill="none"><path d="M70,24 A38,38 0 1,1 38,56" stroke="${c}" stroke-width="4" fill="none" stroke-linecap="round"/><polygon points="30,42 38,60 50,50" fill="${c}"/></svg>`,
+  diploma: c => `<svg class="art-svg" viewBox="0 0 140 130" fill="none"><rect x="26" y="28" width="88" height="60" rx="6" fill="${c}" fill-opacity=".14" stroke="${c}" stroke-width="1.5"/><line x1="40" y1="46" x2="100" y2="46" stroke="${c}" stroke-width="1.5" stroke-opacity=".6"/><line x1="40" y1="58" x2="90" y2="58" stroke="${c}" stroke-width="1.5" stroke-opacity=".6"/><line x1="40" y1="70" x2="74" y2="70" stroke="${c}" stroke-width="1.5" stroke-opacity=".6"/><polygon points="86,96 80,118 94,110 108,118 102,96" fill="${c}" fill-opacity=".7"/><circle cx="94" cy="88" r="14" fill="${c}" fill-opacity=".9"/></svg>`,
   torch: c => `<svg class="art-svg" viewBox="0 0 140 130" fill="none"><line x1="70" y1="42" x2="70" y2="100" stroke="${c}" stroke-width="5" stroke-linecap="round" stroke-opacity=".5"/><path d="M70,16 Q60,24 62,34 Q65,26 70,30 Q75,26 78,34 Q80,24 70,16Z" fill="${c}"/>${[38, 102].map(x => `<line x1="${x}" y1="65" x2="${x + (x < 70 ? 10 : -10)}" y2="65" stroke="${c}" stroke-width="1.5"/>`).join('')}</svg>`,
 };
 
@@ -36,8 +38,12 @@ const EXPLOITS = [
   { id: 'l_educa', art: 'torch', name: 'Lecteur EDUCA', desc: 'Tout le chemin parcouru', theme: 'theme-gold' },
 ];
 
-/** Catalogue complet, dans l'ordre de la collection. */
-export function catalogue(cur) {
+/**
+ * Catalogue complet, dans l'ordre de la collection.
+ * @param {object} cur parcours des sons
+ * @param {{ id: string, name: string, grade: string }[]} [levels] niveaux des grands (diplômes)
+ */
+export function catalogue(cur, levels = []) {
   const sounds = cur.steps.map((s, i) => ({
     id: `son-${s.id}`, kind: 'son', n: i + 1, show: s.show, emoji: cur.word(s.anchor)?.emoji || '',
     name: `Le son ${s.show}`, desc: `comme dans « ${s.anchor} »`, theme: THEME_BY_KIND[s.kind] || 'theme-blue',
@@ -47,12 +53,16 @@ export function catalogue(cur) {
     id: `titre-${t.id}`, kind: 'titre', n: sounds.length + exploits.length + i + 1, piece: t.icon,
     name: t.name, desc: `Élo ${t.min} atteint`, theme: 'theme-gold',
   }));
-  return [...sounds, ...exploits, ...titles];
+  const diplomas = levels.map((l, i) => ({
+    id: `diplome-${l.id}`, kind: 'diplome', art: 'diploma', n: sounds.length + exploits.length + titles.length + i + 1,
+    name: `Diplôme ${l.grade}`, desc: `Contrôle « ${l.name} » réussi`, theme: 'theme-gold',
+  }));
+  return [...sounds, ...exploits, ...titles, ...diplomas];
 }
 
 function frame(card, total, art) {
-  const tag = { son: 'Son', exploit: 'Exploit', titre: 'Titre' }[card.kind];
-  const dots = card.kind === 'titre' ? 3 : card.kind === 'exploit' ? 2 : 1;
+  const tag = { son: 'Son', exploit: 'Exploit', titre: 'Titre', diplome: 'Diplôme' }[card.kind];
+  const dots = card.kind === 'titre' || card.kind === 'diplome' ? 3 : card.kind === 'exploit' ? 2 : 1;
   return `<div class="card ${card.theme}">
   <div class="card-glow"></div><div class="holo"></div><div class="glare-fx"></div>
   <div class="corner-tl"></div><div class="corner-br"></div>
@@ -80,7 +90,7 @@ export function cardHtml(card, total) {
 
 /** Petite vignette pour la grille de collection. */
 export function cardThumb(card, owned, onOpen) {
-  const label = card.kind === 'son' ? card.show : card.kind === 'titre' ? `${card.piece}︎` : '★';
+  const label = card.kind === 'son' ? card.show : card.kind === 'titre' ? `${card.piece}︎` : card.kind === 'diplome' ? '🎓' : '★';
   return h('button', {
     type: 'button',
     class: `coll-item ${owned ? card.theme : 'locked'}`,

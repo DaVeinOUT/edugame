@@ -13,6 +13,7 @@ import { h, append } from '../ui/dom.js';
 import { display, toPoints, titleFor } from '../core/elo.js';
 import { isMastered } from '../core/srs.js';
 import { localDay } from '../core/time.js';
+import { openLevels, moduleRecord, controlePassed } from '../core/levels.js';
 import { AVATARS, UNIVERSES, AGES, cleanName } from '../core/schema.js';
 import { toast } from '../ui/fx.js';
 import { recordingSupported, startRecording, saveRecording, deleteRecording, loadRecordings } from '../services/recordings.js';
@@ -125,6 +126,24 @@ function daysBars(days) {
   return h('div', { html: `<svg class="chart" viewBox="0 0 312 104" role="img" aria-label="Minutes de jeu par jour, 14 derniers jours">${bars}</svg>` });
 }
 
+/* Les niveaux des grands : ce qui est ouvert, les étoiles des modules, les contrôles. */
+function levelsSection(p, ctx, points) {
+  const L = ctx.levels;
+  if (!L.levels.length) return null;
+  const open = openLevels(L, p, ctx.cur, points);
+  if (!open.length) {
+    return section('Niveaux des grands (CE1 → 3e)',
+      h('p', null, `Pas encore ouverts : ils s'ouvrent à la fin du chemin des sons, ou à ${L.levels[0].unlockElo} points d'Élo.`));
+  }
+  return section('Niveaux des grands (CE1 → 3e)', open.map(lv => h('div', { class: 'stack' },
+    h('h3', null, `${lv.grade} — ${lv.name}${controlePassed(p, lv.id) ? ' · contrôle réussi 🎓' : ''}`),
+    h('ul', null, L.modulesOf(lv.id).filter(m => !m.isControle).map(m => {
+      const rec = moduleRecord(p, m.id);
+      return h('li', null, `${m.title} : ${rec ? `${'★'.repeat(rec.stars)}${'☆'.repeat(3 - rec.stars)} (${rec.tries} essai${rec.tries > 1 ? 's' : ''})` : 'pas encore fait'}`);
+    })))),
+    h('p', { class: 'note' }, 'Chaque niveau suit les programmes officiels (sources : rapports/2026-10-13-niveaux-ce1-3e.md). Le contrôle (70 % de réussite) ouvre le niveau suivant ; il se retente à volonté.'));
+}
+
 function progressTab(p, ctx) {
   const { cur } = ctx;
   const shown = display(p.elo);
@@ -147,6 +166,7 @@ function progressTab(p, ctx) {
       h('p', null, `Étape ${p.path.open + 1} sur ${cur.steps.length} : le son « ${step.show} ». Étoiles : ${Object.values(p.path.stars).reduce((a, b) => a + b, 0)}.`),
       grid,
       h('p', { class: 'note' }, 'Vert : maîtrisé (réussi plusieurs jours de suite) · Jaune : en cours · Orange : à revoir · Gris : pas encore vu.')),
+    levelsSection(p, ctx, shown),
     section('Points de vigilance',
       conf.length
         ? h('ul', null, conf.map(([k, n]) => h('li', null, `${k.replace('/', ' ↔ ')} : ${n} fois`)))

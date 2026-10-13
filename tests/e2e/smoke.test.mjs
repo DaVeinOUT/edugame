@@ -201,3 +201,42 @@ test('la voix enregistrée par l\'adulte (blob:) est bien jouée malgré la CSP'
   assert.deepEqual(errors, []);
   await context.close();
 });
+
+test('un grand déjà lecteur joue un module des niveaux CE1 → 3e', async () => {
+  const { context, page, errors } = await open();
+  await page.goto(url);
+  // Un collégien que le positionnement a reconnu lecteur (chemin des sons acquis).
+  await page.evaluate(() => {
+    const now = Date.now();
+    const id = 'pgrand001';
+    localStorage.setItem('educa2:device', JSON.stringify({
+      schema: 2, createdAt: now, voice: null, muted: false, activeId: id, order: [id], classStep: null, dailyMinutes: 0, errors: [],
+    }));
+    localStorage.setItem(`educa2:p:${id}`, JSON.stringify({
+      id, createdAt: now, name: 'Inès', avatar: '🦊', age: '13-15', universe: 'jungle',
+      path: { open: 65, stars: {}, placed: true, advanced: true },
+    }));
+  });
+  await page.reload();
+  await page.waitForSelector('.btn-play');
+  assert.match(await page.getAttribute('.btn-play', 'aria-label'), /^Jouer : /);
+  await page.click('.tile:has-text("Niveaux")');
+  await page.click('.module-btn.next');
+  await page.click('text=C\'est parti');
+  const deadline = Date.now() + 150000;
+  while (Date.now() < deadline && !(await page.$('.elo-panel'))) {
+    const target = await page.$('.gtile.hint') || await page.$('.gtile:not(.used)')
+      || await page.$('.wpick:not([disabled])') || await page.$('.choice:not([disabled])');
+    if (target) await target.click({ force: true });
+    const cont = await page.$('button[aria-label="Continuer"]:not([hidden])');
+    if (cont) await cont.click({ force: true });
+    await page.waitForTimeout(200);
+  }
+  assert.ok(await page.$('.elo-panel'), 'le bilan du module doit s\'afficher');
+  const adv = await page.evaluate(() => JSON.parse(localStorage.getItem('educa2:p:pgrand001')).path.adv);
+  const done = Object.values(adv.modules);
+  assert.equal(done.length, 1, 'le module est enregistré');
+  assert.equal(done[0].tries, 1);
+  assert.deepEqual(errors, []);
+  await context.close();
+});

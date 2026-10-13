@@ -15,7 +15,7 @@ export const collection = {
     const { cur, voice, router } = ctx;
     const p = ctx.profile();
     if (!p) { ctx.home(); return undefined; }
-    const all = catalogue(cur);
+    const all = catalogue(cur, ctx.levels.levels);
     const owned = new Set(p.cards);
     const count = all.filter(c => owned.has(c.id)).length;
     const open = (card, has) => {

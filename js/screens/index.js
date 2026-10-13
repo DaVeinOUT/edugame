@@ -14,5 +14,6 @@ import { games } from './games.js';
 import { trace } from './trace.js';
 import { adult } from './adult.js';
 import { placement } from './placement.js';
+import { levels } from './levels.js';
 
-export const screens = { welcome, profiles, hub, path, lesson, collection, ladder, games, trace, adult, placement };
+export const screens = { welcome, profiles, hub, path, lesson, collection, ladder, games, trace, adult, placement, levels };

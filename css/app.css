@@ -328,6 +328,63 @@ body.u-space .feedback.ko { color: #fdba74; }
 .gtile.shake { animation: shake .4s ease; background: var(--oops-bg); }
 .gtile.hint { box-shadow: 0 0 0 6px rgba(124, 58, 237, .4), 0 6px 0 var(--paper-edge); }
 
+/* Niveaux des grands : texte à lire, phrase à trou, mot à toucher, mots à remettre dans l'ordre */
+.adv-card { align-items: stretch; text-align: left; gap: 14px; }
+.adv-title { margin: 0; text-align: center; }
+.adv-intro, .adv-question { font-size: clamp(1.35rem, 5.6vw, 1.9rem); margin: 0; }
+.adv-passage {
+  font-size: clamp(1.25rem, 5vw, 1.7rem); line-height: 1.6; margin: 0; padding: 12px 14px; border-radius: 18px;
+  background: rgba(124, 58, 237, .07);
+}
+.adv-consigne { margin: 0; font-weight: 900; color: var(--muted); text-align: center; font-size: 1.15rem; }
+.gap-hole { display: inline-block; min-width: 3.2em; border-bottom: 4px solid var(--brand); margin: 0 .2em; text-align: center; }
+.gap-hole.filled { color: var(--ok); border-color: var(--ok); }
+.choice.textopt {
+  font-family: var(--read-font); font-weight: 700; letter-spacing: var(--read-spacing); word-spacing: var(--word-spacing);
+  font-size: clamp(1.25rem, 5.4vw, 1.75rem); min-height: 72px; line-height: 1.3; padding: 12px 60px 12px 40px;
+  place-items: center start; text-align: left;
+}
+.choices.one-col { grid-template-columns: minmax(0, 1fr); }
+.wpick-row { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; }
+.wpick {
+  position: relative; min-height: 64px; padding: 8px 16px 8px 30px; border-radius: 18px; border: 4px solid transparent;
+  background: var(--paper); color: var(--ink); font-size: clamp(1.4rem, 6vw, 2rem);
+  box-shadow: 0 6px 0 var(--paper-edge), var(--shadow); cursor: pointer; touch-action: manipulation;
+}
+.wpick .mark { position: absolute; top: 2px; left: 9px; font-family: var(--ui-font); font-size: 1rem; font-weight: 900; }
+.wpick.is-ok { border-color: var(--ok); background: var(--ok-bg); }
+.wpick.is-wrong { border-color: var(--oops); background: var(--oops-bg); }
+.wpick.is-answer { border-color: var(--ok); box-shadow: 0 0 0 5px rgba(21, 128, 61, .25), 0 6px 0 var(--paper-edge); }
+.wpick.is-ok .mark, .wpick.is-answer .mark { color: var(--ok); }
+.wpick.is-wrong .mark { color: var(--oops); }
+.wpick[disabled] { cursor: default; }
+.order-line {
+  min-height: 2.4em; margin: 0; font-size: clamp(1.4rem, 6vw, 2rem); text-align: center;
+  border-bottom: 3px dashed rgba(31, 36, 48, .25); padding-bottom: 6px;
+}
+.order-word { display: inline-block; margin: 0 .25em; animation: pop .3s ease; }
+.gtile.wtile { font-size: clamp(1.4rem, 6vw, 1.9rem); height: 64px; }
+
+/* Écran des niveaux */
+.levels { display: flex; flex-direction: column; gap: 16px; }
+.level-card { display: flex; flex-direction: column; gap: 10px; }
+.level-card.locked { opacity: .75; }
+.level-head { display: flex; align-items: center; gap: 10px; }
+.level-head h2 { margin: 0; font-size: 1.25rem; }
+.level-head .grade { font-weight: 900; color: var(--brand); white-space: nowrap; }
+.level-note { margin: 0; font-weight: 700; color: var(--muted); }
+.module-btn {
+  display: flex; align-items: center; gap: 12px; width: 100%; min-height: 64px; padding: 10px 14px; border-radius: 18px;
+  border: 3px solid transparent; background: var(--paper); color: var(--ink); box-shadow: 0 4px 0 var(--paper-edge);
+  text-align: left; font: inherit; font-weight: 800; cursor: pointer; touch-action: manipulation;
+}
+.module-btn .ico { font-size: 1.6rem; }
+.module-btn .grow { flex: 1; }
+.module-btn .stars { color: var(--gold-dark); letter-spacing: .1em; white-space: nowrap; }
+.module-btn.next { border-color: var(--brand); }
+.module-btn.locked { opacity: .55; }
+.module-btn.controle { background: #fef3c7; }
+
 /* Présentation d'un son */
 .intro-card { padding: 22px; display: flex; flex-direction: column; align-items: center; gap: 10px; text-align: center; }
 .intro-card .grapheme { font-family: var(--read-font); font-weight: 700; font-size: clamp(6rem, 34vw, 10rem); line-height: 1; letter-spacing: var(--read-spacing); color: var(--syl-a); }

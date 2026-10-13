@@ -12,14 +12,26 @@ import { eloBadge } from '../ui/elo.js';
 import { toast } from '../ui/fx.js';
 import { display } from '../core/elo.js';
 import { isDue } from '../core/srs.js';
+import { phonicsDone, nextModule, openLevels } from '../core/levels.js';
 import { captionOf } from '../services/voice.js';
 
 const greeted = new Set();   // une salutation par enfant et par ouverture de l'app
 let warnedStorage = false;
 const REST_SAY = 'On a bien travaillé aujourd\'hui ! Kaya se repose. À demain !';
 
-/** Ce que propose le bouton « Jouer ». */
-export function nextActivity(profile, cur, now = Date.now()) {
+/** Ce que propose le bouton « Jouer ». L : niveaux des grands (core/levels.js). */
+export function nextActivity(profile, cur, now = Date.now(), L = null) {
+  // Chemin des sons fini (ou déjà su d'après le positionnement) : on monte de niveau en niveau.
+  if (L?.levels.length && phonicsDone(profile, cur)) {
+    const m = nextModule(L, profile, cur, display(profile.elo));
+    if (m?.isControle) {
+      const { grade } = L.level(m.level);
+      return { mode: 'module', module: m.id, label: `Contrôle ${grade}`,
+               parts: [`Tu as fini les modules du niveau ${grade}. Prêt pour le contrôle ? Touche le gros bouton !`] };
+    }
+    if (m) return { mode: 'module', module: m.id, label: m.title, parts: [`Aujourd'hui : ${m.title}.`, 'Touche le gros bouton !'] };
+    return { mode: 'practice', label: 'Révisions', parts: ['Tu as fini tous les niveaux, bravo ! On révise ? Touche le gros bouton !'] };
+  }
   const step = cur.step(profile.path.open);
   const due = Object.values(profile.mem).filter(r => r.b > 0 && isDue(r, now)).length;
   if (profile.stats.sessions > 0 && profile.path.lastKind === 'lesson' && due >= 8) {
@@ -44,7 +56,9 @@ export const hub = {
     const p = ctx.profile();
     if (!p) { ctx.home(); return undefined; }
     const points = display(p.elo);
-    const next = nextActivity(p, cur);
+    const L = ctx.levels;
+    const next = nextActivity(p, cur, Date.now(), L);
+    const reached = openLevels(L, p, cur, points);
     const rested = ctx.rested();
     const name = p.name ? ` ${p.name}` : '';
 
@@ -60,7 +74,7 @@ export const hub = {
     const play = h('button', {
       class: 'btn btn-gold btn-play', type: 'button', 'data-autofocus': true, disabled: rested || null,
       'aria-label': rested ? 'À demain' : `Jouer : ${next.label}`,
-      onclick: () => router.go('lesson', { mode: next.mode, step: next.step }),
+      onclick: () => router.go('lesson', { mode: next.mode, step: next.step, module: next.module }),
     }, h('span', { class: 'play-icon', 'aria-hidden': 'true' }, rested ? '😴' : '▶'),
       h('span', { class: 'stack', style: { gap: '0', alignItems: 'flex-start' } },
         h('span', null, rested ? 'À demain !' : 'Jouer'),
@@ -83,7 +97,8 @@ export const hub = {
       h('div', { class: 'tiles' },
         tile('🗺️', 'Le chemin', `${p.path.open + 1} / ${cur.steps.length}`, () => router.go('path')),
         tile('🃏', 'Mes cartes', `${p.cards.length}`, () => router.go('collection')),
-        tile('🎮', 'Jeux', 'libres', () => router.go('games'))));
+        tile('🎮', 'Jeux', 'libres', () => router.go('games')),
+        L.levels.length ? tile('📚', 'Niveaux', reached.length ? reached[reached.length - 1].grade : 'CE1 → 3e', () => router.go('levels')) : null));
 
     // params.rest : on arrive d'un jeu refusé par le plafond quotidien — Kaya l'explique.
     if (!greeted.has(p.id) || params.first || params.migrated || params.rest) {

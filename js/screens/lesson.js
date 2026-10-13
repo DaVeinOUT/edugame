@@ -6,6 +6,8 @@
    en route, ce qu'il a appris compte quand même.
    Au bout de 12 minutes, Kaya propose une pause (le cerveau apprend
    mieux en séances courtes).
+   Trois modes : « lesson » (un son du chemin), « practice » (révisions)
+   et « module » (niveaux des grands, CE1 → 3e, contrôles compris).
    ============================================================ */
 
 import { h, sleep } from '../ui/dom.js';
@@ -17,9 +19,12 @@ import { selectItems } from '../core/select.js';
 import { makeQuestion } from '../core/questions.js';
 import { systemRandom } from '../core/rng.js';
 import { activeClock } from '../core/time.js';
+import { planModule, finishModule, nextModule } from '../core/levels.js';
+import { display } from '../core/elo.js';
 import { runChoice } from '../activities/choice.js';
 import { runBuild } from '../activities/build.js';
 import { runIntro } from '../activities/intro.js';
+import { runText, runModuleIntro, needed } from '../activities/text.js';
 import { eloPanel, eloSentence, promotion } from '../ui/elo.js';
 import { catalogue, revealCard } from '../ui/cards.js';
 import { burst } from '../ui/fx.js';
@@ -32,6 +37,24 @@ const STARS_SAY = {
   1: 'Une étoile ! Tu progresses, bravo !',
   0: 'Ce son est encore un peu difficile. Ce n\'est pas grave : on le revoit ensemble bientôt, et tu vas y arriver !',
 };
+const MODULE_SAY = {
+  3: 'Trois étoiles ! Tu as tout compris !',
+  2: 'Deux étoiles ! Très bien joué !',
+  1: 'Une étoile ! Tu progresses, bravo !',
+  0: 'Ce module est encore un peu difficile. Ce n\'est pas grave : on le revoit bientôt, et tu vas y arriver !',
+};
+
+/* Ce que Kaya dit au bilan (jamais un reproche : un contrôle se retente à volonté). */
+function resultSay(mode, report) {
+  if (mode === 'practice') return 'Belle séance de révision ! Ta mémoire devient plus solide.';
+  if (report.isControle) {
+    return report.passed
+      ? 'Bravo, tu as réussi le contrôle ! Le niveau suivant est ouvert.'
+      : `Tu as ${report.ok} bonnes réponses sur ${report.total}. Il en faut ${needed(report.total)}. Revois les modules, et retente le contrôle quand tu veux : tu vas y arriver !`;
+  }
+  if (mode === 'module') return MODULE_SAY[report.stars];
+  return STARS_SAY[report.stars] + (report.stars === 0 && report.unlocked ? ' On continue le chemin, et on reviendra sur ce son en révision.' : '');
+}
 
 export const lesson = {
   mount(view, params, ctx) {
@@ -39,7 +62,10 @@ export const lesson = {
     if (!ctx.profile()) { ctx.home(); return undefined; }
     if (ctx.rested()) { ctx.restHome(); return undefined; }   // plafond quotidien (chemin, jeux libres…)
     const rand = systemRandom;
-    const mode = params.mode === 'practice' ? 'practice' : 'lesson';
+    const mode = ['practice', 'module'].includes(params.mode) ? params.mode : 'lesson';
+    const L = ctx.levels;
+    const module = mode === 'module' ? L.module(params.module) : null;
+    if (mode === 'module' && !module) { router.go('levels', {}, { replace: true }); return undefined; }
     const last = cur.steps.length - 1;
     const stepIndex = mode === 'lesson' ? Math.max(0, Math.min(last, params.step ?? ctx.profile().path.open)) : null;
     ctx.update(p => startSession(p, Date.now()));
@@ -47,6 +73,7 @@ export const lesson = {
 
     let items;
     if (mode === 'lesson') items = planLesson(cur, p0, stepIndex, { rand });
+    else if (mode === 'module') items = planModule(module, p0, { rand });
     else if (params.kinds) {
       const pools = reviewPool(cur, p0.path.open);
       items = selectItems(params.kinds.flatMap(k => pools[k]), { elo: p0.elo, mem: p0.mem, n: 10, rand });
@@ -87,7 +114,7 @@ export const lesson = {
     });
 
     const api = {
-      voice, sfx, cur, rand, kaya, stage,
+      voice, sfx, cur, rand, kaya, stage, module,
       age: p0.age, open: p0.path.open,
       alive: () => alive,
       feedback(type, text) { fb.className = `feedback ${type || ''}`.trim(); fb.textContent = text || ''; },
@@ -133,17 +160,18 @@ export const lesson = {
         if (alive) router.back();
         return;
       }
-      if (mode === 'lesson') {
-        await runIntro(cur.step(stepIndex), api);
-        if (!alive) return;
-      }
+      if (mode === 'lesson') await runIntro(cur.step(stepIndex), api);
+      else if (mode === 'module') await runModuleIntro(module, L.level(module.level), api, { total: items.length });
+      if (!alive) return;
       for (let i = 0; i < items.length; i++) {
         if (!alive) return;
         setDot(i, 'now');
         api.feedback('', '');
-        const q = makeQuestion(items[i], cur, { rand, age: api.age, open: api.open });
+        // Les modules des grands donnent directement leurs questions (core/levels.js).
+        const q = mode === 'module' ? items[i] : makeQuestion(items[i], cur, { rand, age: api.age, open: api.open });
         api.onAnswer = res => { if (alive) commit(i, q, res); };
-        const res = q.kind === 'build' ? await runBuild(q, api) : await runChoice(q, api);
+        const res = q.kind === 'adv' ? await runText(q, api)
+          : q.kind === 'build' ? await runBuild(q, api) : await runChoice(q, api);
         if (!alive) return;
         commit(i, q, res);
         if (!breakOffered && clock.ms() > BREAK_AFTER_MS && i < items.length - 2) {
@@ -160,7 +188,9 @@ export const lesson = {
       finished = true;
       let report;
       ctx.update(p => {
-        const out = finishSession(p, { kind: mode, step: stepIndex, results, seconds: seconds() }, cur, Date.now());
+        const out = mode === 'module'
+          ? finishModule(p, { module, results, seconds: seconds() }, cur, Date.now())
+          : finishSession(p, { kind: mode, step: stepIndex, results, seconds: seconds() }, cur, Date.now());
         report = out.report;
         return { ...out.profile, path: { ...out.profile.path, lastKind: mode } };
       });
@@ -168,27 +198,48 @@ export const lesson = {
       await showResults(report);
     }
 
+    /* Le bouton principal du bilan : la suite logique, sinon rejouer.
+       { el, levels } : levels = le bouton mène déjà à l'écran des niveaux. */
+    function nextButton(report) {
+      const btn = (label, go, levels = false) => ({ el: h('button', { class: 'btn btn-gold btn-block', type: 'button', onclick: go }, label), levels });
+      const again = btn('Rejouer 🔁', () => router.go('lesson', { ...params }, { replace: true }));
+      if (mode === 'lesson') {
+        return report.unlocked ? btn('Son suivant ▶', () => router.go('lesson', { mode: 'lesson', step: stepIndex + 1 }, { replace: true })) : again;
+      }
+      if (mode !== 'module') return again;
+      const p = ctx.profile();
+      const nm = nextModule(L, p, cur, display(p.elo));
+      if (!nm) return report.passed ? btn('📚 Les niveaux', () => router.go('levels', {}, { replace: true }), true) : again;
+      if (nm.id === module.id) return again;
+      const label = report.passed ? 'Niveau suivant ▶' : nm.isControle ? 'Le contrôle 🏁' : 'Module suivant ▶';
+      return btn(label, () => router.go('lesson', { mode: 'module', module: nm.id }, { replace: true }));
+    }
+
     async function showResults(report) {
       api.setReplay(null); api.setHelp(null); api.feedback('', '');
       quitBtn.hidden = true;
       const p = ctx.profile();
       const name = p.name ? `, ${p.name}` : '';
-      const good = mode === 'practice' || report.stars >= 1;
-      const starRow = mode === 'lesson'
+      const good = mode === 'practice' || (report.isControle ? report.passed : report.stars >= 1);
+      const graded = mode === 'lesson' || (mode === 'module' && !report.isControle);
+      const starRow = graded
         ? h('div', { class: 'result-stars', 'aria-label': `${report.stars} étoiles sur 3` }, [0, 1, 2].map(() => h('span', null, '⭐')))
         : null;
       const elo = eloPanel(report.elo);
-      const nextBtn = mode === 'lesson' && report.unlocked
-        ? h('button', { class: 'btn btn-gold btn-block', type: 'button', onclick: () => router.go('lesson', { mode: 'lesson', step: stepIndex + 1 }, { replace: true }) }, 'Son suivant ▶')
-        : h('button', { class: 'btn btn-gold btn-block', type: 'button', onclick: () => router.go('lesson', { ...params }, { replace: true }) }, 'Rejouer 🔁');
+      const next = nextButton(report);
+      const levelsBtn = mode === 'module' && !next.levels
+        ? h('button', { class: 'btn btn-soft btn-block', type: 'button', onclick: () => router.go('levels', {}, { replace: true }) }, '📚 Les niveaux')
+        : null;
       const homeBtn = h('button', { class: 'btn btn-soft btn-block', type: 'button', onclick: () => router.go('hub', {}, { reset: true }) }, '🏠 Accueil');
       setMood(kaya, good ? 'happy' : 'oops', 2000);
+      const title = mode === 'practice' ? `Belle séance${name} !`
+        : report.isControle && report.passed ? `Contrôle réussi${name} !` : good ? `Bravo${name} !` : `Bien essayé${name} !`;
       stage.replaceChildren(
-        h('h1', { class: 'center' }, mode === 'practice' ? `Belle séance${name} !` : good ? `Bravo${name} !` : `Bien essayé${name} !`),
+        h('h1', { class: 'center' }, title),
         starRow,
         h('p', { class: 'center h2' }, `${report.ok} bonnes réponses sur ${report.total}`),
         elo.el,
-        h('div', { class: 'stack' }, nextBtn, homeBtn));
+        h('div', { class: 'stack' }, next.el, levelsBtn, homeBtn));
       // L'enfant peut quitter à tout moment : après chaque attente, plus rien
       // (son, voix, fenêtre de carte) ne se déclenche s'il est parti.
       if (starRow) {
@@ -201,19 +252,17 @@ export const lesson = {
         if (report.stars === 3) burst(starRow, { count: 14 });
       }
       setTimeout(() => { if (alive) elo.play(); }, 300);
-      const say = mode === 'practice' ? 'Belle séance de révision ! Ta mémoire devient plus solide.'
-        : STARS_SAY[report.stars] + (report.stars === 0 && report.unlocked ? ' On continue le chemin, et on reviendra sur ce son en révision.' : '');
-      await voice.say(say);
+      await voice.say(resultSay(mode, report));
       if (!alive) return;
       if (report.elo.promoted) await promotion(ctx, report.elo.promoted);
       else await voice.say(eloSentence(report.elo.after), { interrupt: false });
-      const all = catalogue(cur);
+      const all = catalogue(cur, L.levels);
       for (const id of report.cards) {
         if (!alive) return;
         const card = all.find(c => c.id === id);
         if (card) await revealCard(ctx, card, all.length, { isNew: true });
       }
-      if (alive) nextBtn.focus({ preventScroll: true });
+      if (alive) next.el.focus({ preventScroll: true });
     }
 
     function commitPartial() {
