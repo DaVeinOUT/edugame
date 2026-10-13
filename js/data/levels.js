@@ -76,8 +76,8 @@ export const MODULES = [
       { type: 'gap', text: 'Le chien ___ une balle dans la gueule.', choices: ['a', 'à'], answer: 'a', explain: 'On peut dire « Le chien avait une balle » : c’est le verbe avoir.' },
       { type: 'gap', text: 'Je joue ___ cache-cache avec mes amis.', choices: ['a', 'à'], answer: 'à', explain: 'On joue « à » un jeu : on écrit « à » avec l’accent.' },
       { type: 'pick', text: 'Papa a un rendez-vous à midi.', prompt: 'Touche le verbe avoir.', answer: 'a', explain: 'On peut dire « Papa avait un rendez-vous » : « a » est le verbe avoir.' },
-      { type: 'choice', text: 'Quelle phrase est bien écrite ?', choices: ['Il va à la plage.', 'Il va a la plage.'], answer: 'Il va à la plage.', explain: 'On ne peut pas dire « Il va avait la plage » : il faut l’accent sur « à ».' },
-      { type: 'choice', text: 'Quelle phrase est bien écrite ?', choices: ['Zoé à un chat.', 'Zoé a un chat.'], answer: 'Zoé a un chat.', explain: 'On peut dire « Zoé avait un chat » : c’est le verbe avoir, sans accent.' },
+      { type: 'gap', text: 'Il va ___ la plage.', choices: ['à', 'a'], answer: 'à', explain: 'On ne peut pas dire « Il va avait la plage » : il faut l’accent sur « à ».' },
+      { type: 'gap', text: 'Zoé ___ un chat.', choices: ['à', 'a'], answer: 'a', explain: 'On peut dire « Zoé avait un chat » : c’est le verbe avoir, sans accent.' },
       { type: 'text', passage: 'Ce matin, Yanis a mal au ventre. Il reste à la maison. Sa maman a appelé le docteur. Le docteur arrive à dix heures.',
         questions: [
           { text: 'Dans « Yanis a mal au ventre », quel mot est le verbe avoir ?', choices: ['a', 'au', 'mal'], answer: 'a', explain: 'On peut dire « Yanis avait mal au ventre » : « a » est le verbe avoir.' },
@@ -102,8 +102,8 @@ export const MODULES = [
       { type: 'gap', text: 'Mon oncle ___ pêcheur en Martinique.', choices: ['et', 'est'], answer: 'est', explain: 'On peut dire « Mon oncle était pêcheur » : c’est le verbe être.' },
       { type: 'pick', text: 'La mer est calme et douce.', prompt: 'Touche le verbe être.', answer: 'est', explain: 'On peut dire « La mer était calme » : « est » vient du verbe être.' },
       { type: 'pick', text: 'Le chat est noir et blanc.', prompt: 'Touche le mot qui relie les deux couleurs.', answer: 'et', explain: 'Le petit mot « et » relie « noir » à « blanc ».' },
-      { type: 'choice', text: 'Quelle phrase est bien écrite ?', choices: ['Mon frère et grand.', 'Mon frère est grand.'], answer: 'Mon frère est grand.', explain: 'On peut dire « Mon frère était grand » : c’est le verbe être.' },
-      { type: 'choice', text: 'Quelle phrase est bien écrite ?', choices: ['Je mange du pain et du beurre.', 'Je mange du pain est du beurre.'], answer: 'Je mange du pain et du beurre.', explain: 'On peut dire « du pain et puis du beurre » : on écrit « et ».' },
+      { type: 'gap', text: 'Mon frère ___ grand.', choices: ['et', 'est'], answer: 'est', explain: 'On peut dire « Mon frère était grand » : c’est le verbe être.' },
+      { type: 'gap', text: 'Je mange du pain ___ du beurre.', choices: ['et', 'est'], answer: 'et', explain: 'On peut dire « du pain et puis du beurre » : on écrit « et ».' },
       { type: 'text', passage: 'Fanta est en vacances à Pointe-à-Pitre. Elle va à la plage avec Ali et Ninon. L’eau est chaude. Ils nagent et ils rient.',
         questions: [
           { text: 'Où est Fanta ?', choices: ['à Pointe-à-Pitre', 'à l’école', 'à Paris'], answer: 'à Pointe-à-Pitre', explain: 'Le texte dit : « Fanta est en vacances à Pointe-à-Pitre. »' },
@@ -226,7 +226,7 @@ export const MODULES = [
       { type: 'gap', text: 'Ils ___ peur de l’orage.', choices: ['ont', 'on'], answer: 'ont', explain: 'On peut dire « Ils avaient peur de l’orage » : c’est le verbe avoir.' },
       { type: 'pick', text: 'Mes cousins sont arrivés d’Haïti.', prompt: 'Touche le verbe être.', answer: 'sont', explain: 'On peut dire « Mes cousins étaient arrivés » : « sont » vient du verbe être.' },
       { type: 'pick', text: 'On a gagné le match !', prompt: 'Touche le mot qui veut dire « nous ».', answer: 'On', explain: '« On a gagné » veut dire « nous avons gagné ».' },
-      { type: 'choice', text: 'Quelle phrase est bien écrite ?', choices: ['Ils sont à la maison.', 'Ils son à la maison.'], answer: 'Ils sont à la maison.', explain: 'On peut dire « Ils étaient à la maison » : on écrit « sont ».' },
+      { type: 'gap', text: 'Ils ___ à la maison.', choices: ['sont', 'son'], answer: 'sont', explain: 'On peut dire « Ils étaient à la maison » : on écrit « sont ».' },
       { type: 'text', passage: 'Ce soir, on fête l’anniversaire de Jade. Ses amis sont tous là. Ils ont apporté des cadeaux. Jade souffle ses huit bougies. Son gâteau est au coco.',
         questions: [
           { text: 'Dans « Ils ont apporté des cadeaux », pourquoi écrit-on « ont » ?', choices: ['On peut dire « avaient ».', 'On peut dire « il ».'], answer: 'On peut dire « avaient ».', explain: 'On peut dire « Ils avaient apporté des cadeaux » : c’est le verbe avoir.' },
@@ -386,8 +386,8 @@ export const MODULES = [
       { type: 'gap', text: 'Il ira à Kourou ___ à Cayenne.', choices: ['ou', 'où'], answer: 'ou', explain: 'On peut dire « ou bien à Cayenne » : c’est un choix entre deux villes.' },
       { type: 'pick', text: 'Où partez-vous en vacances ?', prompt: 'Touche le mot qui pose la question.', answer: 'Où', explain: '« Où » demande un lieu : il prend un accent.' },
       { type: 'pick', text: 'Tu viens avec nous ou tu restes ici ?', prompt: 'Touche le mot qui marque un choix.', answer: 'ou', explain: '« ou » marque un choix : on peut dire « ou bien ».' },
-      { type: 'choice', text: 'Quelle phrase est bien écrite ?', choices: ['D’où viens-tu ?', 'D’ou viens-tu ?'], answer: 'D’où viens-tu ?', explain: 'On demande un lieu : « où » prend un accent, même après « d’ ».' },
-      { type: 'choice', text: 'Quelle phrase est bien écrite ?', choices: ['Il pleut ou il fait beau ?', 'Il pleut où il fait beau ?'], answer: 'Il pleut ou il fait beau ?', explain: 'C’est un choix entre deux temps : on peut dire « ou bien ».' },
+      { type: 'gap', text: 'D’___ viens-tu ?', choices: ['où', 'ou'], answer: 'où', explain: 'On demande un lieu : « où » prend un accent, même après « d’ ».' },
+      { type: 'gap', text: 'Il pleut ___ il fait beau ?', choices: ['ou', 'où'], answer: 'ou', explain: 'C’est un choix entre deux temps : on peut dire « ou bien ».' },
       { type: 'text', passage: 'Samedi, Lou hésite : ira-t-elle à la plage ou au cinéma ? Elle appelle Sami. « Où es-tu ? » lui demande-t-elle. Sami est au port, là où arrivent les bateaux. Finalement, ils iront tous les deux à la plage.',
         questions: [
           { text: 'Dans « à la plage ou au cinéma », pourquoi « ou » n’a-t-il pas d’accent ?', choices: ['C’est un choix : on peut dire « ou bien ».', 'Il indique un lieu.'], answer: 'C’est un choix : on peut dire « ou bien ».', explain: 'Lou choisit entre deux sorties : « ou bien » convient, donc pas d’accent.' },
@@ -435,7 +435,7 @@ export const MODULES = [
       { type: 'gap', text: 'Ils sont partis sans ___ la porte.', choices: ['fermer', 'fermé', 'fermez'], answer: 'fermer', explain: 'Après « sans », on peut dire « sans vendre » : on écrit l’infinitif « fermer ».' },
       { type: 'gap', text: 'Le chien a ___ son os dans le jardin.', choices: ['caché', 'cacher', 'cachez'], answer: 'caché', explain: 'On peut dire « Le chien a vendu » : on écrit le participe passé « caché ».' },
       { type: 'pick', text: 'Tu dois laver tes mains.', prompt: 'Touche l’infinitif.', answer: 'laver', explain: 'On peut dire « Tu dois vendre » : « laver » est à l’infinitif.' },
-      { type: 'choice', text: 'Quelle phrase est bien écrite ?', choices: ['Elle a mangé une mangue.', 'Elle a manger une mangue.'], answer: 'Elle a mangé une mangue.', explain: 'On peut dire « Elle a vendu » : on écrit le participe passé « mangé ».' },
+      { type: 'gap', text: 'Elle a ___ une mangue.', choices: ['mangé', 'manger'], answer: 'mangé', explain: 'On peut dire « Elle a vendu » : on écrit le participe passé « mangé ».' },
       { type: 'text', passage: 'Samedi, nous avons décidé de cuisiner pour Mamie. Papa a acheté du poisson. J’ai aidé à préparer la sauce. Mamie a dit : « Vous pouvez recommencer quand vous voulez ! »',
         questions: [
           { text: 'Dans « nous avons décidé », pourquoi écrit-on « é » ?', choices: ['Le verbe suit « avons » : c’est un participe passé.', 'Le verbe suit « de » : c’est un infinitif.'], answer: 'Le verbe suit « avons » : c’est un participe passé.', explain: 'Après « avons », on peut dire « vendu » : on écrit « décidé ».' },
@@ -661,7 +661,7 @@ export const MODULES = [
       { type: 'pick', text: 'Mamie leur raconte un conte créole.', prompt: 'Touche le pronom personnel.', answer: 'leur', explain: '« leur » est placé devant le verbe et veut dire « à eux » : c’est un pronom.' },
       { type: 'pick', text: 'Les joueurs saluent leurs supporters.', prompt: 'Touche le déterminant possessif.', answer: 'leurs', explain: '« leurs » est devant le nom pluriel « supporters » : c’est un déterminant.' },
       { type: 'choice', text: 'Dans « Je leur parle », quelle est la classe de « leur » ?', choices: ['pronom personnel', 'déterminant', 'nom'], answer: 'pronom personnel', explain: '« leur » remplace « à eux » devant le verbe : c’est un pronom personnel.' },
-      { type: 'choice', text: 'Quelle phrase est bien écrite ?', choices: ['Je leur ai dit bonjour.', 'Je leurs ai dit bonjour.'], answer: 'Je leur ai dit bonjour.', explain: 'Devant un verbe, « leur » est un pronom : il ne prend jamais de « s ».' },
+      { type: 'gap', text: 'Je ___ ai dit bonjour.', choices: ['leur', 'leurs'], answer: 'leur', explain: 'Devant un verbe, « leur » est un pronom : il ne prend jamais de « s ».' },
       { type: 'choice', text: 'Au singulier, par quoi remplace-t-on « leur » dans « Je leur écris » ?', choices: ['lui', 'le', 'son'], answer: 'lui', explain: 'Au singulier, on dit « Je lui écris » : « leur » est le pluriel de « lui ».' },
       { type: 'text', passage: 'Les pêcheurs rentrent au port. Leurs barques sont pleines de poissons. Les enfants courent leur dire bonjour. Les pêcheurs leur offrent des coquillages.',
         questions: [
@@ -733,7 +733,7 @@ export const MODULES = [
       { type: 'gap', text: 'Regarde, ___ le volcan de la Soufrière !', choices: ['c’est', 's’est'], answer: 'c’est', explain: 'On peut dire « cela est le volcan » : on écrit « c’est ».' },
       { type: 'pick', text: 'Il s’est blessé au genou.', prompt: 'Touche le participe passé.', answer: 'blessé', explain: '« blessé » suit « s’est » : c’est le participe passé du verbe « se blesser ».' },
       { type: 'choice', text: 'Pourquoi écrit-on « s’est » dans « Léa s’est trompée » ?', choices: ['Au présent, on dirait « elle se trompe ».', 'On peut dire « cela est ».'], answer: 'Au présent, on dirait « elle se trompe ».', explain: '« se tromper » est un verbe pronominal : au passé composé, on écrit « s’est ».' },
-      { type: 'choice', text: 'Quelle phrase est bien écrite ?', choices: ['C’est l’heure de partir.', 'S’est l’heure de partir.'], answer: 'C’est l’heure de partir.', explain: 'On peut dire « Cela est l’heure de partir » : on écrit « C’est ».' },
+      { type: 'gap', text: '___ l’heure de partir.', choices: ['C’est', 'S’est'], answer: 'C’est', explain: 'On peut dire « Cela est l’heure de partir » : on écrit « C’est ».' },
       { type: 'text', passage: 'Hier, Malik s’est levé avant l’aube. C’est le jour de la grande course ! Il s’est préparé en silence. Sur la ligne de départ, il s’est dit : « C’est maintenant ou jamais ! »',
         questions: [
           { text: 'Dans « Malik s’est levé », quel est l’infinitif du verbe ?', choices: ['se lever', 'lever', 'être'], answer: 'se lever', explain: '« s’est levé » vient du verbe pronominal « se lever ».' },

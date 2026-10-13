@@ -24,9 +24,12 @@ const SKILL_ICON = {
 
 export const skillIcon = skill => SKILL_ICON[skill] || '📘';
 
+/* Typographie française à l'écran : jamais « ! », « ? » ou « » » seuls en début de ligne. */
+export const typo = text => String(text).replace(/ ([!?;:»])/g, '\u00a0$1').replace(/« /g, '«\u00a0');
+
 /** Phrase à trou : le trou se voit (et se remplit après la réponse). */
 function gapSentence(text) {
-  const [before, after = ''] = text.split(/_{2,}/);
+  const [before, after = ''] = typo(text).split(/_{2,}/);
   const hole = h('span', { class: 'gap-hole', 'aria-label': 'mot manquant' }, '  ');
   return { el: h('p', { class: 'read adv-question', lang: 'fr' }, before, hole, after), hole };
 }
@@ -64,21 +67,21 @@ async function runChoose(q, api) {
   const { voice } = api;
   const card = h('div', { class: 'paper prompt-card adv-card' });
   let hole = null;
-  if (q.type === 'text') card.append(h('div', { class: 'read adv-passage', lang: 'fr' }, q.passage));
+  if (q.type === 'text') card.append(h('div', { class: 'read adv-passage', lang: 'fr' }, typo(q.passage)));
   if (q.type === 'gap') {
     const g = gapSentence(q.text);
     hole = g.hole;
     card.append(g.el);
   } else if (q.type === 'pick') {
-    card.append(h('p', { class: 'adv-consigne' }, q.item.prompt));
+    card.append(h('p', { class: 'adv-consigne' }, typo(q.item.prompt)));
   } else {
-    card.append(h('p', { class: 'read adv-question', lang: 'fr' }, q.text));
+    card.append(h('p', { class: 'read adv-question', lang: 'fr' }, typo(q.text)));
   }
   let grid;
   if (q.type === 'pick') grid = wordPicker(q.options);
   else {
     // Une réponse par ligne, pleine largeur : grandes cibles, texte aligné à gauche, 🔊 à droite.
-    grid = choiceGrid(q.options.map(o => ({ ...o, say: o.text })), { kind: 'textopt', onHear: o => voice.say(o.say) });
+    grid = choiceGrid(q.options.map(o => ({ ...o, text: typo(o.text), say: o.text })), { kind: 'textopt', onHear: o => voice.say(o.say) });
     grid.el.classList.add('one-col');
   }
   api.stage.replaceChildren(card, grid.el);
@@ -167,7 +170,7 @@ function runOrder(q, api) {
       if (pos < target.length) return;
       api.setReplay(null);
       api.setHelp(null);
-      line.replaceChildren(q.answer);
+      line.replaceChildren(typo(q.answer));
       const result = { outcome: errors === 0 && !helped ? 'ok' : errors <= 1 ? 'help' : 'ko' };
       api.onAnswer?.(result);
       const text = praise(api.rand);
@@ -198,7 +201,7 @@ export function runModuleIntro(m, level, api, { total = 10 } = {}) {
   const card = h('div', { class: 'paper prompt-card adv-card' },
     h('div', { class: 'big-emoji', 'aria-hidden': 'true' }, skillIcon(m.skill)),
     h('h2', { class: 'adv-title' }, m.isControle ? `Contrôle ${level?.grade || ''}`.trim() : m.title),
-    h('p', { class: 'read adv-intro', lang: 'fr' }, say));
+    h('p', { class: 'read adv-intro', lang: 'fr' }, typo(say)));
   const go = h('button', { class: 'btn btn-primary btn-block', type: 'button', 'data-autofocus': true }, 'C\'est parti ! ▶');
   api.stage.replaceChildren(card, go);
   api.setReplay(() => voice.seq([say]));
