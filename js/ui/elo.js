@@ -24,9 +24,11 @@ const article = t => (t.id === 'dame' ? 'la' : 'le');
 /** Badge de l'accueil : pièce + nombre + titre. */
 export function eloBadge(points, onClick) {
   const { title } = titleFor(points);
-  return h('button', { class: 'elo-badge', type: 'button', onclick: onClick, 'aria-label': `Force de lecture ${points}, ${title.name}` },
+  // Nom accessible = texte visible (+ « Force de lecture » pour les lecteurs d'écran) : WCAG 2.5.3.
+  return h('button', { class: 'elo-badge', type: 'button', onclick: onClick },
     piece(title.icon),
-    h('span', null, h('span', { class: 'elo-num' }, String(points)), h('span', { class: 'elo-title' }, title.name)));
+    h('span', null, h('span', { class: 'sr-only' }, 'Force de lecture : '),
+      h('span', { class: 'elo-num' }, String(points)), ' ', h('span', { class: 'elo-title' }, title.name)));
 }
 
 /** Panneau du bilan : le nombre grimpe de « avant » à « après ». */
@@ -34,7 +36,7 @@ export function eloPanel({ before, after, gained }) {
   const { title, next, progress } = titleFor(before);
   const num = h('span', { class: 'num' }, String(before));
   const fill = h('i');
-  const bar = h('div', { class: 'bar', role: 'progressbar', 'aria-valuemin': '0', 'aria-valuemax': '100' }, fill);
+  const bar = h('div', { class: 'bar', role: 'progressbar', 'aria-label': 'Vers la prochaine pièce', 'aria-valuemin': '0', 'aria-valuemax': '100' }, fill);
   const gain = h('span', { class: 'gain' }, gained > 0 ? `+${gained}` : '');
   const el = h('div', { class: 'panel elo-panel' }, piece(title.icon, 'big'),
     h('div', { class: 'grow stack' },

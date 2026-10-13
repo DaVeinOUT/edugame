@@ -80,7 +80,6 @@ export const hub = {
     const bubble = h('button', { class: 'bubble', type: 'button', onclick: () => voice.seq(parts) }, caption);
     const play = h('button', {
       class: 'btn btn-gold btn-play', type: 'button', 'data-autofocus': true, disabled: rested || null,
-      'aria-label': rested ? 'À demain' : `Jouer : ${next.label}`,
       onclick: () => router.go('lesson', { mode: next.mode, step: next.step, module: next.module }),
     }, h('span', { class: 'play-icon', 'aria-hidden': 'true' }, rested ? '😴' : '▶'),
       h('span', { class: 'stack', style: { gap: '0', alignItems: 'flex-start' } },

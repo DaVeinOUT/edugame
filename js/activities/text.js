@@ -30,7 +30,7 @@ export const typo = text => String(text).replace(/ ([!?;:»])/g, '\u00a0$1').rep
 /** Phrase à trou : le trou se voit (et se remplit après la réponse). */
 function gapSentence(text) {
   const [before, after = ''] = typo(text).split(/_{2,}/);
-  const hole = h('span', { class: 'gap-hole', 'aria-label': 'mot manquant' }, '  ');
+  const hole = h('span', { class: 'gap-hole' }, h('span', { class: 'sr-only' }, 'mot manquant'), '  ');
   return { el: h('p', { class: 'read adv-question', lang: 'fr' }, before, hole, after), hole };
 }
 

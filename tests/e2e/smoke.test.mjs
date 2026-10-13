@@ -219,7 +219,7 @@ test('un grand déjà lecteur joue un module des niveaux CE1 → 3e', async () =
   });
   await page.reload();
   await page.waitForSelector('.btn-play');
-  assert.match(await page.getAttribute('.btn-play', 'aria-label'), /^Jouer : /);
+  assert.match(await page.textContent('.btn-play'), /^▶\s*Jouer/);
   await page.click('.tile:has-text("Niveaux")');
   await page.click('.module-btn.next');
   await page.click('text=C\'est parti');

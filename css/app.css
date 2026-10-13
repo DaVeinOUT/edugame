@@ -251,7 +251,7 @@ body.u-space .ladder .ladder-level { color: #c4b5fd; }
 .node-btn.long { font-size: 1.2rem; }
 .path-node.done .node-btn { background: radial-gradient(circle at 35% 30%, #fffbe6, #fde68a); box-shadow: 0 7px 0 #d39b14, 0 12px 24px rgba(0, 0, 0, .15); }
 .path-node.current .node-btn { background: radial-gradient(circle at 35% 30%, #f5f3ff, #c4b5fd); box-shadow: 0 7px 0 #7c3aed, 0 0 0 8px rgba(124, 58, 237, .25); animation: nodePulse 1.8s ease-in-out infinite; }
-.path-node.locked .node-btn { background: #e5e7eb; color: #9ca3af; box-shadow: 0 7px 0 #c7cbd2; cursor: default; }
+.path-node.locked .node-btn { background: #e5e7eb; color: #6b7280; box-shadow: 0 7px 0 #c7cbd2; cursor: default; }   /* 3,9:1 (grand texte gras) */
 .path-node .stars { font-size: 1rem; letter-spacing: 2px; color: var(--gold); min-height: 1.2em; }
 .path-node .lock { position: absolute; top: -4px; right: -4px; font-size: 1.2rem; }
 .path-node .kaya { position: absolute; left: 96px; top: -6px; width: 64px; }

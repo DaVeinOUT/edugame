@@ -17,6 +17,7 @@
     "serve": "python3 -m http.server 8765"
   },
   "devDependencies": {
+    "axe-core": "^4.14.0",
     "playwright-core": "^1.50.0"
   }
 }
