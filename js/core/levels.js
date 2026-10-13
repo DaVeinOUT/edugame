@@ -82,12 +82,20 @@ export function controlePassed(profile, levelId) {
   return !!adv(profile).controles[levelId];
 }
 
+/* Dès 10 ans, on peut « tester » un niveau : son contrôle est proposé avant les modules. */
+export const TEST_OUT_AGES = Object.freeze(['10-12', '13-15']);
+
 /** Ce que propose « Jouer » quand le chemin des sons est fini : on progresse niveau par niveau. */
 export function nextModule(L, profile, cur, points) {
   const a = adv(profile);
+  const testOut = TEST_OUT_AGES.includes(profile.age);
   for (const lv of openLevels(L, profile, cur, points)) {
     if (a.controles[lv.id]) continue;
     const mods = L.modulesOf(lv.id);
+    // Niveau encore jamais commencé par un grand : le contrôle d'abord (réussi = il monte
+    // tout de suite ; sinon, les modules lui apprennent ce qui manque).
+    const untouched = !mods.some(m => a.modules[m.id]);
+    if (testOut && untouched) return mods.find(m => m.isControle) || mods[0] || null;
     const next = mods.find(m => !m.isControle && !finished(a.modules[m.id]) && moduleOpen(L, profile, m));
     return next || mods.find(m => m.isControle) || null;
   }

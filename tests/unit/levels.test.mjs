@@ -65,12 +65,22 @@ test('les modules s\'ouvrent en chaîne, le contrôle à tout moment', () => {
 });
 
 test('« Jouer » propose le module suivant, puis le contrôle, puis le niveau d\'après', () => {
-  const p0 = withPath({ advanced: true });
+  const young = { age: '7-9' };
+  const p0 = withPath({ advanced: true }, young);
   assert.equal(nextModule(L, p0, cur, 600).id, 'n3-a');
-  const p1 = withPath({ advanced: true, adv: { modules: { 'n3-a': { stars: 2, tries: 1 }, 'n3-b': { stars: 0, tries: 2 } }, controles: {} } });
+  const p1 = withPath({ advanced: true, adv: { modules: { 'n3-a': { stars: 2, tries: 1 }, 'n3-b': { stars: 0, tries: 2 } }, controles: {} } }, young);
   assert.equal(nextModule(L, p1, cur, 600).id, 'n3-controle');
-  const p2 = withPath({ advanced: true, adv: { modules: p1.path.adv.modules, controles: { n3: true } } });
+  const p2 = withPath({ advanced: true, adv: { modules: p1.path.adv.modules, controles: { n3: true } } }, young);
   assert.equal(nextModule(L, p2, cur, 600).id, 'n4-a');
+});
+
+test('dès 10 ans, le contrôle d\'un niveau neuf vient d\'abord : on monte vite si on sait', () => {
+  const grand = withPath({ advanced: true });   // 10-12 ans
+  assert.equal(nextModule(L, grand, cur, 600).id, 'n3-controle');
+  const failed = withPath({ advanced: true, adv: { modules: { 'n3-controle': { stars: 0, tries: 1 } }, controles: {} } });
+  assert.equal(nextModule(L, failed, cur, 600).id, 'n3-a', 'contrôle pas encore réussi : les modules apprennent ce qui manque');
+  const passed = withPath({ advanced: true, adv: { modules: { 'n3-controle': { stars: 2, tries: 1 } }, controles: { n3: true } } });
+  assert.equal(nextModule(L, passed, cur, 600).id, 'n4-controle', 'au niveau suivant aussi, le contrôle d\'abord');
 });
 
 test('les questions sont bien formées (trou, mot à toucher, ordre, texte)', () => {

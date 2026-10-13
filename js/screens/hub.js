@@ -12,7 +12,7 @@ import { eloBadge } from '../ui/elo.js';
 import { toast } from '../ui/fx.js';
 import { display } from '../core/elo.js';
 import { isDue } from '../core/srs.js';
-import { phonicsDone, nextModule, openLevels } from '../core/levels.js';
+import { phonicsDone, nextModule, openLevels, moduleRecord } from '../core/levels.js';
 import { captionOf } from '../services/voice.js';
 
 const greeted = new Set();   // une salutation par enfant et par ouverture de l'app
@@ -26,8 +26,11 @@ export function nextActivity(profile, cur, now = Date.now(), L = null) {
     const m = nextModule(L, profile, cur, display(profile.elo));
     if (m?.isControle) {
       const { grade } = L.level(m.level);
+      const started = L.modulesOf(m.level).some(x => moduleRecord(profile, x.id));
       return { mode: 'module', module: m.id, label: `Contrôle ${grade}`,
-               parts: [`Tu as fini les modules du niveau ${grade}. Prêt pour le contrôle ? Touche le gros bouton !`] };
+               parts: [started
+                 ? `Tu as fini les modules du niveau ${grade}. Prêt pour le contrôle ? Touche le gros bouton !`
+                 : `Pour commencer le niveau ${grade}, un petit contrôle : si tu le réussis, tu montes tout de suite ! Touche le gros bouton !`] };
     }
     if (m) return { mode: 'module', module: m.id, label: m.title, parts: [`Aujourd'hui : ${m.title}.`, 'Touche le gros bouton !'] };
     return { mode: 'practice', label: 'Révisions', parts: ['Tu as fini tous les niveaux, bravo ! On révise ? Touche le gros bouton !'] };
