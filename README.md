@@ -93,5 +93,8 @@ rapports/             recherches et décisions ; ops/ : suivi du chantier (HANDO
 - **Code d'EDUCA** : licence MIT (voir `LICENSE`) — *choix provisoire, en attente de validation par Dave.*
 - **Polices** (SIL Open Font License 1.1, textes dans `fonts/licenses/` et `fonts/LICENSE.txt`) :
   Andika (SIL International), Nunito, Orbitron, Rajdhani, OpenDyslexic (Abbie Gonzalez).
+- **Voix humaine des mots** : enregistrements de **Poslovitch** sur **Lingua Libre** (Wikimédia France), publiés sur
+  Wikimedia Commons sous **CC0** (domaine public) ; liste et liens dans [`audio/ATTRIBUTIONS.md`](audio/ATTRIBUTIONS.md).
+  Régénération : `npm run voix:fetch`, `npm run voix:encode` (ffmpeg), contrôle acoustique `npm run voix:check`.
 - **Images** : émojis du système de l'appareil (aucune image téléchargée).
 - **Sources pédagogiques** : listées dans les rapports du dossier `rapports/`.

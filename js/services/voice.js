@@ -8,6 +8,9 @@
      silencieux, enfant malentendant, téléphone sans voix) ;
    • joue les sons isolés des lettres (« mmm ») depuis de petits
      fichiers quand ils existent, sinon s'appuie sur un mot ;
+   • dit les MOTS du jeu avec une vraie voix humaine (enregistrements
+     libres de Lingua Libre, audio/mots/) ; la synthèse prend le relais
+     pour les mots sans enregistrement ;
    • se tait si l'enfant utilise un lecteur d'écran (pas de double voix).
    ============================================================ */
 
@@ -35,6 +38,9 @@ const SOUND_TTS = {
 const synth = typeof speechSynthesis !== 'undefined' ? speechSynthesis : null;
 const DEFAULT_RATE = 0.9;
 const SLOW_RATE = 0.75;
+/* Mots enregistrés : un peu ralentis pour l'apprenti lecteur (hauteur de voix conservée). */
+const WORD_RATE = 0.85;
+const WORD_SLOW_RATE = 0.75;
 
 const st = {
   voice: null, localVoice: null, preferred: null,
@@ -43,6 +49,7 @@ const st = {
   status: synth ? 'unknown' : 'unsupported',   // ok | novoice | unknown | unsupported
   gen: 0,                                        // génération : une nouvelle phrase coupe les séquences en cours
   soundFiles: new Set(), soundBase: 'audio/sons/', recordings: new Map(),
+  wordFiles: new Map(), wordBase: 'audio/mots/',
   captionFns: new Set(), live: null, audio: null,
 };
 
@@ -133,7 +140,19 @@ async function say(text, opts = {}) {
   const myGen = st.gen;
   const rate = opts.rate ?? (st.slow ? SLOW_RATE : DEFAULT_RATE) * (opts.slowWord ? 0.85 : 1);
   if (!opts.noCaption) caption(text);
-  if (!synth || st.muted || st.screenReader) {
+  if (st.muted || st.screenReader) {
+    await wait(Math.min(2600, estimate(text, rate) * 0.6));
+    return;
+  }
+  // Un mot du jeu : la voix humaine enregistrée, si on l'a (marche aussi sans synthèse vocale).
+  const file = opts.slowWord ? st.wordFiles.get(text.trim().toLowerCase()) : null;
+  if (file) {
+    opts.highlight?.classList.add('speaking');
+    const ok = await playFile(`${st.wordBase}${file}.mp3`, { rate: st.slow ? WORD_SLOW_RATE : WORD_RATE });
+    opts.highlight?.classList.remove('speaking');
+    if (ok || myGen !== st.gen) return;
+  }
+  if (!synth) {
     await wait(Math.min(2600, estimate(text, rate) * 0.6));
     return;
   }
@@ -143,10 +162,14 @@ async function say(text, opts = {}) {
   await utter(text, { rate, highlight: opts.highlight || null });
 }
 
-function playFile(url) {
+function playFile(url, { rate = 1 } = {}) {
   return new Promise(resolve => {
     try {
       const a = new Audio(url);
+      if (rate !== 1) {
+        a.preservesPitch = true;
+        a.playbackRate = rate;
+      }
       st.audio = a;
       const end = () => { clearTimeout(guard); resolve(true); };
       const guard = setTimeout(end, 4000);
@@ -272,6 +295,12 @@ export const voice = {
     st.soundFiles = new Set(list);
     if (base) st.soundBase = base;
   },
+  /** Mots enregistrés (voix humaine) : { mot en minuscules: nom du fichier sans .mp3 }. */
+  setWordFiles(map, base) {
+    st.wordFiles = new Map(Object.entries(map || {}));
+    if (base) st.wordBase = base;
+  },
+  hasWord: text => st.wordFiles.has(String(text).trim().toLowerCase()),
   /** Sons purs enregistrés par l'adulte (Map phonème → URL). */
   setRecordings(map) { st.recordings = map instanceof Map ? map : new Map(); },
   hasRecording: ph => st.recordings.has(ph),

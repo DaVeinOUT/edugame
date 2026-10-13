@@ -240,3 +240,23 @@ test('un grand déjà lecteur joue un module des niveaux CE1 → 3e', async () =
   assert.deepEqual(errors, []);
   await context.close();
 });
+
+test('les mots du jeu sont dits par une vraie voix humaine (fichier enregistré)', async () => {
+  const { context, page, errors } = await open();
+  await createChild(page, 'Lou');
+  const played = await page.evaluate(async () => {
+    const srcs = [];
+    const play = HTMLMediaElement.prototype.play;
+    HTMLMediaElement.prototype.play = function () {
+      const p = play.call(this);
+      p.then(() => srcs.push(decodeURIComponent(this.src)), () => {});
+      return p;
+    };
+    const { voice } = await import('./js/services/voice.js');
+    await voice.say('ballon', { slowWord: true });
+    return srcs;
+  });
+  assert.ok(played.some(s => s.endsWith('/audio/mots/ballon.mp3')), `fichiers joués : ${played}`);
+  assert.deepEqual(errors, []);
+  await context.close();
+});

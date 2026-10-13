@@ -15,6 +15,7 @@ import { applyTheme } from './ui/theme.js';
 import { toast } from './ui/fx.js';
 import * as DATA from './data/curriculum.js';
 import { SOUND_FILES } from './data/sounds.js';
+import { WORD_FILES } from './data/wordaudio.js';
 import * as LEVEL_DATA from './data/levels.js';
 import { buildCurriculum } from './core/curriculum.js';
 import { restedToday } from './core/session.js';
@@ -87,6 +88,7 @@ installSafetyNet({
 document.addEventListener('pointerdown', () => sfx.unlock(), { once: true, capture: true });
 sfx.muted = store.device().muted;
 voice.setSoundFiles(SOUND_FILES);
+voice.setWordFiles(WORD_FILES);   // voix humaine (Lingua Libre, CC0) pour les mots du jeu
 loadRecordings().then(map => voice.setRecordings(map)).catch(() => { /* pas d'IndexedDB : synthèse */ });
 voice.configure({ muted: store.device().muted });
 voice.init({ preferred: store.device().voice, liveRegion: document.getElementById('sr-live') })

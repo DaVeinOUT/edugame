@@ -177,7 +177,7 @@ export const LEXICON = [
   ['p-ou-l|p-e°', '🐙'], ['é|c-u|r-eu-il', '🐿️'], ['h°-i|pp-o|p-o|t-a|m-e°', '🦛'], ['r-h°-i|n-o|c:s-é|r-o-s', '🦏'],
   ['l-ou|t-r-e°', '🦦'], ['m-ou-s|t-i|qu-e°', '🦟'], ['d-i|n-o|s:z-au|r-e°', '🦕'], ['d-r-a|g-on', '🐉'],
   // à manger
-  ['a|n-a|n-a-s°', '🍍'], ['p-o|mm-e°', '🍎'], ['p-oi|r-e°', '🍐'], ['b-a|n-a|n-e°', '🍌'], ['c:s-i|t-r-on', '🍋'],
+  ['a|n-a|n-a-s', '🍍'], ['p-o|mm-e°', '🍎'], ['p-oi|r-e°', '🍐'], ['b-a|n-a|n-e°', '🍌'], ['c:s-i|t-r-on', '🍋'],
   ['o|r-an|g:j-e°', '🍊'], ['f-r-ai|s:z-e°', '🍓'], ['c:s-e|r-i|s:z-e°', '🍒'], ['r-ai|s:z-in', '🍇'], ['m-e|l-on', '🍈'],
   ['p-a-s|t-è|qu-e°', '🍉'], ['p-ê|ch-e°', '🍑'], ['k-i|w-i', '🥝'], ['c-a|r-o|tt-e°', '🥕'], ['t-o|m-a|t-e°', '🍅'],
   ['p-a|t-a|t-e°', '🥔'], ['p-ain', '🍞'], ['f-r-o|m-a|g:j-e°', '🧀'], ['l-ai-t°', '🥛'], ['œu-f', '🥚'],

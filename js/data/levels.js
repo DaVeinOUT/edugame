@@ -64,7 +64,7 @@ export const MODULES = [
     ] },
 
   { id: 'n3-homophones-a', level: 'n3', order: 2, skill: 'orthographe', title: 'a ou à', difficulty: 2,
-    intro: 'Si tu peux dire « avait », écris « a » sans accent. Sinon, écris « à » avec l’accent. Exemple : Léa a un chat, car Léa avait un chat.',
+    intro: 'Si tu peux dire « avait », écris « a » sans accent. Sinon, écris « à » avec l’accent. Exemple : « Léa a un chat » devient « Léa avait un chat ».',
     items: [
       { type: 'gap', text: 'Léa ___ un vélo rouge.', choices: ['a', 'à'], answer: 'a', explain: '« a » vient du verbe avoir : on peut dire « Léa avait un vélo rouge ».' },
       { type: 'gap', text: 'Nathan va ___ la piscine.', choices: ['a', 'à'], answer: 'à', explain: 'On ne peut pas dire « Nathan va avait la piscine » : on écrit « à » avec l’accent.' },
@@ -367,7 +367,7 @@ export const MODULES = [
       { type: 'text', passage: 'Chaque année, les habitants de Jacmel préparent le carnaval. Les enfants du quartier fabriquent des masques en papier. Leur voisine, une artiste, les aide. Le jour de la fête, toute la ville danse dans les rues.',
         questions: [
           { text: 'Quel est le sujet de « fabriquent » ?', choices: ['Les enfants du quartier', 'des masques', 'le quartier'], answer: 'Les enfants du quartier', explain: 'Ce sont les enfants du quartier qui fabriquent les masques.' },
-          { text: 'Pourquoi « danse » s’écrit-il sans « -nt » ?', choices: ['Le sujet « toute la ville » est au singulier.', 'Le sujet est « les rues ».', 'Le verbe est à l’infinitif.'], answer: 'Le sujet « toute la ville » est au singulier.', explain: 'Le sujet est « toute la ville », au singulier : on écrit « danse ».' },
+          { text: 'Pourquoi le verbe « danse » est-il au singulier ?', choices: ['Le sujet « toute la ville » est au singulier.', 'Le sujet est « les rues ».', 'Le verbe est à l’infinitif.'], answer: 'Le sujet « toute la ville » est au singulier.', explain: 'Le sujet est « toute la ville », au singulier : on écrit « danse ».' },
           { text: 'Qui aide les enfants ?', choices: ['leur voisine', 'leurs parents', 'le maire'], answer: 'leur voisine', explain: 'Le texte dit : « Leur voisine, une artiste, les aide. »' },
         ] },
       { type: 'choice', text: 'Dans « Chaque soir, les grenouilles chantent près de la mare », quel est le sujet ?', choices: ['les grenouilles', 'Chaque soir', 'la mare'], answer: 'les grenouilles', explain: 'Ce sont les grenouilles qui chantent : c’est le sujet.' },
@@ -519,7 +519,7 @@ export const MODULES = [
     ] },
 
   { id: 'n4-complements-circ', level: 'n4', order: 9, skill: 'grammaire', title: 'Où ? Quand ? Pourquoi ?', difficulty: 7,
-    intro: 'Le complément circonstanciel dit où, quand ou pourquoi. On peut souvent le déplacer ou le supprimer. Exemple : Le soir, je lis dans mon lit.',
+    intro: 'Le complément circonstanciel dit où, quand ou pourquoi. On peut souvent le déplacer ou le supprimer. Exemple : le soir, je lis dans mon lit.',
     items: [
       { type: 'choice', text: 'Dans « Le matin, je bois du thé », que dit « Le matin » ?', choices: ['quand', 'où', 'pourquoi'], answer: 'quand', explain: '« Le matin » répond à « quand ? » : c’est un complément de temps.' },
       { type: 'choice', text: 'Dans « Les enfants jouent dans la cour », que dit « dans la cour » ?', choices: ['où', 'quand', 'pourquoi'], answer: 'où', explain: '« dans la cour » répond à « où ? » : c’est un complément de lieu.' },
@@ -885,7 +885,7 @@ export const MODULES = [
       { type: 'choice', text: 'Dans « Ce quartier est un vrai labyrinthe », quelle figure de style est employée ?', choices: ['une métaphore', 'une comparaison', 'une énumération'], answer: 'une métaphore', explain: 'Le quartier est assimilé à un labyrinthe sans mot de comparaison : c’est une métaphore.' },
       { type: 'choice', text: 'Quel mot introduit une idée qui s’oppose à la précédente ?', choices: ['cependant', 'de plus', 'ainsi'], answer: 'cependant', explain: '« cependant » marque une opposition entre deux idées.' },
       { type: 'gap', text: 'Les écrans fatiguent les yeux ; ___, il faut faire des pauses.', choices: ['c’est pourquoi', 'pourtant', 'bien que'], answer: 'c’est pourquoi', explain: '« c’est pourquoi » introduit la conséquence : il faut faire des pauses.' },
-      { type: 'gap', text: 'Le sport est bon pour la santé ; ___, il apprend l’esprit d’équipe.', choices: ['de plus', 'pourtant', 'donc'], answer: 'de plus', explain: '« de plus » ajoute un nouvel argument au premier.' },
+      { type: 'gap', text: 'Le sport est bon pour la santé ; ___, il développe l’esprit d’équipe.', choices: ['de plus', 'pourtant', 'donc'], answer: 'de plus', explain: '« de plus » ajoute un nouvel argument au premier.' },
       { type: 'choice', text: 'Quelle phrase exprime un fait et pas une opinion ?', choices: ['L’eau bout à 100 °C au niveau de la mer.', 'Le football est le plus beau sport.', 'Les mangues sont les meilleurs fruits.'], answer: 'L’eau bout à 100 °C au niveau de la mer.', explain: 'On peut vérifier ce fait scientifique ; les autres phrases donnent un avis.' },
       { type: 'choice', text: 'Dans « Je crois qu’il viendra », que montre « Je crois » ?', choices: ['une opinion, pas une certitude', 'une certitude absolue', 'un ordre'], answer: 'une opinion, pas une certitude', explain: '« Je crois » nuance l’affirmation : celui qui parle n’en est pas sûr.' },
       { type: 'pick', text: 'Malheureusement, le spectacle a été annulé.', prompt: 'Touche le mot qui montre l’avis du narrateur.', answer: 'Malheureusement', explain: '« Malheureusement » montre que le narrateur regrette l’annulation.' },
@@ -969,7 +969,7 @@ export const MODULES = [
           { text: 'Que remplace « où » dans la dernière phrase ?', choices: ['un endroit', 'Cayenne', 'le stand'], answer: 'un endroit', explain: '« où » reprend « un endroit » : je me sens chez moi dans cet endroit.' },
         ] },
       { type: 'order', words: ['Le', 'livre', 'que', 'je', 'lis', 'est', 'passionnant'], answer: 'Le livre que je lis est passionnant.', explain: 'La relative « que je lis » suit directement son antécédent « livre ».' },
-      { type: 'choice', text: 'Quel pronom relatif complète « La ville ___ je rêve » ?', choices: ['dont', 'que', 'qui'], answer: 'dont', explain: 'On dit « rêver de » : « dont » remplace « de la ville ».' },
+      { type: 'choice', text: 'Quel pronom relatif complète « La ville … je rêve » ?', choices: ['dont', 'que', 'qui'], answer: 'dont', explain: 'On dit « rêver de » : « dont » remplace « de la ville ».' },
     ] },
 
   { id: 'n6-voix-passive', level: 'n6', order: 5, skill: 'grammaire', title: 'Voix active, voix passive', difficulty: 5,
@@ -1043,9 +1043,81 @@ export const MODULES = [
       { type: 'order', words: ['Je', 'sais', 'que', 'tu', 'es', 'courageux'], answer: 'Je sais que tu es courageux.', explain: '« que tu es courageux » est une complétive : elle complète le verbe « sais ».' },
     ] },
 
+  { id: 'n6-participe-avoir', level: 'n6', order: 8, skill: 'orthographe', title: 'Le participe passé avec avoir', difficulty: 7,
+    intro: 'Avec « avoir », le participe s’accorde avec le COD placé avant. Exemple : la robe que j’ai cousue. Si le COD suit le verbe, pas d’accord : j’ai cousu une robe.',
+    items: [
+      { type: 'gap', text: 'Les lettres que j’ai ___ sont arrivées.', choices: ['écrites', 'écrit', 'écrits'], answer: 'écrites', explain: 'Le COD « que » reprend « Les lettres », placé avant : écrites.' },
+      { type: 'gap', text: 'J’ai ___ des lettres à mes amis.', choices: ['écrit', 'écrites'], answer: 'écrit', explain: 'Le COD « des lettres » est placé après le verbe : le participe ne s’accorde pas.' },
+      { type: 'gap', text: 'Quelle chanson as-tu ___ ?', choices: ['choisie', 'choisi', 'choisies'], answer: 'choisie', explain: 'Le COD « Quelle chanson » est placé avant le verbe : choisie.' },
+      { type: 'gap', text: 'Ces mangues, nous les avons ___ au marché.', choices: ['achetées', 'acheté', 'achetés'], answer: 'achetées', explain: 'Le COD « les » reprend « Ces mangues », placé avant : achetées.' },
+      { type: 'gap', text: 'Les efforts qu’il a ___ ont payé.', choices: ['faits', 'fait'], answer: 'faits', explain: 'Le COD « qu’ » reprend « Les efforts », placé avant : faits.' },
+      { type: 'gap', text: 'Mes sœurs ont ___ toute la soirée.', choices: ['chanté', 'chantées'], answer: 'chanté', explain: 'Aucun COD n’est placé avant : avec « avoir », le participe reste invariable.' },
+      { type: 'gap', text: 'La maison qu’ils ont ___ est immense.', choices: ['construite', 'construit'], answer: 'construite', explain: 'Le COD « qu’ » reprend « La maison », placé avant : construite.' },
+      { type: 'gap', text: 'Ta grand-mère, je l’ai ___ au marché.', choices: ['vue', 'vu'], answer: 'vue', explain: 'Le COD « l’ » reprend « Ta grand-mère », placé avant : vue.' },
+      { type: 'gap', text: 'Elle s’est ___ les mains.', choices: ['lavé', 'lavée'], answer: 'lavé', explain: 'Le COD « les mains » est placé après : le participe reste invariable.' },
+      { type: 'gap', text: 'Elle s’est ___ avant de dîner.', choices: ['lavée', 'lavé'], answer: 'lavée', explain: 'Le COD « s’ », c’est elle-même, placé avant : lavée.' },
+      { type: 'pick', text: 'Les histoires que Mamie nous a racontées étaient magiques.', prompt: 'Touche le participe passé accordé.', answer: 'racontées', explain: '« racontées » s’accorde avec « que », qui reprend « Les histoires ».' },
+      { type: 'choice', text: 'Quelle phrase est correctement accordée ?', choices: ['Les photos que tu as prises sont belles.', 'Les photos que tu as pris sont belles.'], answer: 'Les photos que tu as prises sont belles.', explain: 'Le COD « que » reprend « Les photos », placé avant : prises.' },
+      { type: 'text', passage: 'Les pirogues que les pêcheurs ont réparées sont prêtes. Ils les ont repeintes en rouge et en jaune. Hier, ils ont attrapé beaucoup de poissons. Les dorades qu’ils ont vendues étaient superbes.',
+        questions: [
+          { text: 'Pourquoi écrit-on « réparées » ?', choices: ['Le COD « que » (les pirogues) est placé avant.', 'Le sujet est « les pêcheurs ».'], answer: 'Le COD « que » (les pirogues) est placé avant.', explain: '« que » reprend « Les pirogues », féminin pluriel, placé avant le verbe.' },
+          { text: 'Pourquoi « attrapé » ne s’accorde-t-il pas ?', choices: ['Le COD est placé après le verbe.', 'Le sujet est masculin.'], answer: 'Le COD est placé après le verbe.', explain: '« beaucoup de poissons » est placé après : le participe reste invariable.' },
+          { text: 'Avec quel nom s’accorde « vendues » ?', choices: ['dorades', 'pêcheurs', 'poissons'], answer: 'dorades', explain: '« qu’ » reprend « Les dorades », placé avant : vendues.' },
+        ] },
+      { type: 'order', words: ['Je', 'les', 'ai', 'vues', 'hier'], answer: 'Je les ai vues hier.', explain: 'Le COD « les » est placé avant l’auxiliaire : le participe s’accorde.' },
+    ] },
+
+  { id: 'n6-discours', level: 'n6', order: 9, skill: 'grammaire', title: 'Les paroles rapportées', difficulty: 7,
+    intro: 'Au discours direct, on cite les paroles entre guillemets. Au discours indirect, on les rapporte après « que » ou « si ». Les pronoms changent, et parfois les temps : il dit qu’il viendra.',
+    items: [
+      { type: 'choice', text: 'Mets au discours indirect : Léa dit : « Je suis fatiguée. »', choices: ['Léa dit qu’elle est fatiguée.', 'Léa dit que je suis fatiguée.', 'Léa dit : elle est fatiguée.'], answer: 'Léa dit qu’elle est fatiguée.', explain: '« je » devient « elle » et les paroles sont introduites par « que ».' },
+      { type: 'choice', text: 'Mets au discours indirect : Il me demande : « Viens-tu ? »', choices: ['Il me demande si je viens.', 'Il me demande que je viens.', 'Il me demande viens-tu.'], answer: 'Il me demande si je viens.', explain: 'Une interrogation totale devient une subordonnée introduite par « si ».' },
+      { type: 'choice', text: 'Mets au discours indirect : Elle demande : « Où habites-tu ? »', choices: ['Elle demande où j’habite.', 'Elle demande où habites-tu.', 'Elle demande que j’habite.'], answer: 'Elle demande où j’habite.', explain: 'On garde « où », mais le sujet revient avant le verbe et le point d’interrogation disparaît.' },
+      { type: 'choice', text: 'Mets au discours indirect : Elle répondit : « Je partirai demain. »', choices: ['Elle répondit qu’elle partirait le lendemain.', 'Elle répondit qu’elle partira demain.', 'Elle répondit que je partirai demain.'], answer: 'Elle répondit qu’elle partirait le lendemain.', explain: 'Dans un récit au passé, le futur devient conditionnel et « demain » devient « le lendemain ».' },
+      { type: 'choice', text: 'Dans « Elle cria qu’elle avait trouvé la clé », quel discours est employé ?', choices: ['le discours indirect', 'le discours direct'], answer: 'le discours indirect', explain: 'Les paroles sont rapportées après « que », sans guillemets : c’est le discours indirect.' },
+      { type: 'choice', text: 'Quels signes encadrent les paroles au discours direct ?', choices: ['les guillemets', 'les parenthèses', 'les points de suspension'], answer: 'les guillemets', explain: 'Au discours direct, les paroles sont placées entre guillemets.' },
+      { type: 'pick', text: '« Je reviens vite », murmura Sami.', prompt: 'Touche le verbe de parole.', answer: 'murmura', explain: '« murmura » est un verbe de parole : il indique comment Sami parle.' },
+      { type: 'pick', text: 'Le guide nous demande si nous avons soif.', prompt: 'Touche le mot qui introduit la question indirecte.', answer: 'si', explain: '« si » introduit une interrogation indirecte, sans point d’interrogation.' },
+      { type: 'gap', text: 'Ma tante m’a demandé ___ je voulais du gâteau.', choices: ['si', 'que', 'est-ce que'], answer: 'si', explain: 'Une interrogation totale rapportée commence par « si ».' },
+      { type: 'gap', text: 'Il affirme ___ son équipe va gagner.', choices: ['que', 'si', 'où'], answer: 'que', explain: 'Une affirmation rapportée est introduite par « que ».' },
+      { type: 'choice', text: 'Dans un récit au passé, que devient souvent « ici » au discours indirect ?', choices: ['là', 'ici', 'demain'], answer: 'là', explain: 'Celui qui rapporte n’est plus au même endroit : « ici » devient souvent « là ».' },
+      { type: 'text', passage: 'Le capitaine regarda le ciel. « Une tempête arrive, rentrons au port ! » ordonna-t-il. Les marins lui demandèrent s’ils avaient le temps de finir. Il répondit qu’ils devaient partir immédiatement.',
+        questions: [
+          { text: 'Quelle phrase est au discours direct ?', choices: ['« Une tempête arrive, rentrons au port ! »', 'Les marins lui demandèrent s’ils avaient le temps de finir.', 'Il répondit qu’ils devaient partir immédiatement.'], answer: '« Une tempête arrive, rentrons au port ! »', explain: 'Les paroles du capitaine sont citées entre guillemets : c’est le discours direct.' },
+          { text: 'Que demandent les marins ?', choices: ['s’ils ont le temps de finir', 's’ils peuvent pêcher', 'où est le port'], answer: 's’ils ont le temps de finir', explain: 'Le texte dit qu’ils demandèrent s’ils avaient le temps de finir.' },
+          { text: 'Quel verbe introduit les paroles du capitaine ?', choices: ['ordonna', 'regarda', 'demandèrent'], answer: 'ordonna', explain: '« ordonna-t-il » montre que le capitaine donne un ordre.' },
+        ] },
+      { type: 'order', words: ['Elle', 'demande', 'si', 'tu', 'viens'], answer: 'Elle demande si tu viens.', explain: '« si tu viens » est une interrogation indirecte : elle complète « demande ».' },
+      { type: 'choice', text: 'Au discours indirect, que devient « je » quand on rapporte les paroles de Léa ?', choices: ['elle', 'je', 'tu'], answer: 'elle', explain: 'Le narrateur rapporte les paroles de Léa : « je » devient « elle ».' },
+    ] },
+
+  { id: 'n6-mots', level: 'n6', order: 10, skill: 'vocabulaire', title: 'Les mots et leurs effets', difficulty: 8,
+    intro: 'Un mot a un sens premier et des idées associées : ses connotations. Les figures de style créent des images : comparaison, métaphore, hyperbole. L’étymologie aide aussi : « chrono » veut dire « temps ».',
+    items: [
+      { type: 'choice', text: 'Quelle idée évoque « soleil » dans « Ce bébé est mon soleil » ?', choices: ['la joie et la chaleur', 'la brûlure', 'la nuit'], answer: 'la joie et la chaleur', explain: 'Ici, « soleil » évoque le bonheur et la chaleur : c’est une connotation positive.' },
+      { type: 'choice', text: 'Quelle figure de style dans « Je te l’ai dit mille fois » ?', choices: ['une hyperbole', 'une comparaison', 'une personnification'], answer: 'une hyperbole', explain: '« mille fois » exagère pour insister : c’est une hyperbole.' },
+      { type: 'choice', text: 'Quelle figure de style dans « Il est fort comme un bœuf » ?', choices: ['une comparaison', 'une métaphore', 'une antithèse'], answer: 'une comparaison', explain: 'Le mot « comme » relie les deux éléments : c’est une comparaison.' },
+      { type: 'choice', text: 'Quelle figure de style dans « Cette joueuse est une lionne » ?', choices: ['une métaphore', 'une comparaison', 'une hyperbole'], answer: 'une métaphore', explain: 'La joueuse est assimilée à une lionne sans « comme » : c’est une métaphore.' },
+      { type: 'choice', text: 'Quelle figure réunit deux mots opposés, comme « une obscure clarté » ?', choices: ['un oxymore', 'une comparaison', 'une énumération'], answer: 'un oxymore', explain: '« obscure » et « clarté » s’opposent dans le même groupe : c’est un oxymore.' },
+      { type: 'choice', text: 'Que veut dire « chrono » dans « chronomètre » ?', choices: ['le temps', 'la distance', 'la vitesse'], answer: 'le temps', explain: 'Le grec « khronos » veut dire « temps » : le chronomètre mesure le temps.' },
+      { type: 'choice', text: 'Que veut dire « bio » dans « biologie » ?', choices: ['la vie', 'la terre', 'l’eau'], answer: 'la vie', explain: 'Le grec « bios » veut dire « vie » : la biologie étudie les êtres vivants.' },
+      { type: 'choice', text: 'Que veut dire « -cide » dans « insecticide » ?', choices: ['qui tue', 'qui aime', 'qui protège'], answer: 'qui tue', explain: 'Le latin « caedere » veut dire « tuer » : un insecticide tue les insectes.' },
+      { type: 'choice', text: 'Quel mot est un homophone de « vert » ?', choices: ['verre', 'vent', 'voir'], answer: 'verre', explain: '« vert » et « verre » se prononcent pareil, mais leur sens et leur orthographe diffèrent.' },
+      { type: 'gap', text: 'Il a bu un ___ d’eau fraîche.', choices: ['verre', 'vers', 'vert'], answer: 'verre', explain: 'On boit dans un verre : c’est le nom de l’objet.' },
+      { type: 'gap', text: 'Dans la forêt, nous avons vu un ___ et sa biche.', choices: ['cerf', 'serf', 'serre'], answer: 'cerf', explain: 'Le cerf est l’animal mâle dont la femelle est la biche.' },
+      { type: 'pick', text: 'Le vent chuchotait dans les feuilles.', prompt: 'Touche le mot qui personnifie le vent.', answer: 'chuchotait', explain: '« chuchotait » prête au vent une action humaine : c’est une personnification.' },
+      { type: 'text', passage: 'Ma ville est une ruche bourdonnante. Les voitures rugissent comme des fauves. Pourtant, le soir, un silence de velours enveloppe les rues.',
+        questions: [
+          { text: 'Quelle figure de style est « Ma ville est une ruche bourdonnante » ?', choices: ['une métaphore', 'une comparaison', 'une hyperbole'], answer: 'une métaphore', explain: 'La ville est assimilée à une ruche, sans « comme » : c’est une métaphore.' },
+          { text: 'Quelle idée évoque « un silence de velours » ?', choices: ['la douceur', 'la peur', 'la violence'], answer: 'la douceur', explain: 'Le velours est doux au toucher : ce silence est doux et calme.' },
+          { text: 'Quel mot marque le contraste entre le jour et le soir ?', choices: ['Pourtant', 'comme', 'enveloppe'], answer: 'Pourtant', explain: '« Pourtant » oppose la ville bruyante au calme du soir.' },
+        ] },
+      { type: 'choice', text: 'Quel verbe appartient au registre soutenu ?', choices: ['se hâter', 'se dépêcher', 'se grouiller'], answer: 'se hâter', explain: '« se hâter » est soutenu ; « se dépêcher » est courant et « se grouiller » familier.' },
+    ] },
+
   // ── Contrôle n6 ──
   { id: 'n6-controle', level: 'n6', order: 11, skill: 'controle', title: 'Le grand contrôle', difficulty: 6,
-    intro: 'Voici le contrôle final : il mélange tout ce que tu as appris. Prends ton temps, rien ne presse. Avec sept bonnes réponses sur dix, tu gagnes le diplôme du dernier niveau.',
+    intro: 'Voici le contrôle final : il mélange tout ce que tu as appris. Prends ton temps, rien ne presse. Avec sept bonnes réponses sur dix, tu gagnes le dernier diplôme.',
     items: [
       { type: 'text', passage: 'Les tortues marines reviennent pondre sur la plage où elles sont nées. Bien que ce voyage soit long, elles se trompent rarement. Les scientifiques qui les étudient pensent qu’elles utilisent le champ magnétique de la Terre.',
         questions: [

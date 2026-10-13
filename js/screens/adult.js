@@ -323,6 +323,10 @@ function helpTab() {
       h('p', null, 'L\'enfant voit son RECORD, calculé avec prudence : il ne baisse jamais. L\'estimation du moment (qui peut varier) n\'est visible qu\'ici. Il n\'y a aucun classement entre enfants.')),
     section('En classe',
       h('p', null, 'Une tablette pour plusieurs enfants : chacun touche son animal. Réglez l\'étape de la classe pour aligner le chemin sur votre progression. Séances conseillées : 10 à 15 minutes. Mode silencieux + sous-titres pour les moments calmes.')),
+    section('Les niveaux des grands (CE1 → 3e)',
+      h('p', null, 'Après le chemin des sons : comprendre, orthographe, grammaire, conjugaison, vocabulaire, d\'après les programmes officiels en vigueur. Chaque niveau se termine par un contrôle (70 % de réussite), qui se retente à volonté. Dès 10 ans, le contrôle d\'un niveau est proposé d\'abord : un enfant qui sait déjà monte tout de suite.')),
+    section('Crédits',
+      h('p', null, 'Voix des mots : enregistrements de Poslovitch sur Lingua Libre (Wikimédia France), domaine public (CC0). Polices : Andika (SIL), OpenDyslexic, Nunito (licence OFL). Le jeu ne télécharge rien pendant qu\'on joue : tout est sur l\'appareil.')),
   ];
 }
 
