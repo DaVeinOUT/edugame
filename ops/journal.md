@@ -42,3 +42,9 @@
 - Niveaux des grands jouables (857cab3) : écran « Les niveaux », mode module dans la leçon, exercices `text.js`, contrôles, diplômes, progression dans l'espace des grands ; « Jouer » propose le module suivant une fois le chemin acquis.
 - Revue visuelle (captures) : réponses-phrases sur une colonne (le 🔊 recouvrait la réponse), marge basse pour les sous-titres.
 - Agents relancés après la limite : enseignant (niveaux, écrit au fil de l'eau) et recherche voix/mobile.
+
+## 2026-10-13 (suite) — voix humaine, niveaux complets, mobile
+- Voix humaine : 268 mots + 11 voyelles de Poslovitch (Lingua Libre, CC0), contrôle acoustique automatique des fins de mots (149 vérifiées, « ananas » corrigé : s prononcé), test e2e « mot joué depuis un fichier ».
+- Niveaux : n6 terminé par l'agent enseignant (40 modules + 4 contrôles, 727 questions) ; les 10 questions « Quelle phrase est bien écrite ? » transformées en phrases à trou (ne jamais montrer d'orthographe fautive) ; espaces insécables à l'écran ; contrôle d'entrée dès 10 ans ; l'échelle d'Élo montre les niveaux ouverts par la jauge.
+- Mobile : manifeste, icônes, page de confidentialité, construction du site par script, actions Pages à jour, gabarits Android (TWA) et plan iOS (Capacitor) documentés dans `twa/README.md`.
+- En cours : relecture par l'agent orthophoniste (rapport à appliquer).
