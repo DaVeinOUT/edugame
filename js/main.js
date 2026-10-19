@@ -89,7 +89,7 @@ document.addEventListener('pointerdown', () => sfx.unlock(), { once: true, captu
 sfx.muted = store.device().muted;
 voice.setSoundFiles(SOUND_FILES);
 voice.setWordFiles(WORD_FILES);   // voix humaine (Lingua Libre, CC0) pour les mots du jeu
-loadRecordings().then(map => voice.setRecordings(map)).catch(() => { /* pas d'IndexedDB : synthèse */ });
+loadRecordings().then(map => voice.setRecordings(map)).catch(() => { /* pas d'IndexedDB : les sons du jeu */ });
 voice.configure({ muted: store.device().muted });
 voice.init({ preferred: store.device().voice, liveRegion: document.getElementById('sr-live') })
   .then(() => ctx.applyTheme());

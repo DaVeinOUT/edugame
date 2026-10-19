@@ -27,7 +27,7 @@ test('seuls des mots du jeu sont enregistrés ; les autres restent à la synthè
   assert.ok(missing.length <= 40, `mots sans voix humaine : ${missing.join(', ')}`);
 });
 
-test('les voyelles isolées enregistrées ont leur fichier (les consonnes restent synthétisées)', async () => {
+test('les sons isolés enregistrés (voyelles et consonnes) ont leur fichier, sans orphelin', async () => {
   const { SOUND_FILES } = await import('../../js/data/sounds.js');
   const { PHONEMES } = await import('../../js/core/seg.js');
   const sons = new URL('../../audio/sons/', import.meta.url);
@@ -36,5 +36,8 @@ test('les voyelles isolées enregistrées ont leur fichier (les consonnes resten
     assert.match(file, /^[a-z0-9-]+$/);
     assert.ok(existsSync(new URL(`${file}.mp3`, sons)), `fichier manquant : ${file}.mp3`);
   }
-  assert.ok(!('m' in SOUND_FILES) && !('p' in SOUND_FILES), 'pas de consonne enregistrée avec une voyelle d\'appui');
+  for (const ph of ['m', 's', 'ch', 'v', 'p', 'gn']) assert.ok(ph in SOUND_FILES, `consonne sans enregistrement : ${ph}`);
+  const used = new Set(Object.values(SOUND_FILES));
+  const orphans = readdirSync(sons).filter(f => f.endsWith('.mp3') && !used.has(f.slice(0, -4)));
+  assert.deepEqual(orphans, [], 'aucun fichier orphelin dans audio/sons/');
 });

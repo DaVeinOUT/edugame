@@ -17,8 +17,8 @@ sans lire un seul mot et sans clavier.
 - **Chaque leçon va de l'oreille à l'écrit** : écouter le son → le reconnaître → lire des syllabes →
   lire des mots → reconnaître un mot entendu → l'écrire avec des tuiles → lire une phrase.
   Tout mot à lire est **100 % décodable** avec ce qui a déjà été appris.
-- **Une vraie voix humaine** pour les mots du jeu et les voyelles (enregistrements libres de Lingua Libre) ;
-  des **sons purs** (« mmm », jamais « me ») pour les consonnes, que l'enseignant ou le parent peut aussi
+- **Une vraie voix humaine** pour les mots du jeu et pour chaque son, voyelles et consonnes (enregistrements
+  libres de Lingua Libre) : des **sons purs** (« mmm », jamais « me »), que l'enseignant ou le parent peut aussi
   enregistrer lui-même.
 - **Test de positionnement** dès 7 ans : un grand qui lit déjà ne refait pas tout le chemin.
 - **Les niveaux des grands (CE1 → 3e)** : 4 niveaux, 40 modules et 4 contrôles (environ 730 questions) d'après
