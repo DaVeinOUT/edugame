@@ -30,9 +30,9 @@ test('chaque étape a un mot d\'appui (ou des exemples) et fait entendre son son
 });
 
 test('les mots-outils deviennent lisibles aux étapes prévues (rapport pédagogique §3)', () => {
-  const expected = { a: 0, il: 2, la: 2, le: 7, me: 7, se: 9, sur: 9, vous: 14, nous: 15, ne: 15, un: 16,
-    je: 17, pour: 18, tout: 19, de: 22, mon: 26, les: 27, des: 27, est: 28, que: 29, dans: 31, mais: 35,
-    elle: 42, avec: 42, ce: 47, et: 51 };
+  const expected = { a: 0, il: 2, la: 2, le: 7, me: 7, se: 8, sur: 8, vous: 14, nous: 15, ne: 15, un: 16,
+    je: 17, pour: 18, tout: 19, de: 22, mon: 26, les: 27, des: 27, est: 30, que: 28, dans: 31, mais: 35,
+    elle: 42, avec: 42, ce: 47, et: 52 };
   for (const [w, step] of Object.entries(expected)) {
     const t = cur.tools.find(x => x.text === w);
     assert.ok(t, `mot-outil absent : ${w}`);
