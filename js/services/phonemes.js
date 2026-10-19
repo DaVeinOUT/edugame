@@ -166,7 +166,51 @@ export function renderPhoneme(ctx, ph, t0 = ctx.currentTime + 0.02, out = ctx.de
   return recipe(ctx, master, t0);
 }
 
-/** Joue le son et attend sa fin. */
+/* ---- Le son fabriqué, rendu en petit fichier WAV (une fois, puis gardé) ----
+   Joué par le même lecteur audio que la voix humaine, il sonne aussi quand
+   l'iPhone est en mode silencieux (le Web Audio, lui, se tait alors) et ne
+   dépend pas d'un contexte audio resté « suspendu ». */
+const WAV_RATE = 44100;
+const wavUrls = new Map();
+
+/** Échantillons (−1…1) → fichier WAV 16 bits mono. */
+export function toWav(samples, rate) {
+  const buf = new ArrayBuffer(44 + samples.length * 2);
+  const v = new DataView(buf);
+  const w = (o, s) => { for (let i = 0; i < s.length; i++) v.setUint8(o + i, s.charCodeAt(i)); };
+  w(0, 'RIFF'); v.setUint32(4, 36 + samples.length * 2, true); w(8, 'WAVE'); w(12, 'fmt ');
+  v.setUint32(16, 16, true); v.setUint16(20, 1, true); v.setUint16(22, 1, true);
+  v.setUint32(24, rate, true); v.setUint32(28, rate * 2, true); v.setUint16(32, 2, true); v.setUint16(34, 16, true);
+  w(36, 'data'); v.setUint32(40, samples.length * 2, true);
+  for (let i = 0; i < samples.length; i++) v.setInt16(44 + i * 2, Math.max(-1, Math.min(1, samples[i])) * 0x7fff, true);
+  return new Blob([buf], { type: 'audio/wav' });
+}
+
+/** Adresse (blob:) du son fabriqué, rendu hors-ligne ; null si le navigateur ne sait pas. */
+export async function phonemeUrl(ph) {
+  if (!canSynth(ph)) return null;
+  if (wavUrls.has(ph)) return wavUrls.get(ph);
+  const Offline = globalThis.OfflineAudioContext || globalThis.webkitOfflineAudioContext;
+  if (!Offline || typeof URL === 'undefined' || !URL.createObjectURL) return null;
+  const ctx = new Offline(1, Math.round(WAV_RATE * 1.5), WAV_RATE);
+  const dur = renderPhoneme(ctx, ph, 0.02, ctx.destination);
+  const audio = await new Promise((resolve, reject) => {
+    ctx.oncomplete = e => resolve(e.renderedBuffer);          // anciens Safari : événement
+    const p = ctx.startRendering();
+    if (p && typeof p.then === 'function') p.then(resolve, reject);
+  });
+  const n = Math.min(audio.length, Math.round(WAV_RATE * (dur + 0.1)));
+  const url = URL.createObjectURL(toWav(audio.getChannelData(0).subarray(0, n), WAV_RATE));
+  wavUrls.set(ph, url);
+  return url;
+}
+
+/** Un souffle de silence, pour débloquer le lecteur audio au premier toucher (iPhone). */
+export function silenceUrl() {
+  return URL.createObjectURL(toWav(new Float32Array(800), 8000));
+}
+
+/** Joue le son et attend sa fin (Web Audio direct : dernier recours). */
 export function playPhoneme(ctx, ph) {
   const dur = renderPhoneme(ctx, ph);
   return new Promise(resolve => setTimeout(resolve, (dur + 0.12) * 1000));
