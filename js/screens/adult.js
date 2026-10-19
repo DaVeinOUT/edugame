@@ -20,8 +20,8 @@ import { toast } from '../ui/fx.js';
 import { hashPin, checkPin, isPin, PIN_LENGTH } from '../core/pin.js';
 import { recordingSupported, startRecording, saveRecording, deleteRecording, loadRecordings } from '../services/recordings.js';
 
-/* Sons que l'adulte peut enregistrer (consonnes d'abord : ce sont elles que
-   la synthèse vocale prononce mal). */
+/* Sons que l'adulte peut enregistrer à la place de ceux du jeu (consonnes
+   d'abord : ce sont elles qu'il faut entendre sans voyelle). */
 const RECORDABLE = [
   ['m', 'moto'], ['n', 'nuage'], ['l', 'lion'], ['r', 'robot'], ['s', 'soleil'], ['z', 'zèbre'], ['f', 'fusée'],
   ['v', 'vélo'], ['ch', 'chat'], ['j', 'jus'], ['p', 'pomme'], ['t', 'tortue'], ['k', 'canard'], ['b', 'ballon'],
@@ -33,8 +33,8 @@ const RECORDABLE = [
 function soundsSection(ctx) {
   const { voice, router } = ctx;
   const intro = h('p', { class: 'note' },
-    'Pour apprendre à lire, il faut des sons PURS : « mmm », « sss », jamais « me » ou « se ». Kaya utilise une synthèse de secours. '
-    + 'Pour un son plus naturel, enregistrez votre voix : 2 secondes, sans voyelle (pour p, t, k, b, d, g : un petit bruit très court). '
+    'Pour apprendre à lire, il faut des sons PURS : « mmm », « sss », jamais « me » ou « se ». Kaya les fait entendre avec une vraie voix (enregistrements libres). '
+    + 'Vous pouvez enregistrer la vôtre à la place : 2 secondes, sans voyelle (pour p, t, k, b, d, g : un petit bruit très court). '
     + 'Les enregistrements restent sur cet appareil et servent à tous les enfants.');
   if (!recordingSupported()) return section('Les sons de Kaya', intro, h('p', { class: 'note' }, 'Ce navigateur ne permet pas d\'enregistrer.'));
   const rows = RECORDABLE.map(([ph, example]) => {
@@ -62,7 +62,7 @@ function soundsSection(ctx) {
     }) : null;
     return h('tr', null, h('td', { class: 'read' }, ph), h('td', null, `comme dans « ${example} »`),
       h('td', null, h('div', { class: 'row wrap' }, btn('▶', () => voice.sound(ph)), rec, del)),
-      h('td', { class: 'note' }, has ? 'votre voix ✓' : 'synthèse'));
+      h('td', { class: 'note' }, has ? 'votre voix ✓' : 'voix du jeu'));
   });
   return section('Les sons de Kaya', intro, h('table', { class: 'mini' }, h('tbody', null, rows)));
 }
