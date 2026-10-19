@@ -1,90 +1,432 @@
 /* ============================================================
-   SW.JS — Hors-ligne d'abord : crucial pour les zones où la
-   connexion est rare ou instable (Guyane, zones isolées).
-   Chemins RELATIFS : fonctionne aussi sous /edugame/ (GitHub Pages).
+   SW.JS — Hors-ligne d'abord, mises à jour sous contrôle
+   • Tous les fichiers du jeu sont mis en cache dès l'installation
+     (liste générée par scripts/release.mjs : rien n'est oublié).
+   • Une nouvelle version s'installe EN ATTENTE : elle ne prend la
+     main que lorsqu'on touche « Mettre à jour » depuis l'accueil —
+     jamais au milieu d'une leçon.
+   • Aucun appel à un site tiers : seules les ressources du jeu passent.
+   • Chemins relatifs : fonctionne aussi sous /edugame/ (GitHub Pages).
    ============================================================ */
 
-const CACHE_NAME = 'educa-v12';
-const FONT_CACHE = 'educa-fonts-v2';   // v2 : contient aussi les polices OpenDyslexic
-
+/* <release> — généré par scripts/release.mjs, ne pas éditer à la main */
+const CACHE_NAME = 'educa-2ab8a71d7b';
 const ASSETS = [
   './',
-  './index.html',
-  './manifest.json',
-  './css/base.css',
-  './css/a11y.css',
-  './css/educa.css',
-  './css/game.css',
-  './js/audio.js',
-  './js/comfort.js',
-  './js/kaya.js',
-  './js/card3d.js',
-  './js/cards.js',
-  './js/educa.js',
-  './js/letters.js',
-  './js/builder.js',
-  './js/trace.js',
-  './icons/icon.svg',
+  './audio/mots/a-2.mp3',
+  './audio/mots/a.mp3',
+  './audio/mots/abeille.mp3',
+  './audio/mots/ananas.mp3',
+  './audio/mots/araignee.mp3',
+  './audio/mots/arbre.mp3',
+  './audio/mots/avec.mp3',
+  './audio/mots/avion.mp3',
+  './audio/mots/avocat.mp3',
+  './audio/mots/bague.mp3',
+  './audio/mots/balai.mp3',
+  './audio/mots/baleine.mp3',
+  './audio/mots/ballon.mp3',
+  './audio/mots/banane.mp3',
+  './audio/mots/bateau.mp3',
+  './audio/mots/bebe.mp3',
+  './audio/mots/beurre.mp3',
+  './audio/mots/biberon.mp3',
+  './audio/mots/bisou.mp3',
+  './audio/mots/blanc.mp3',
+  './audio/mots/bleu.mp3',
+  './audio/mots/boite.mp3',
+  './audio/mots/bol.mp3',
+  './audio/mots/bonbon.mp3',
+  './audio/mots/bouche.mp3',
+  './audio/mots/bougie.mp3',
+  './audio/mots/bras.mp3',
+  './audio/mots/brocoli.mp3',
+  './audio/mots/bus.mp3',
+  './audio/mots/cactus.mp3',
+  './audio/mots/cadeau.mp3',
+  './audio/mots/cafe.mp3',
+  './audio/mots/cahier.mp3',
+  './audio/mots/camion.mp3',
+  './audio/mots/canard.mp3',
+  './audio/mots/carotte.mp3',
+  './audio/mots/ce.mp3',
+  './audio/mots/cerise.mp3',
+  './audio/mots/chaise.mp3',
+  './audio/mots/chameau.mp3',
+  './audio/mots/champignon.mp3',
+  './audio/mots/chapeau.mp3',
+  './audio/mots/chat.mp3',
+  './audio/mots/chateau.mp3',
+  './audio/mots/chaussette.mp3',
+  './audio/mots/chaussure.mp3',
+  './audio/mots/cheval.mp3',
+  './audio/mots/chevre.mp3',
+  './audio/mots/chien.mp3',
+  './audio/mots/chocolat.mp3',
+  './audio/mots/chou.mp3',
+  './audio/mots/cinq.mp3',
+  './audio/mots/cirque.mp3',
+  './audio/mots/ciseaux.mp3',
+  './audio/mots/citron.mp3',
+  './audio/mots/cle.mp3',
+  './audio/mots/cloche.mp3',
+  './audio/mots/clown.mp3',
+  './audio/mots/cochon.mp3',
+  './audio/mots/coco.mp3',
+  './audio/mots/coeur.mp3',
+  './audio/mots/coq.mp3',
+  './audio/mots/coquillage.mp3',
+  './audio/mots/coupe.mp3',
+  './audio/mots/couronne.mp3',
+  './audio/mots/couteau.mp3',
+  './audio/mots/crabe.mp3',
+  './audio/mots/crayon.mp3',
+  './audio/mots/crepe.mp3',
+  './audio/mots/crocodile.mp3',
+  './audio/mots/cuillere.mp3',
+  './audio/mots/dans.mp3',
+  './audio/mots/danse.mp3',
+  './audio/mots/dansent.mp3',
+  './audio/mots/dauphin.mp3',
+  './audio/mots/de-2.mp3',
+  './audio/mots/de.mp3',
+  './audio/mots/dent.mp3',
+  './audio/mots/des.mp3',
+  './audio/mots/deux.mp3',
+  './audio/mots/dinosaure.mp3',
+  './audio/mots/dix.mp3',
+  './audio/mots/dragon.mp3',
+  './audio/mots/drapeau.mp3',
+  './audio/mots/du.mp3',
+  './audio/mots/eau.mp3',
+  './audio/mots/ecole.mp3',
+  './audio/mots/elephant.mp3',
+  './audio/mots/elle.mp3',
+  './audio/mots/enfant.mp3',
+  './audio/mots/epee.mp3',
+  './audio/mots/eponge.mp3',
+  './audio/mots/escargot.mp3',
+  './audio/mots/est.mp3',
+  './audio/mots/et.mp3',
+  './audio/mots/etoile.mp3',
+  './audio/mots/fache.mp3',
+  './audio/mots/faim.mp3',
+  './audio/mots/fait.mp3',
+  './audio/mots/fantome.mp3',
+  './audio/mots/fee.mp3',
+  './audio/mots/fete.mp3',
+  './audio/mots/feu.mp3',
+  './audio/mots/feuille.mp3',
+  './audio/mots/fil.mp3',
+  './audio/mots/fille.mp3',
+  './audio/mots/fleur.mp3',
+  './audio/mots/foret.mp3',
+  './audio/mots/fourchette.mp3',
+  './audio/mots/fraise.mp3',
+  './audio/mots/frite.mp3',
+  './audio/mots/fromage.mp3',
+  './audio/mots/fusee.mp3',
+  './audio/mots/garcon.mp3',
+  './audio/mots/gateau.mp3',
+  './audio/mots/girafe.mp3',
+  './audio/mots/glace.mp3',
+  './audio/mots/gorille.mp3',
+  './audio/mots/grenouille.mp3',
+  './audio/mots/groin.mp3',
+  './audio/mots/guitare.mp3',
+  './audio/mots/hamster.mp3',
+  './audio/mots/helicoptere.mp3',
+  './audio/mots/herisson.mp3',
+  './audio/mots/hibou.mp3',
+  './audio/mots/hopital.mp3',
+  './audio/mots/huit.mp3',
+  './audio/mots/il.mp3',
+  './audio/mots/ile.mp3',
+  './audio/mots/ils.mp3',
+  './audio/mots/jambe.mp3',
+  './audio/mots/jaune.mp3',
+  './audio/mots/je.mp3',
+  './audio/mots/jeu.mp3',
+  './audio/mots/judo.mp3',
+  './audio/mots/jus.mp3',
+  './audio/mots/kangourou.mp3',
+  './audio/mots/kiwi.mp3',
+  './audio/mots/koala.mp3',
+  './audio/mots/la.mp3',
+  './audio/mots/lait.mp3',
+  './audio/mots/lama.mp3',
+  './audio/mots/lapin.mp3',
+  './audio/mots/le.mp3',
+  './audio/mots/les.mp3',
+  './audio/mots/lezard.mp3',
+  './audio/mots/lion.mp3',
+  './audio/mots/lit.mp3',
+  './audio/mots/livre.mp3',
+  './audio/mots/loup.mp3',
+  './audio/mots/loupe.mp3',
+  './audio/mots/lune.mp3',
+  './audio/mots/lunettes.mp3',
+  './audio/mots/main.mp3',
+  './audio/mots/mais-2.mp3',
+  './audio/mots/mais.mp3',
+  './audio/mots/maison.mp3',
+  './audio/mots/maman.mp3',
+  './audio/mots/marteau.mp3',
+  './audio/mots/medaille.mp3',
+  './audio/mots/melon.mp3',
+  './audio/mots/mer.mp3',
+  './audio/mots/miel.mp3',
+  './audio/mots/mon.mp3',
+  './audio/mots/montagne.mp3',
+  './audio/mots/moto.mp3',
+  './audio/mots/moustique.mp3',
+  './audio/mots/mouton.mp3',
+  './audio/mots/mur.mp3',
+  './audio/mots/musique.mp3',
+  './audio/mots/ne.mp3',
+  './audio/mots/neige.mp3',
+  './audio/mots/neuf.mp3',
+  './audio/mots/nez.mp3',
+  './audio/mots/noir.mp3',
+  './audio/mots/nous.mp3',
+  './audio/mots/nuage.mp3',
+  './audio/mots/nuit.mp3',
+  './audio/mots/oeuf.mp3',
+  './audio/mots/oiseau.mp3',
+  './audio/mots/on.mp3',
+  './audio/mots/orange.mp3',
+  './audio/mots/os.mp3',
+  './audio/mots/ou.mp3',
+  './audio/mots/ours.mp3',
+  './audio/mots/pain.mp3',
+  './audio/mots/papa.mp3',
+  './audio/mots/papillon.mp3',
+  './audio/mots/parapluie.mp3',
+  './audio/mots/pas.mp3',
+  './audio/mots/pasteque.mp3',
+  './audio/mots/patate.mp3',
+  './audio/mots/patin.mp3',
+  './audio/mots/peche.mp3',
+  './audio/mots/photo.mp3',
+  './audio/mots/piano.mp3',
+  './audio/mots/pied.mp3',
+  './audio/mots/pile.mp3',
+  './audio/mots/piment.mp3',
+  './audio/mots/pirate.mp3',
+  './audio/mots/plage.mp3',
+  './audio/mots/pluie.mp3',
+  './audio/mots/poire.mp3',
+  './audio/mots/poisson.mp3',
+  './audio/mots/police.mp3',
+  './audio/mots/pomme.mp3',
+  './audio/mots/pompier.mp3',
+  './audio/mots/porte.mp3',
+  './audio/mots/poule.mp3',
+  './audio/mots/pour.mp3',
+  './audio/mots/poussin.mp3',
+  './audio/mots/quatre.mp3',
+  './audio/mots/radio.mp3',
+  './audio/mots/raisin.mp3',
+  './audio/mots/rat.mp3',
+  './audio/mots/reine.mp3',
+  './audio/mots/renard.mp3',
+  './audio/mots/rhinoceros.mp3',
+  './audio/mots/rire.mp3',
+  './audio/mots/riz.mp3',
+  './audio/mots/robe.mp3',
+  './audio/mots/robot.mp3',
+  './audio/mots/roi.mp3',
+  './audio/mots/rose.mp3',
+  './audio/mots/rouge.mp3',
+  './audio/mots/route.mp3',
+  './audio/mots/sa.mp3',
+  './audio/mots/sable.mp3',
+  './audio/mots/sac.mp3',
+  './audio/mots/salade.mp3',
+  './audio/mots/sapin.mp3',
+  './audio/mots/savon.mp3',
+  './audio/mots/saxophone.mp3',
+  './audio/mots/se.mp3',
+  './audio/mots/sel.mp3',
+  './audio/mots/sept.mp3',
+  './audio/mots/serpent.mp3',
+  './audio/mots/singe.mp3',
+  './audio/mots/six.mp3',
+  './audio/mots/ski.mp3',
+  './audio/mots/sofa.mp3',
+  './audio/mots/soleil.mp3',
+  './audio/mots/son.mp3',
+  './audio/mots/sorciere.mp3',
+  './audio/mots/soupe.mp3',
+  './audio/mots/souris.mp3',
+  './audio/mots/stylo.mp3',
+  './audio/mots/sur.mp3',
+  './audio/mots/tambour.mp3',
+  './audio/mots/taxi.mp3',
+  './audio/mots/telephone.mp3',
+  './audio/mots/tente.mp3',
+  './audio/mots/tomate.mp3',
+  './audio/mots/ton.mp3',
+  './audio/mots/tortue.mp3',
+  './audio/mots/tout.mp3',
+  './audio/mots/train.mp3',
+  './audio/mots/trois.mp3',
+  './audio/mots/trottinette.mp3',
+  './audio/mots/tulipe.mp3',
+  './audio/mots/un.mp3',
+  './audio/mots/une.mp3',
+  './audio/mots/usine.mp3',
+  './audio/mots/va.mp3',
+  './audio/mots/vache.mp3',
+  './audio/mots/valise.mp3',
+  './audio/mots/velo.mp3',
+  './audio/mots/vert.mp3',
+  './audio/mots/violon.mp3',
+  './audio/mots/vis.mp3',
+  './audio/mots/voiture.mp3',
+  './audio/mots/volcan.mp3',
+  './audio/mots/vous.mp3',
+  './audio/mots/zebre.mp3',
+  './audio/mots/zero.mp3',
+  './audio/sons/a.mp3',
+  './audio/sons/an.mp3',
+  './audio/sons/e-aigu.mp3',
+  './audio/sons/e-grave.mp3',
+  './audio/sons/i.mp3',
+  './audio/sons/in.mp3',
+  './audio/sons/o.mp3',
+  './audio/sons/oi.mp3',
+  './audio/sons/on.mp3',
+  './audio/sons/ou.mp3',
+  './audio/sons/u.mp3',
+  './confidentialite.html',
+  './css/app.css',
+  './css/cards.css',
+  './css/fonts.css',
+  './fonts/OpenDyslexic-Bold.woff',
+  './fonts/OpenDyslexic-Regular.woff',
+  './fonts/andika-400.woff2',
+  './fonts/andika-700.woff2',
+  './fonts/nunito-400-900.woff2',
+  './fonts/orbitron-700.woff2',
+  './fonts/rajdhani-500.woff2',
+  './fonts/rajdhani-700.woff2',
+  './guide.html',
+  './icons/apple-touch-icon.png',
   './icons/icon-192.png',
   './icons/icon-512.png',
-  './fonts/OpenDyslexic-Regular.woff',
-  './fonts/OpenDyslexic-Bold.woff',
+  './icons/icon-maskable-512.png',
+  './icons/icon.svg',
+  './index.html',
+  './js/activities/build.js',
+  './js/activities/choice.js',
+  './js/activities/common.js',
+  './js/activities/intro.js',
+  './js/activities/text.js',
+  './js/activities/trace.js',
+  './js/core/curriculum.js',
+  './js/core/elo.js',
+  './js/core/levels.js',
+  './js/core/pin.js',
+  './js/core/placement.js',
+  './js/core/questions.js',
+  './js/core/report.js',
+  './js/core/rng.js',
+  './js/core/schema.js',
+  './js/core/seg.js',
+  './js/core/select.js',
+  './js/core/session.js',
+  './js/core/srs.js',
+  './js/core/time.js',
+  './js/data/curriculum.js',
+  './js/data/levels.js',
+  './js/data/sounds.js',
+  './js/data/wordaudio.js',
+  './js/main.js',
+  './js/nomodule.js',
+  './js/screens/adult.js',
+  './js/screens/collection.js',
+  './js/screens/games.js',
+  './js/screens/hub.js',
+  './js/screens/index.js',
+  './js/screens/ladder.js',
+  './js/screens/lesson.js',
+  './js/screens/levels.js',
+  './js/screens/path.js',
+  './js/screens/placement.js',
+  './js/screens/profiles.js',
+  './js/screens/trace.js',
+  './js/screens/welcome.js',
+  './js/services/errors.js',
+  './js/services/phonemes.js',
+  './js/services/recordings.js',
+  './js/services/sfx.js',
+  './js/services/store.js',
+  './js/services/voice.js',
+  './js/ui/caption.js',
+  './js/ui/cards.js',
+  './js/ui/dom.js',
+  './js/ui/elo.js',
+  './js/ui/fx.js',
+  './js/ui/kaya.js',
+  './js/ui/overlay.js',
+  './js/ui/router.js',
+  './js/ui/theme.js',
+  './js/ui/word.js',
+  './manifest.json',
 ];
+/* </release> */
 
-self.addEventListener('install', e => {
-  e.waitUntil(
-    caches.open(CACHE_NAME).then(cache => cache.addAll(ASSETS))
-  );
-  self.skipWaiting();
+self.addEventListener('install', event => {
+  // cache: 'reload' : jamais de fichier périmé du cache HTTP rangé sous le nouveau nom.
+  event.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(ASSETS.map(u => new Request(u, { cache: 'reload' })))));
 });
 
-self.addEventListener('activate', e => {
-  e.waitUntil(
-    caches.keys().then(keys =>
-      Promise.all(
-        keys.filter(k => k !== CACHE_NAME && k !== FONT_CACHE)
-            .map(k => caches.delete(k))
-      )
-    )
-  );
-  self.clients.claim();
+self.addEventListener('activate', event => {
+  event.waitUntil((async () => {
+    const keys = await caches.keys();
+    // Anciennes versions (dont la v1 : educa-v12, educa-fonts-v2) : on fait le ménage.
+    await Promise.all(keys.filter(k => k.startsWith('educa') && k !== CACHE_NAME).map(k => caches.delete(k)));
+    await self.clients.claim();
+  })());
 });
 
-self.addEventListener('fetch', e => {
-  const url = new URL(e.request.url);
+self.addEventListener('message', event => {
+  if (event.data && event.data.type === 'SKIP_WAITING') self.skipWaiting();
+});
 
-  // Polices Google : cache au premier chargement, puis hors-ligne pour toujours
-  if (url.hostname === 'fonts.googleapis.com' || url.hostname === 'fonts.gstatic.com') {
-    e.respondWith(
-      caches.open(FONT_CACHE).then(cache =>
-        cache.match(e.request).then(cached => {
-          const fresh = fetch(e.request).then(res => {
-            if (res.ok) cache.put(e.request, res.clone());
-            return res;
-          }).catch(() => cached);
-          return cached || fresh;
-        })
-      )
-    );
-    return;
-  }
+/* Safari (iPad, iPhone) lit l'audio par morceaux (en-tête Range) et refuse une réponse
+   entière : on découpe la réponse du cache (206), sinon la voix humaine ne jouerait pas. */
+async function withRange(req, hit) {
+  const m = /^bytes=(\d*)-(\d*)$/.exec(req.headers.get('range') || '');
+  if (!m || !hit) return hit;
+  const buf = await hit.arrayBuffer();
+  const size = buf.byteLength;
+  const start = m[1] === '' ? Math.max(0, size - Number(m[2])) : Number(m[1]);
+  const end = m[1] === '' || m[2] === '' ? size - 1 : Math.min(Number(m[2]), size - 1);
+  if (!(start <= end && start < size)) return new Response(null, { status: 416, headers: { 'Content-Range': `bytes */${size}` } });
+  return new Response(buf.slice(start, end + 1), { status: 206, statusText: 'Partial Content', headers: {
+    'Content-Type': hit.headers.get('Content-Type') || 'audio/mpeg', 'Content-Range': `bytes ${start}-${end}/${size}`,
+    'Content-Length': String(end - start + 1), 'Accept-Ranges': 'bytes' } });
+}
 
-  // App : stale-while-revalidate — sert le cache immédiatement (rapide,
-  // hors-ligne OK) mais met à jour le cache en arrière-plan, pour que la
-  // prochaine visite ait la dernière version sans action de l'utilisateur.
-  e.respondWith(
-    caches.match(e.request, { ignoreSearch: true }).then(cached => {
-      const fresh = fetch(e.request).then(res => {
-        if (res.ok && e.request.method === 'GET') {
-          const clone = res.clone();
-          caches.open(CACHE_NAME).then(cache => cache.put(e.request, clone));
-        }
-        return res;
-      }).catch(() => {
-        if (!cached && e.request.mode === 'navigate') return caches.match('./index.html');
-        return cached;
-      });
-      return cached || fresh;
-    })
-  );
+self.addEventListener('fetch', event => {
+  const req = event.request;
+  if (req.method !== 'GET') return;
+  const url = new URL(req.url);
+  if (url.origin !== self.location.origin) return;
+  event.respondWith((async () => {
+    const cache = await caches.open(CACHE_NAME);
+    const hit = await cache.match(req, { ignoreSearch: true });
+    if (hit) return withRange(req, hit);
+    try {
+      const res = await fetch(req);
+      // Fichier pas encore en cache (ex. un son ajouté) : gardé pour la prochaine fois.
+      if (res.ok && res.type === 'basic') cache.put(req, res.clone());
+      return res;
+    } catch {
+      if (req.mode === 'navigate') return (await cache.match('./index.html')) || Response.error();
+      return Response.error();
+    }
+  })());
 });

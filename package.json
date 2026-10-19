@@ -1,0 +1,23 @@
+{
+  "name": "educa",
+  "version": "2.0.0-dev",
+  "private": true,
+  "description": "EDUCA — apprendre à lire en jouant, hors-ligne, pour chaque enfant (PWA sans dépendance d'exécution).",
+  "license": "MIT",
+  "type": "module",
+  "scripts": {
+    "test": "node --test \"tests/unit/**/*.test.mjs\"",
+    "test:e2e": "node --test --test-concurrency=1 \"tests/e2e/**/*.test.mjs\"",
+    "check": "npm test && node scripts/release.mjs --check",
+    "release": "node scripts/release.mjs",
+    "voix:fetch": "EDUCA_NO_FALLBACK=1 node scripts/voix-libre.mjs fetch",
+    "voix:encode": "node scripts/voix-libre.mjs encode",
+    "voix:check": "node scripts/voix-libre.mjs check",
+    "voix:sounds": "node scripts/voix-libre.mjs sounds",
+    "serve": "python3 -m http.server 8765"
+  },
+  "devDependencies": {
+    "axe-core": "^4.14.0",
+    "playwright-core": "^1.50.0"
+  }
+}

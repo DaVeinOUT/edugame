@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; img-src 'self'; base-uri 'none'; form-action 'none'">
+  <meta name="referrer" content="no-referrer">
+  <title>Confidentialité — EDUCA</title>
+  <link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+  <style>
+    :root { --ink: #1f2430; --bg: #fffaf0; --muted: #536072; --brand: #6d28d9; --line: rgba(31, 36, 48, .15); }
+    @media (prefers-color-scheme: dark) { :root { --ink: #f1f5f9; --bg: #0f172a; --muted: #cbd5e1; --brand: #c4b5fd; --line: rgba(255, 255, 255, .2); } }
+    body { margin: 0; background: var(--bg); color: var(--ink); font: 1.05rem/1.6 system-ui, -apple-system, 'Segoe UI', sans-serif; }
+    main { max-width: 720px; margin: 0 auto; padding: 24px 16px 48px; }
+    h1 { font-size: 1.6rem; line-height: 1.25; } h2 { font-size: 1.2rem; margin-top: 2em; }
+    a { color: var(--brand); } .lead { font-weight: 700; font-size: 1.15rem; }
+    table { border-collapse: collapse; width: 100%; font-size: .95rem; } th, td { border-bottom: 1px solid var(--line); padding: 8px 6px; text-align: left; vertical-align: top; }
+    code { font-size: .9em; } .muted { color: var(--muted); }
+  </style>
+</head>
+<body>
+<main>
+  <p><a href="./">← Retour au jeu</a></p>
+  <h1>Confidentialité — EDUCA</h1>
+  <p class="lead">En une phrase : EDUCA ne collecte rien. Tout reste sur l'appareil de l'enfant.</p>
+
+  <h2>Ce qu'EDUCA ne fait pas</h2>
+  <ul>
+    <li>Pas de compte, pas d'identifiant, pas de mot de passe.</li>
+    <li>Pas de serveur : le jeu est une page web statique ; une fois chargé, il fonctionne sans internet.</li>
+    <li>Pas de publicité, pas de mesure d'audience, pas de traceur, pas de cookie.</li>
+    <li>Pas de ressource tierce : polices, images (émojis du système), sons et voix enregistrées sont livrés avec le jeu ; aucune requête vers Google ou un autre service n'est faite par EDUCA.</li>
+  </ul>
+
+  <h2>Ce qui est enregistré sur l'appareil (et seulement là)</h2>
+  <table>
+    <tr><th>Donnée</th><th>Où</th><th>Pourquoi</th></tr>
+    <tr><td>Prénom (facultatif), animal, tranche d'âge, univers</td><td>stockage local du navigateur</td><td>se reconnaître, adapter le départ</td></tr>
+    <tr><td>Progression : chemin, étoiles, niveaux et contrôles, mémoire des exercices, force de lecture (Élo) et son historique, temps de jeu par jour, confusions repérées, cartes</td><td>même endroit</td><td>adapter les exercices, tableau de bord de l'adulte</td></tr>
+    <tr><td>Réglages de confort de chaque enfant (police, espacement, coloration, voix…)</td><td>même endroit</td><td>lisibilité</td></tr>
+    <tr><td>Réglages de l'appareil (voix choisie, mode silencieux, étape de la classe, temps maximum, journal technique des 20 dernières erreurs)</td><td>même endroit</td><td>fonctionnement</td></tr>
+    <tr><td>Sons enregistrés par l'adulte (facultatif)</td><td>base IndexedDB de l'appareil</td><td>sons purs pour tous les enfants</td></tr>
+  </table>
+  <p>Aucune de ces données n'est transmise. Les fichiers d'export sont créés par l'adulte et restent sous son contrôle.</p>
+
+  <h2>La voix de Kaya</h2>
+  <p>Les <strong>mots du jeu</strong> sont dits par une vraie voix humaine : des enregistrements libres (Lingua Libre, domaine public) livrés avec le jeu et lus sur l'appareil, sans requête réseau.</p>
+  <p>Pour le reste, Kaya parle avec la <strong>synthèse vocale de l'appareil</strong>. EDUCA choisit en priorité une <strong>voix locale</strong>. Certaines voix « en ligne » (par exemple « Google français » dans Chrome sur ordinateur) envoient le texte à prononcer — qui peut contenir le prénom — au service de l'éditeur : EDUCA ne les utilise que s'il n'existe aucune voix française locale. Pour l'éviter complètement : installer une voix française locale dans les réglages du système, ou laisser le prénom vide.</p>
+
+  <h2>Effacer, exporter</h2>
+  <p>Espace des grands (⚙️, protégé par un petit défi de lecture) → <strong>Données</strong> :</p>
+  <ul>
+    <li><strong>Exporter tout</strong> : un fichier à garder (changement de tablette) ;</li>
+    <li><strong>Importer</strong> : restaurer ce fichier sur un autre appareil ;</li>
+    <li><strong>Supprimer</strong> un enfant, ou <strong>Tout effacer</strong> (profils, réglages, progrès) sur cet appareil.</li>
+  </ul>
+  <p>Les sons enregistrés se suppriment un par un dans <strong>Appareil → Les sons de Kaya</strong>. Effacer les données du site dans le navigateur (ou désinstaller l'application) supprime aussi tout.</p>
+
+  <h2>À l'école</h2>
+  <p>Sans compte ni collecte, EDUCA ne crée pas de traitement de données personnelles côté école ; nous recommandons de le présenter en conseil d'école et de le faire confirmer par le délégué à la protection des données de l'académie. Ressources utiles : CNIL et Éduscol (ressources numériques et RGPD).</p>
+
+  <p class="muted">Version du 13 octobre 2026.</p>
+</main>
+</body>
+</html>

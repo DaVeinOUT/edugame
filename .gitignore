@@ -10,3 +10,25 @@ IDENTITY.md
 SOUL.md
 USER.md
 memory/
+
+# Outillage de développement (jamais servi aux enfants)
+node_modules/
+test-results/
+
+# Enregistrements sources des voix (WAV, ~25 Mo) : régénérés par « npm run voix:fetch »
+audio-src/
+
+# Application Android (Bubblewrap) : clés et paquets signés ne vont JAMAIS dans git
+*.keystore
+*.jks
+app-release*
+twa-build/
+_site/
+
+# Notes de travail (rapports, suivi, revues, consignes) : locales, jamais publiées
+rapports/
+ops/
+BRIEF-OPENCLAW.md
+CONFIDENTIALITE.md
+twa/README.md
+scripts/educa-worker.sh

@@ -1,0 +1,40 @@
+{
+  "packageId": "io.github.daveinout.educa",
+  "host": "daveinout.github.io",
+  "name": "EDUCA — Apprendre à lire avec Kaya",
+  "launcherName": "EDUCA",
+  "display": "standalone",
+  "orientation": "default",
+  "themeColor": "#15803d",
+  "themeColorDark": "#0F172A",
+  "navigationColor": "#0F172A",
+  "navigationColorDark": "#0F172A",
+  "navigationDividerColor": "#00000000",
+  "navigationDividerColorDark": "#00000000",
+  "backgroundColor": "#0F172A",
+  "enableNotifications": false,
+  "startUrl": "/edugame/index.html",
+  "iconUrl": "https://daveinout.github.io/edugame/icons/icon-512.png",
+  "maskableIconUrl": "https://daveinout.github.io/edugame/icons/icon-maskable-512.png",
+  "splashScreenFadeOutDuration": 300,
+  "signingKey": {
+    "path": "./android.keystore",
+    "alias": "educa"
+  },
+  "appVersionCode": 1,
+  "appVersion": "1.0.0",
+  "shortcuts": [],
+  "generatorApp": "bubblewrap-cli",
+  "webManifestUrl": "https://daveinout.github.io/edugame/manifest.json",
+  "fallbackType": "customtabs",
+  "features": {},
+  "alphaDependencies": {
+    "enabled": false
+  },
+  "enableSiteSettingsShortcut": false,
+  "isChromeOSOnly": false,
+  "isMetaQuest": false,
+  "fullScopeUrl": "https://daveinout.github.io/edugame/",
+  "minSdkVersion": 23,
+  "fingerprints": []
+}
