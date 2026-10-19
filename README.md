@@ -11,49 +11,40 @@ sans lire un seul mot et sans clavier.
 ## Ce que fait EDUCA
 
 - **Une vraie méthode, explicite et systématique** : le *son* des lettres (pas seulement leur nom), une
-  correspondance graphème→phonème par étape, en **66 étapes** ordonnées d'après les sources (Dehaene et
-  al. 2012, Kalulu 2025, Goigoux 2016) : voyelles et consonnes qu'on peut prolonger d'abord, `ou` et les
-  lettres muettes tôt, consonnes brèves avant les sons nasaux, `b/d/p/q` éloignés puis contrastés,
-  règles (`c`, `g`, `s`) après leur valeur de base. Détail : [`rapports/2026-10-12-pedagogie-sources.md`](rapports/2026-10-12-pedagogie-sources.md).
+  correspondance graphème → phonème par étape, en **66 étapes** : voyelles et consonnes qu'on peut prolonger
+  d'abord, `ou` et les lettres muettes tôt, consonnes brèves avant les sons nasaux, `b/d/p/q` éloignés puis
+  contrastés, règles (`c`, `g`, `s`) après leur valeur de base.
 - **Chaque leçon va de l'oreille à l'écrit** : écouter le son → le reconnaître → lire des syllabes →
-  lire des mots → reconnaître un mot entendu → l'écrire avec des tuiles-graphèmes → lire une phrase.
-  Tout mot à lire est **100 % décodable** avec ce qui a déjà été appris (calculé, testé).
-- **Une vraie voix humaine** pour les mots du jeu et les voyelles (268 mots et 11 voyelles enregistrés par
-  un bénévole de Lingua Libre, domaine public), contrôlée automatiquement ; la synthèse vocale complète.
-- **Des sons purs** (« mmm », jamais « me ») : synthétisés pour les consonnes, ou — mieux — **enregistrés
-  par l'enseignant ou le parent** au micro, dans l'espace des grands.
+  lire des mots → reconnaître un mot entendu → l'écrire avec des tuiles → lire une phrase.
+  Tout mot à lire est **100 % décodable** avec ce qui a déjà été appris.
+- **Une vraie voix humaine** pour les mots du jeu et les voyelles (enregistrements libres de Lingua Libre) ;
+  des **sons purs** (« mmm », jamais « me ») pour les consonnes, que l'enseignant ou le parent peut aussi
+  enregistrer lui-même.
 - **Test de positionnement** dès 7 ans : un grand qui lit déjà ne refait pas tout le chemin.
-- **Les niveaux des grands (CE1 → 3e)** : 4 niveaux, 40 modules et 4 contrôles (~730 questions) d'après
-  les programmes en vigueur, relus par un regard d'orthophoniste (jamais d'orthographe fautive montrée,
-  réponses mélangées, règle rappelée par l'aide). Un niveau s'ouvre par son contrôle (70 %) **ou** quand
-  la force de lecture monte ; dès 10 ans, le contrôle d'un niveau est proposé d'abord ; révisions espacées.
-  Détail : [`rapports/2026-10-13-niveaux-ce1-3e.md`](rapports/2026-10-13-niveaux-ce1-3e.md).
-- **Répétition espacée** (boîtes de Leitner) : ce qui est fragile revient au bon moment.
+- **Les niveaux des grands (CE1 → 3e)** : 4 niveaux, 40 modules et 4 contrôles (environ 730 questions) d'après
+  les programmes officiels en vigueur. Un niveau s'ouvre par son contrôle (70 %) **ou** quand la force de
+  lecture monte ; dès 10 ans, le contrôle d'un niveau est proposé d'abord ; révisions espacées.
 - **L'Élo bienveillant**, comme aux échecs : chaque exercice est un adversaire ; la « force de lecture »
-  de l'enfant monte quand il réussit et **ne baisse jamais** (on affiche son record, calculé avec
-  prudence). Titres : Pion → Cavalier → Fou → Tour → Dame → Roi → Maître → Grand Maître ; l'échelle montre
-  aussi les niveaux que la jauge ouvre. Aucun classement entre enfants.
-  Détail : [`rapports/2026-10-12-elo-bienveillant.md`](rapports/2026-10-12-elo-bienveillant.md).
-- **Réglages pour les enfants dyslexiques, par enfant** : police Andika (conçue pour les lecteurs
-  débutants) ou OpenDyslexic, espacement des lettres en 3 crans, lettres muettes grisées, coloration
-  syllabique en option, fond doux, voix lente, sous-titres, moins d'animations, mode lecteur d'écran.
-  Aucun chronomètre, erreurs corrigées tout de suite et sans reproche.
-- **En classe** : plusieurs enfants sur une tablette (chacun touche *son* animal), étape de la classe
-  imposée par l'enseignant, temps de jeu maximum par jour, mode silencieux, tableau de bord par enfant
-  (force de lecture honnête et sa courbe, sons maîtrisés, confusions b/d…, temps de jeu, idées
-  d'activités hors écran, impression), export/import de sauvegarde.
-- **Motivation** : un seul gros bouton « Jouer », le chemin des 66 sons, 83 cartes à collectionner
-  (méritées, jamais au hasard) révélées en 3D, cérémonie de promotion d'échecs, étoiles d'effort.
-- **Hors-ligne d'abord** : après la première visite, tout fonctionne sans internet ; mise à jour proposée
-  depuis l'accueil, jamais au milieu d'une leçon.
-- **Accessible** : audit automatique WCAG 2.2 AA (axe-core) de chaque écran, jouable au clavier seul ou au
-  contacteur, mode lecteur d'écran.
-- **Bientôt sur les magasins** : PWA installable ; gabarits Android (TWA) et plan iOS dans [`twa/README.md`](twa/README.md).
+  de l'enfant monte quand il réussit et **ne baisse jamais**. Titres : Pion → Cavalier → Fou → Tour → Dame →
+  Roi → Maître → Grand Maître. Aucun classement entre enfants.
+- **Répétition espacée** : ce qui est fragile revient au bon moment.
+- **Réglages pour les enfants dyslexiques, par enfant** : police Andika ou OpenDyslexic, espacement des
+  lettres en 3 crans, lettres muettes grisées, coloration syllabique en option, fond doux, voix lente,
+  sous-titres, moins d'animations, mode lecteur d'écran. Aucun chronomètre, erreurs corrigées tout de suite
+  et sans reproche.
+- **En classe** : plusieurs enfants sur une tablette (chacun touche *son* animal), étape de la classe,
+  temps de jeu maximum par jour, mode silencieux, tableau de bord par enfant et vue de la classe
+  (imprimable, exportable en tableur), [guide de l'enseignant](guide.html).
+- **Motivation** : un seul gros bouton « Jouer », le chemin des 66 sons, des cartes à collectionner
+  (méritées, jamais au hasard) révélées en 3D, diplômes de fin de niveau.
+- **Hors-ligne et installable** : après la première visite, tout fonctionne sans internet ; s'installe
+  comme une application sur tablette et téléphone.
+- **Accessible** : vérifié écran par écran (WCAG 2.2 AA), jouable au clavier seul ou au contacteur.
 
 ## Jouer
 
-Ouvrir la page publiée (GitHub Pages), puis « Ajouter à l'écran d'accueil » pour l'installer comme une
-application. En local :
+Ouvrir la page publiée, puis « Ajouter à l'écran d'accueil » pour l'installer comme une application.
+En local :
 
 ```bash
 python3 -m http.server 8765    # puis http://localhost:8765
@@ -64,40 +55,15 @@ python3 -m http.server 8765    # puis http://localhost:8765
 Aucune dépendance à l'exécution (HTML, CSS, JavaScript en modules natifs). Outils de développement :
 
 ```bash
-npm install                     # playwright-core (tests navigateur) — développement seulement
-npm test                        # tests unitaires : moteur, parcours, Élo, séances (Node, sans navigateur)
-CHROMIUM_PATH=/usr/bin/chromium npm run test:e2e   # bout en bout + accessibilité (axe-core) : profils, leçons,
-                                                    # niveaux, voix, clavier, espace adulte, hors-ligne
-npm run check                   # tests unitaires + liste hors-ligne à jour (ce que vérifie la CI)
-npm run release                 # régénère la liste hors-ligne de sw.js (à lancer après chaque changement)
+npm install                                        # outils de test (développement seulement)
+npm test                                           # tests unitaires (Node)
+CHROMIUM_PATH=/usr/bin/chromium npm run test:e2e   # parcours complets et accessibilité, dans un navigateur
+npm run release                                    # régénère la liste hors-ligne (après chaque changement)
 ```
 
-La CI (`.github/workflows/pages.yml`) lance tous les tests **avant** de publier, et ne publie que
-l'application (pas `archive/`, `rapports/`, `ops/`, `tests/`).
+La CI lance tous les tests **avant** de publier, et ne publie que l'application.
 
-```
-index.html            page unique (CSP stricte, aucun script en ligne)
-sw.js                 hors-ligne (liste générée par scripts/release.mjs)
-css/                  app.css (thèmes, confort dys, écrans), cards.css (cartes 3D), fonts.css (généré)
-js/main.js            démarrage
-js/core/              logique pure, testée : seg (graphèmes/syllabes), curriculum, elo, srs, select,
-                      questions, session, placement, levels, schema, time, rng
-js/data/              curriculum.js (66 étapes, ~230 mots illustrés, mots-outils, phrases), levels.js
-                      (niveaux CE1 → 3e), wordaudio.js et sounds.js (générés : voix humaine)
-audio/                mots/ et sons/ (MP3, voix humaine libre) + ATTRIBUTIONS.md
-js/services/          store (sauvegarde locale), voice (Kaya, sous-titres), phonemes (sons purs),
-                      recordings (voix de l'adulte), sfx, errors (filet de sécurité)
-js/ui/                router, dom, kaya, word (coloration), cards, elo, overlay, fx, theme, caption
-js/screens/           welcome, profiles, hub, path, lesson, collection, ladder, games, trace, adult,
-                      placement, levels
-js/activities/        choice (écoute, son, syllabe, mot, phrase), build (écrire), intro, trace,
-                      text (exercices des niveaux : trou, question, texte, mot à toucher, ordre)
-scripts/              release (hors-ligne), voix-libre (voix humaine), make-icons, build-site, fetch-fonts
-tests/unit/, tests/e2e/   tests node:test (+ Playwright pour le navigateur)
-rapports/             recherches et décisions ; ops/ : suivi du chantier (HANDOFF, backlog, journal)
-```
-
-## Principes (les lois du projet)
+## Principes
 
 1. **Tout-audio** : chaque consigne est parlée (et sous-titrée) — le joueur ne sait pas lire.
 2. **Jamais de clavier imposé** : tuiles, boutons, images.
@@ -106,15 +72,15 @@ rapports/             recherches et décisions ; ops/ : suivi du chantier (HANDO
 5. **Bienveillance** : aucune sanction, aucun chrono, l'Élo ne baisse jamais, aucun classement.
 6. **Adapté à tous** : réglages de confort par enfant, sans étiquette.
 7. **Multisensoriel** : voir, entendre, tracer au doigt.
-8. **Aucune donnée ne quitte l'appareil** : voir [`CONFIDENTIALITE.md`](CONFIDENTIALITE.md).
+8. **Aucune donnée ne quitte l'appareil** : voir la [politique de confidentialité](confidentialite.html).
 
 ## Crédits et licences
 
-- **Code d'EDUCA** : licence MIT (voir `LICENSE`) — *choix provisoire, en attente de validation par Dave.*
-- **Polices** (SIL Open Font License 1.1, textes dans `fonts/licenses/` et `fonts/LICENSE.txt`) :
-  Andika (SIL International), Nunito, Orbitron, Rajdhani, OpenDyslexic (Abbie Gonzalez).
-- **Voix humaine des mots** : enregistrements de **Poslovitch** sur **Lingua Libre** (Wikimédia France), publiés sur
-  Wikimedia Commons sous **CC0** (domaine public) ; liste et liens dans [`audio/ATTRIBUTIONS.md`](audio/ATTRIBUTIONS.md).
-  Régénération : `npm run voix:fetch`, `npm run voix:encode` (ffmpeg), contrôle acoustique `npm run voix:check`.
-- **Images** : émojis du système de l'appareil (aucune image téléchargée).
-- **Sources pédagogiques** : listées dans les rapports du dossier `rapports/`.
+- **Code** : licence MIT (voir `LICENSE`).
+- **Polices** (SIL Open Font License 1.1, textes dans `fonts/licenses/`) : Andika (SIL International),
+  Nunito, Orbitron, Rajdhani, OpenDyslexic (Abbie Gonzalez).
+- **Voix humaine** : enregistrements de **Poslovitch** sur **Lingua Libre** (Wikimédia France), domaine
+  public (CC0) — liste dans [`audio/ATTRIBUTIONS.md`](audio/ATTRIBUTIONS.md).
+- **Images** : émojis du système de l'appareil.
+- **Références pédagogiques** : Dehaene et al. (2012) ; « Pour enseigner la lecture et l'écriture au CP »
+  (ministère de l'Éducation nationale, 2019) ; programmes de français des cycles 2, 3 et 4.

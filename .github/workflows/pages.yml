@@ -1,6 +1,6 @@
 # Tester PUIS déployer EDUCA sur GitHub Pages.
 # Rien n'est publié si un test échoue. Seule l'application est publiée
-# (pas archive/, rapports/, ops/, scripts/, tests/).
+# (pas les archives, les outils ni les tests).
 name: Tester et déployer EDUCA
 
 on:

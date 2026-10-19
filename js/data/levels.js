@@ -4,7 +4,7 @@
    grammaire, conjugaison, vocabulaire. Données pures, lues par
    js/core/levels.js et vérifiées par tests/unit/levels.test.mjs.
 
-   Programmes visés (détail et sources : rapports/2026-10-13-niveaux-ce1-3e.md) :
+   Programmes visés :
    • n3 CE1-CE2 : cycle 2, BO spécial n° 41 du 31 octobre 2024 ;
    • n4 CM1-CM2 et n5 (6e) : cycle 3, BO n° 16 du 17 avril 2025 ;
    • n5 (5e) : cycle 4, arrêté du 18 février 2026 (BO n° 10 du 5 mars 2026) ;

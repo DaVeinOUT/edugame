@@ -2,7 +2,7 @@
    DATA/CURRICULUM.JS — Le parcours de lecture de Kaya (66 étapes)
    Une méthode explicite et systématique : on apprend le SON des
    lettres, une correspondance graphème→phonème par étape.
-   Ordre arbitré à partir de sources (rapports/2026-10-12-pedagogie-sources.md) :
+   Ordre arbitré à partir de sources :
    • voyelles et consonnes qu'on peut prolonger d'abord (Dehaene et al. 2012) ;
    • « ou » et les lettres muettes tôt, comme Kalulu (2025) ;
    • consonnes brèves (p t c d b g) AVANT les sons nasaux (on, an, in),

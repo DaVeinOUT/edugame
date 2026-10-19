@@ -20,7 +20,7 @@
 
 import { localDay } from './time.js';
 
-/* Paramètres réglés par simulation (rapports/2026-10-12-recherche-elo.md). */
+/* Paramètres réglés par simulation. */
 export const ELO = Object.freeze({
   scale: 400 / Math.LN10,   // ≈ 174 points affichés par logit (convention des échecs)
   offset: 1000,             // θ = 0  ↔  1000 points

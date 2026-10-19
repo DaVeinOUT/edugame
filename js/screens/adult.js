@@ -142,7 +142,7 @@ function levelsSection(p, ctx, points) {
       const rec = moduleRecord(p, m.id);
       return h('li', null, `${m.title} : ${rec ? `${'★'.repeat(rec.stars)}${'☆'.repeat(3 - rec.stars)} (${rec.tries} essai${rec.tries > 1 ? 's' : ''})` : 'pas encore fait'}`);
     })))),
-    h('p', { class: 'note' }, 'Chaque niveau suit les programmes officiels (sources : rapports/2026-10-13-niveaux-ce1-3e.md). Le contrôle (70 % de réussite) ouvre le niveau suivant ; il se retente à volonté.'));
+    h('p', { class: 'note' }, 'Chaque niveau suit les programmes officiels de français en vigueur. Le contrôle (70 % de réussite) ouvre le niveau suivant ; il se retente à volonté.'));
 }
 
 function progressTab(p, ctx) {

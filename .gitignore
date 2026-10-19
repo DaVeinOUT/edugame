@@ -1,5 +1,5 @@
 # Dossiers de travail (outils d'assistance, sessions) — jamais sur GitHub
-.claude/*
+.claude/
 _bmad/
 _bmad-output/
 
@@ -10,7 +10,6 @@ IDENTITY.md
 SOUL.md
 USER.md
 memory/
-!.claude/agents/
 
 # Outillage de développement (jamais servi aux enfants)
 node_modules/
@@ -25,3 +24,11 @@ audio-src/
 app-release*
 twa-build/
 _site/
+
+# Notes de travail (rapports, suivi, revues, consignes) : locales, jamais publiées
+rapports/
+ops/
+BRIEF-OPENCLAW.md
+CONFIDENTIALITE.md
+twa/README.md
+scripts/educa-worker.sh

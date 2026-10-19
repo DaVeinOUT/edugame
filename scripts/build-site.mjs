@@ -3,7 +3,7 @@
    scripts/build-site.mjs — assemble l'application (et rien d'autre) dans un dossier
    Usage : node scripts/build-site.mjs _site     (CI : site publié)
            node scripts/build-site.mjs www       (Capacitor : webDir)
-   Ne copie ni archive/, rapports/, ops/, tests/, scripts/ ni audio-src/ (WAV sources).
+   Ne copie que l'application (ni archives, ni tests, ni outils, ni WAV sources).
    ============================================================ */
 import { cp, mkdir, access } from 'node:fs/promises';
 import path from 'node:path';
