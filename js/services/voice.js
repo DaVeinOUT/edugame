@@ -14,7 +14,7 @@
    • se tait si l'enfant utilise un lecteur d'écran (pas de double voix).
    ============================================================ */
 
-import { canSynth, playPhoneme } from './phonemes.js';
+import { canSynth, playPhoneme, phonemeUrl, silenceUrl } from './phonemes.js';
 import { audioContext } from './sfx.js';
 
 /* Classement des voix : naturelles d'abord, gadgets jamais. */
@@ -162,20 +162,41 @@ async function say(text, opts = {}) {
   await utter(text, { rate, highlight: opts.highlight || null });
 }
 
+/* UN seul lecteur audio pour tout (voix humaine, voyelles, sons fabriqués) : débloqué au
+   premier toucher, il peut ensuite jouer sans geste — l'iPhone refuse un lecteur neuf
+   lancé hors d'un toucher. */
+let pendingEnd = null;
+function player() {
+  if (!st.player) st.player = new Audio();
+  return st.player;
+}
+
 function playFile(url, { rate = 1 } = {}) {
   return new Promise(resolve => {
+    pendingEnd?.(false);   // une nouvelle lecture remplace la précédente
     try {
-      const a = new Audio(url);
-      if (rate !== 1) {
-        a.preservesPitch = true;
-        a.playbackRate = rate;
-      }
+      const a = player();
+      a.src = url;
+      a.preservesPitch = true;
+      a.defaultPlaybackRate = rate;
+      a.playbackRate = rate;
       st.audio = a;
-      const end = () => { clearTimeout(guard); resolve(true); };
-      const guard = setTimeout(end, 4000);
-      a.onended = end;
-      a.onerror = () => { clearTimeout(guard); resolve(false); };
-      a.play().catch(() => { clearTimeout(guard); resolve(false); });
+      let done = false;
+      let guard = null;
+      const finish = ok => {   // une seule fin : terminé, erreur, garde, ou remplacé / arrêté
+        if (done) return;
+        done = true;
+        clearTimeout(guard);
+        a.onended = null;
+        a.onerror = null;
+        if (pendingEnd === finish) pendingEnd = null;
+        resolve(ok);
+      };
+      guard = setTimeout(() => finish(true), 4000);
+      pendingEnd = finish;
+      a.onended = () => finish(true);
+      a.onerror = () => finish(false);
+      a.play().catch(() => finish(false));
     } catch {
       resolve(false);
     }
@@ -196,8 +217,12 @@ async function sound(ph, { noCaption = false, caption: shown } = {}) {
     const ok = await playFile(url);
     if (ok || myGen !== st.gen) return;
   }
-  // 3. consonne : son pur synthétisé (jamais « me » pour [m])
+  // 3. consonne : son pur fabriqué (jamais « me » pour [m]), joué comme un fichier par le lecteur
+  //    commun (sonne aussi en mode silencieux d'iPhone) ; sinon Web Audio direct.
   if (canSynth(ph)) {
+    const synthUrl = await phonemeUrl(ph).catch(() => null);
+    if (myGen !== st.gen) return;
+    if (synthUrl && (await playFile(synthUrl) || myGen !== st.gen)) return;
     const ctx = audioContext();
     if (ctx) { await playPhoneme(ctx, ph); return; }
   }
@@ -246,12 +271,27 @@ function stop() {
   st.gen++;
   try { synth?.cancel(); } catch { /* rien */ }
   try { st.audio?.pause(); } catch { /* rien */ }
+  pendingEnd?.(false);
   st.audio = null;
 }
 
 /** Les mobiles bloquent le son avant le premier geste : on rejoue alors la dernière phrase. */
+/* Débloque le lecteur commun pendant un vrai geste (iPhone : toucher, ou clic) en lui faisant
+   jouer un souffle de silence ; ensuite il joue sans geste. Rien en mode silencieux ni lecteur d'écran. */
+function unlockPlayer() {
+  if (st.playerUnlocked || st.muted || st.screenReader) return;
+  try {
+    const a = player();
+    if (!a.src) {
+      a.src = silenceUrl();
+      a.play().then(() => { st.playerUnlocked = true; }).catch(() => {});
+    }
+  } catch { /* pas de lecteur audio : la synthèse prend le relais */ }
+}
+
 function unlockOnFirstTouch() {
   if (typeof document === 'undefined') return;
+  for (const type of ['touchend', 'pointerup', 'click']) document.addEventListener(type, unlockPlayer, { capture: true });
   document.addEventListener('pointerdown', () => {
     setTimeout(() => {
       if (!st.unlocked && st.pending && synth && !st.muted && !st.screenReader) {

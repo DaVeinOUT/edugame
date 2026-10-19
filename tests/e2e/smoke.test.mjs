@@ -403,3 +403,24 @@ test('l\'adulte choisit un code : il est ensuite demandé à chaque entrée', as
   assert.deepEqual(errors, []);
   await context.close();
 });
+
+test('les sons des consonnes passent par le lecteur audio commun (ils sonnent aussi en mode silencieux d\'iPhone)', async () => {
+  const { context, page, errors } = await open();
+  await createChild(page, 'Lina');
+  const played = await page.evaluate(async () => {
+    const srcs = [];
+    const play = HTMLMediaElement.prototype.play;
+    HTMLMediaElement.prototype.play = function () {
+      const p = play.call(this);
+      p.then(() => srcs.push(this.src), () => srcs.push('refusé'));
+      return p;
+    };
+    const { voice } = await import('./js/services/voice.js');
+    await voice.sound('m');
+    await voice.sound('s');
+    return srcs;
+  });
+  assert.equal(played.filter(s => s.startsWith('blob:')).length, 2, `lectures : ${played}`);
+  assert.deepEqual(errors, []);
+  await context.close();
+});
