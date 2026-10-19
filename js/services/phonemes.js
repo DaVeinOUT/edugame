@@ -138,6 +138,14 @@ const RECIPES = {
   b: plosive({ type: 'lowpass', freq: 1200, voiced: true }),
   d: plosive({ type: 'highpass', freq: 3800, voiced: true }),
   g: plosive({ type: 'bandpass', freq: 2000, voiced: true }),
+  // [ks], [gz] (taxi, examen) : un petit bruit sec puis le sifflement — jamais « ka-èss » épelé par la synthèse.
+  ks: (c, o, t) => { const d = burst(c, o, t, { type: 'bandpass', freq: 2000 }); hiss(c, o, t + d, 0.5, S); return d + 0.5; },
+  gz: (c, o, t) => {
+    const d = burst(c, o, t, { type: 'bandpass', freq: 2000, voiced: true });
+    hiss(c, o, t + d, 0.5, { ...S, gain: 0.28 });
+    hum(c, o, t + d, 0.5, { lp: 380, gain: 0.3 });
+    return d + 0.5;
+  },
 };
 
 /** Ce son peut-il être synthétisé (consonnes) ? Les voyelles passent par la voix. */

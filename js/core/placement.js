@@ -41,7 +41,10 @@ export function placementItem(state, cur, rand = systemRandom) {
   const s = state.points[state.i];
   const lo = Math.max(0, s - STRIDE + 1);
   const used = new Set(state.log.map(e => e.key));
-  const words = cur.words.filter(w => w.step >= lo && w.step <= s && !used.has(`rd:${w.text}`));
+  const fresh = w => w.step <= s && !used.has(`rd:${w.text}`);
+  /* Des mots du HAUT du palier : un mot de la première étape du palier ne prouve pas qu'on lit les suivantes. */
+  const top = cur.words.filter(w => fresh(w) && w.step > s - 3);
+  const words = top.length ? top : cur.words.filter(w => fresh(w) && w.step >= lo);
   if (words.length) {
     const w = pick(words, rand);
     return { kind: 'read', key: `rd:${w.text}`, step: w.step, text: w.text, word: w, guess: 1 / 3 };

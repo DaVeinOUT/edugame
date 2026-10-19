@@ -156,6 +156,14 @@ test('après une première visite, le jeu marche sans internet', async () => {
   await page.goto(url);
   await page.evaluate(() => navigator.serviceWorker.ready);
   await page.waitForFunction(() => !!navigator.serviceWorker.controller, null, { timeout: 15000 });
+  // Safari lit l'audio par morceaux : le service worker doit répondre 206 à une requête Range.
+  const range = await page.evaluate(async () => {
+    const r = await fetch('audio/mots/chat.mp3', { headers: { Range: 'bytes=0-1' } });
+    return { status: r.status, size: (await r.arrayBuffer()).byteLength, cr: r.headers.get('Content-Range') };
+  });
+  assert.equal(range.status, 206);
+  assert.equal(range.size, 2);
+  assert.match(range.cr || '', /^bytes 0-1\/\d+$/);
   await context.setOffline(true);
   await page.reload();
   await page.waitForSelector('.pick', { timeout: 15000 });

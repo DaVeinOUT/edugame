@@ -9,6 +9,7 @@
    ============================================================ */
 
 import { shuffle, pick, sample, systemRandom } from './rng.js';
+import { DEFAULT_PHONEME } from './seg.js';
 import { difficultyOf } from './curriculum.js';
 
 const LETTER_KINDS = new Set(['voyelle', 'longue', 'courte', 'complexe']);
@@ -24,22 +25,24 @@ export function choiceCount(kind, { age = '4-6', step = 0 } = {}) {
   return 3;
 }
 
-/* Graphèmes pièges : jumeaux connus d'abord, puis autres graphèmes connus,
-   et au tout début des lettres à venir (bien différentes). */
-function graphemeDistractors(target, cur, upTo, n, rand) {
+/* Sons que la voix du jeu rend identiques : jamais ensemble dans les choix. */
+const SAME_TO_EAR = Object.freeze({ e: ['eu'], eu: ['e'], w: ['oi', 'oin', 'ou'] });
+
+/* Graphèmes pièges : UNE jumelle connue (b avec d, pas b avec d et p ; toutes à
+   l'étape-contraste), puis d'autres graphèmes connus, et au tout début des lettres
+   à venir (bien différentes). */
+function graphemeDistractors(target, cur, upTo, n, rand, maxTwins = 1) {
   // Jamais deux bonnes réponses : on écarte les graphèmes du MÊME son (c/k/qu, o/au…).
   const ph = cur.steps.find(s => s.show === target)?.ph;
-  const usable = cur.steps.filter(s => isLetterStep(s) && s.show !== target && s.ph !== ph);
+  const alike = SAME_TO_EAR[ph] || [];
+  const usable = cur.steps.filter(s => isLetterStep(s) && s.show !== target && s.ph !== ph && !alike.includes(s.ph));
   const letters = usable.map(s => s.show);
   const known = usable.filter(s => s.index <= upTo).map(s => s.show);
-  const twins = (cur.confusable[target] || []).filter(g => known.includes(g));
-  const others = shuffle(known.filter(g => !twins.includes(g)), rand);
-  let out = [...shuffle(twins, rand), ...others];
-  if (out.length < n) {
-    const upcoming = letters.filter(g => g !== target && !out.includes(g)
-      && !(cur.confusable[target] || []).includes(g));
-    out = [...out, ...upcoming];
-  }
+  const family = cur.confusable[target] || [];
+  const twins = shuffle(family.filter(g => known.includes(g)), rand).slice(0, maxTwins);
+  const others = shuffle(known.filter(g => !family.includes(g)), rand);
+  let out = [...twins, ...others];
+  if (out.length < n) out = [...out, ...letters.filter(g => g !== target && !out.includes(g) && !family.includes(g))];
   return [...new Set(out)].slice(0, n);
 }
 
@@ -48,28 +51,34 @@ function soundQuestion(item, cur, ctx) {
   const step = item.target ? cur.stepById(item.target) : cur.step(item.step);
   const target = step.show;
   const n = choiceCount('sound', { age: ctx.age, step: item.step });
-  const options = shuffle([target, ...graphemeDistractors(target, cur, ctx.open ?? item.step, n - 1, ctx.rand)], ctx.rand)
+  const options = shuffle([target, ...graphemeDistractors(target, cur, ctx.open ?? item.step, n - 1, ctx.rand, item.target ? 3 : 1)], ctx.rand)
     .map(g => ({ id: g, text: g }));
   const what = target.length > 1 ? 'les lettres qui font' : 'la lettre qui fait';
   return {
     prompt: [`Touche ${what} le son`, { sound: step.ph }, '.'],
-    caption: `Touche ${what} le son « ${step.ph} ».`,
+    caption: `Touche ${what} ce son.`,   // le sous-titre ne donne jamais la réponse
     options, answer: target, guess: 1 / options.length, ph: step.ph, anchor: step.anchor,
   };
 }
 
+/* Sons qu'on ne peut pas trancher à l'oreille : é/è et e/eu changent selon les régions
+   (et Kaya dit [e] comme [eu]) ; [y] s'entend dans « lion ». Un mot qui contient le
+   voisin ne sert jamais de « non ». */
+const BLURRY = Object.freeze({ 'é': ['è'], 'è': ['é'], e: ['eu'], eu: ['e'], i: ['y'], y: ['i'] });
+
 function listenQuestion(item, cur, ctx) {
   const { rand } = ctx;
   const ph = item.ph;
+  const blurry = BLURRY[ph] || [];
   const starters = cur.startingWith(ph);
-  const without = cur.withoutSound(ph);
+  const without = cur.withoutSound(ph).filter(w => !blurry.some(n => w.phonemes.has(n)));
   if (starters.length && without.length >= 2 && item.step >= 2 && rand() < 0.5) {
     const target = pick(starters, rand);
     const others = sample(without.filter(w => w.emoji !== target.emoji), 2, rand);
     return {
       mode: 'initial',
       prompt: ['Quel mot commence par le son', { sound: ph }, '?'],
-      caption: `Quel mot commence par le son « ${ph} » ?`,
+      caption: 'Quel mot commence par ce son ?',
       options: shuffle([target, ...others], rand).map(w => ({ id: w.text, emoji: w.emoji, say: w.text })),
       answer: target.text, guess: 1 / 3, ph,
     };
@@ -80,22 +89,32 @@ function listenQuestion(item, cur, ctx) {
     mode: 'contains',
     word: { text: w.text, emoji: w.emoji },
     prompt: ['Est-ce que tu entends le son', { sound: ph }, 'dans', { word: w.text }, '?'],
-    caption: `Tu entends « ${ph} » dans « ${w.text} » ?`,
+    caption: 'Tu entends ce son dans ce mot ?',
     options: [{ id: 'oui', emoji: '👍', say: 'oui' }, { id: 'non', emoji: '👎', say: 'non' }],
     answer: yes ? 'oui' : 'non', guess: 0.5, ph,
   };
 }
 
+/* Son d'une syllabe du parcours : « ka » et « ca » → « k.a ». */
+const sylSound = x => (x.reverse ? [...x.gpcs].reverse() : x.gpcs).map(g => g.split('>')[1]).join('.');
+
+/* Pièges : l'inversion (ma / am), la consonne jumelle (ma / na), puis d'autres syllabes
+   DÉJÀ lues. Jamais une lettre pas encore vue, jamais une syllabe qui se dit pareil
+   (ca / ka, mo / mau), jamais un son nasal pris pour une inversion (no / on). */
 function syllableDistractors(item, cur, upTo, rand) {
   const { c, v } = item;
-  const own = cur.syllablesFor(item.step).map(s => s.text);
-  const reversed = c && v && c.length === 1 && v.length === 1 ? [v + c] : [];
-  const twinC = (cur.confusable[c] || []).map(x => x + v);
-  const sameC = own.filter(t => t !== item.text);
-  const knownSyl = new Set(cur.steps.filter(s => s.index <= upTo).flatMap(s => cur.syllablesFor(s.index).map(x => x.text)));
-  const pool = [...shuffle(reversed, rand), ...shuffle(twinC.filter(t => knownSyl.has(t) || twinC.length), rand),
-                ...shuffle(sameC, rand), ...shuffle([...knownSyl], rand)];
-  return [...new Set(pool)].filter(t => t !== item.text);
+  const last = Math.max(upTo, item.step);
+  const known = new Map(cur.steps.filter(s => s.index <= last)
+    .flatMap(s => cur.syllablesFor(s.index)).map(x => [x.text, sylSound(x)]));
+  const target = known.get(item.text);
+  const graphemes = new Set(cur.steps.filter(s => s.index <= last).flatMap(s => s.gpcs.map(g => g.split('>')[0])));
+  const flip = c && v && c.length === 1 && v.length === 1 ? (item.text === c + v ? v + c : c + v) : null;
+  const flips = flip && !graphemes.has(flip) ? [flip] : [];
+  const twins = (cur.confusable[c] || []).map(x => x + v);
+  const own = cur.syllablesFor(item.step).map(x => x.text);
+  const pool = [...flips, ...shuffle(twins, rand), ...shuffle(own, rand), ...shuffle([...known.keys()], rand)];
+  return [...new Set(pool)].filter(t => t !== item.text
+    && (flips.includes(t) || (known.has(t) && known.get(t) !== target)));
 }
 
 function syllableQuestion(item, cur, ctx) {
@@ -132,31 +151,44 @@ function readQuestion(item, cur, ctx) {
 }
 
 /* Tuiles du Constructeur : une tuile par graphème qui s'entend (les lettres
-   muettes sont déjà posées, en gris), plus une ou deux tuiles jumelles. */
+   muettes sont déjà posées, en gris), plus une ou deux tuiles jumelles —
+   des graphèmes DÉJÀ appris qui font un AUTRE son : « z » pour « maison »,
+   « in » pour « pain » seraient justes à l'oreille, l'enfant qui écrit ce
+   qu'il entend ne doit pas être compté faux. */
 function buildQuestion(item, cur, ctx) {
   const target = cur.word(item.text);
   const slots = target.parsed.graphemes.map(g => ({ g: g.g, mute: g.mute }));
-  const sounded = slots.filter(s => !s.mute).map(s => s.g);
+  const soundedG = target.parsed.graphemes.filter(g => !g.mute);
+  const sounded = soundedG.map(g => g.g);
+  const heard = new Set(soundedG.map(g => g.p));
+  const last = Math.max(ctx.open ?? item.step, item.step);
+  const learned = new Set(cur.steps.filter(s => s.index <= last).map(s => s.show));
   const twins = [...new Set(sounded.flatMap(g => cur.confusable[g] || []))]
-    .filter(g => !sounded.includes(g));
-  const nExtra = sounded.length >= 4 ? 2 : 1;
-  const extra = shuffle(twins, ctx.rand).slice(0, nExtra);
+    .filter(g => !sounded.includes(g) && learned.has(g) && !heard.has(DEFAULT_PHONEME[g]));
+  const extra = shuffle(twins, ctx.rand).slice(0, sounded.length >= 4 ? 2 : 1);
   const tiles = shuffle([...sounded, ...extra], ctx.rand);
   return {
     word: target, slots, tiles,
     prompt: ['Écris le mot', { word: target.text }, '.'],
-    caption: `Écris le mot « ${target.text} ».`,
+    caption: 'Écris le mot que tu entends.',
     options: tiles.map((t, i) => ({ id: `t${i}`, text: t })),
     answer: sounded.join('|'), guess: 0.1,
   };
 }
+
+/* Deux mots qui se disent pareil (a / à, des / dé, dans / dent) ou presque
+   (et / est, les / lait, je / jeu) ne vont jamais ensemble : l'oreille ne peut pas choisir. */
+const earKey = parsed => parsed.graphemes.filter(g => !g.mute).map(g => g.p).join('.')
+  .replace(/è/g, 'é').replace(/eu/g, 'e');
 
 /* « Touche le mot que tu entends » : trois mots écrits, dont deux qui
    commencent pareil — utile pour les petits mots sans image (les, est…). */
 function hearwordQuestion(item, cur, ctx) {
   const target = item.text;
   const upTo = Math.max(ctx.open ?? item.step, item.step);
-  const pool = [...cur.tools, ...cur.words].filter(w => w.step <= upTo && w.text !== target);
+  const all = [...cur.tools, ...cur.words];
+  const key = earKey(all.find(w => w.text === target).parsed);
+  const pool = all.filter(w => w.step <= upTo && w.text !== target && earKey(w.parsed) !== key);
   const same = pool.filter(w => w.text[0] === target[0]);
   const near = pool.filter(w => !same.includes(w) && Math.abs(w.text.length - target.length) <= 1);
   const others = [...new Set([...shuffle(same, ctx.rand), ...shuffle(near, ctx.rand), ...shuffle(pool, ctx.rand)]

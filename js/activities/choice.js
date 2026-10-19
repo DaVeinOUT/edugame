@@ -23,23 +23,23 @@ function setupPrompt(q, api) {
   let help = null;
   if (q.kind === 'sound') {
     kind = 'letter';
-    card.append(listenButton(() => voice.sound(q.ph), 'Réécouter le son'));
+    card.append(listenButton(() => voice.sound(q.ph, { caption: '🔊' }), 'Réécouter le son'));
     help = () => voice.seq(q.anchor ? ['Écoute :', { sound: q.ph }, '. Comme dans', { word: q.anchor }, '.']
       : ['Écoute bien :', { sound: q.ph }, { pause: 300 }, { sound: q.ph }]);
   } else if (q.kind === 'hearword') {
     kind = 'syllable';
-    card.append(listenButton(() => voice.say(q.answer, { slowWord: true }), 'Réécouter le mot'));
+    card.append(listenButton(() => voice.say(q.answer, { slowWord: true, caption: '🔊' }), 'Réécouter le mot'));
     help = () => voice.seq([{ word: q.answer }, { pause: 300 }, { word: q.answer }]);
   } else if (q.kind === 'syllable') {
     kind = 'syllable';
-    card.append(listenButton(() => voice.say(q.answer, { slowWord: true }), 'Réécouter la syllabe'));
+    card.append(listenButton(() => voice.say(q.answer, { slowWord: true, caption: '🔊' }), 'Réécouter la syllabe'));
     help = () => voice.seq([{ word: q.answer }, { pause: 300 }, { word: q.answer }]);
   } else if (q.kind === 'listen') {
     if (q.mode === 'contains') {
       kind = 'yesno';
       card.append(h('div', { class: 'big-emoji', 'aria-hidden': 'true' }, q.word.emoji));
     }
-    card.append(listenButton(() => voice.seq(q.prompt), 'Réécouter'));
+    card.append(listenButton(() => voice.seq(q.prompt, { caption: q.caption }), 'Réécouter'));
     if (q.mode === 'initial') hear = o => voice.say(o.say, { slowWord: true });
     help = () => voice.seq([...q.prompt]);
   } else if (q.kind === 'read') {
@@ -104,7 +104,8 @@ export async function runChoice(q, api) {
 
   async function speakPrompt() {
     const token = ++reading;
-    await voice.seq(q.prompt);
+    // Le sous-titre de la question ne donne jamais la réponse (sinon on la copie au lieu d'écouter).
+    await voice.seq(q.prompt, { caption: q.caption });
     if (q.kind === 'listen' && q.mode === 'initial') {
       for (const b of grid.buttons) {
         if (token !== reading || !api.alive() || grid.isDone()) return;

@@ -10,7 +10,7 @@
    ============================================================ */
 
 /* <release> — généré par scripts/release.mjs, ne pas éditer à la main */
-const CACHE_NAME = 'educa-3dfd534538';
+const CACHE_NAME = 'educa-d3123b1ce9';
 const ASSETS = [
   './',
   './audio/mots/a-2.mp3',
@@ -387,6 +387,21 @@ self.addEventListener('message', event => {
   if (event.data && event.data.type === 'SKIP_WAITING') self.skipWaiting();
 });
 
+/* Safari (iPad, iPhone) lit l'audio par morceaux (en-tête Range) et refuse une réponse
+   entière : on découpe la réponse du cache (206), sinon la voix humaine ne jouerait pas. */
+async function withRange(req, hit) {
+  const m = /^bytes=(\d*)-(\d*)$/.exec(req.headers.get('range') || '');
+  if (!m || !hit) return hit;
+  const buf = await hit.arrayBuffer();
+  const size = buf.byteLength;
+  const start = m[1] === '' ? Math.max(0, size - Number(m[2])) : Number(m[1]);
+  const end = m[1] === '' || m[2] === '' ? size - 1 : Math.min(Number(m[2]), size - 1);
+  if (!(start <= end && start < size)) return new Response(null, { status: 416, headers: { 'Content-Range': `bytes */${size}` } });
+  return new Response(buf.slice(start, end + 1), { status: 206, statusText: 'Partial Content', headers: {
+    'Content-Type': hit.headers.get('Content-Type') || 'audio/mpeg', 'Content-Range': `bytes ${start}-${end}/${size}`,
+    'Content-Length': String(end - start + 1), 'Accept-Ranges': 'bytes' } });
+}
+
 self.addEventListener('fetch', event => {
   const req = event.request;
   if (req.method !== 'GET') return;
@@ -395,7 +410,7 @@ self.addEventListener('fetch', event => {
   event.respondWith((async () => {
     const cache = await caches.open(CACHE_NAME);
     const hit = await cache.match(req, { ignoreSearch: true });
-    if (hit) return hit;
+    if (hit) return withRange(req, hit);
     try {
       const res = await fetch(req);
       // Fichier pas encore en cache (ex. un son ajouté) : gardé pour la prochaine fois.

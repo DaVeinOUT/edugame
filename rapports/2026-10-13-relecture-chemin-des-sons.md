@@ -739,3 +739,13 @@ Le chemin des sons est **pédagogiquement solide dans sa conception** (ordre sou
 3. **Appliquer l'ordre 2.8 et compléter les étapes pauvres** : e et é séparés, es et est séparés, règles c/g/s espacées, y avant ay, accents et tréma enseignés, mots ajoutés pour oin, ui, er ; corriger « nounours » et les six mots en -ette/-ettre (1.1, 1.2).
 4. **Réécrire les intros sans nom de lettre** (3.1 à 3.5, lignes complètes fournies), avec les contrastes sourde/sonore (f/v, ch/j, t/d, p/b) et le même repère de tracé pour b, d et l'étape-contraste.
 5. **Fiabiliser l'écoute et l'image** : faire écouter par un adulte, sur deux appareils, les sons et syllabes synthétisés (« eu », « ouin », « hui », « ien », syllabes d'aide) et enregistrer ceux qui sonnent faux ; changer les quatre émojis trompeurs, la phrase du roi, et embarquer les émojis pour les tablettes anciennes (4.1, 4.2, 5.1).
+
+---
+
+## 8. Suites données (19/10)
+
+Appliqués (code et tests de la copie validée, commentaires du dépôt conservés) : **les 7 bloquants** A1 (sous-titres sans la
+réponse, exercices d'écoute retirés quand le son est coupé), A2, A3, A4, A5 ([ui], [ien], [oin], [w] audibles, [ks]/[gz]
+fabriqués ; test « chaque son est jouable »), A6, 1.1 (nounours) ; et, validés dans le même code, A7, A8, A9, 6.1.
+Restent à appliquer : les corrections de contenu des sections 1.2 à 5 (lexique, ordre des étapes, intros, émojis, phrases)
+et les mineurs ; enregistrer [e], [eu], [ui], [ien], [oin] avec la voix humaine.

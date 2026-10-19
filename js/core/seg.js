@@ -139,8 +139,24 @@ export function isDecodable(parsed, known) {
  * @param {Parsed} parsed
  * @returns {string[]}
  */
+/* Ce que la voix doit DIRE pour un graphème lu autrement que d'habitude
+   (s:z, e:è, g:j, ll:y…) : on écrit le son, pas les lettres. */
+const SAY_SOUND = Object.freeze({ z: 'z', 'è': 'è', 'é': 'é', j: 'j', s: 's', k: 'k', y: 'y', ou: 'ou', i: 'i', f: 'f' });
+/* Nasales que la synthèse lirait de travers hors du mot (« lam » [lam], « pen » [pɛn]). */
+const SAY_LETTERS = Object.freeze({ en: 'an', em: 'an', am: 'an', om: 'on', im: 'in', ym: 'in', um: 'in', aim: 'in' });
+
+function sayGrapheme(x) {
+  if (x.mute) return x.g;                                         // e muet gardé : « lu… ne »
+  const g = x.g.toLowerCase();
+  if (x.p !== DEFAULT_PHONEME[g]) return SAY_SOUND[x.p] ?? x.g;   // « mai… zon », « lu… nè… te »
+  if (/^(.)\1$/.test(g)) return g[0];                             // tt → t : « ca… ro… te »
+  return SAY_LETTERS[g] ?? x.g;                                   // « lan… pe », « ser… pan »
+}
+
 export function spokenSyllables(parsed) {
+  const unusual = parsed.graphemes.some(x => !x.mute && x.p !== DEFAULT_PHONEME[x.g.toLowerCase()]);
+  if (parsed.syllables.length === 1 && unusual) return [parsed.text];   // « six », « mer » : le mot entier, voix humaine
   return parsed.syllables
-    .map(s => s.graphemes.filter(x => !x.mute || x.g === 'e').map(x => x.g).join(''))
+    .map(s => s.graphemes.filter(x => !x.mute || x.g === 'e').map(sayGrapheme).join(''))
     .filter(Boolean);
 }

@@ -11,6 +11,12 @@
 
 import { parseSeg } from './seg.js';
 
+/* Sons composés : l'oreille entend aussi leurs parties (« roi » = [r][w][a]).
+   « Tu entends [a] dans roi ? » → oui. */
+const HEARD_PARTS = Object.freeze({ oi: ['w', 'a'], oin: ['w', 'in'], ui: ['u', 'i'], ien: ['y', 'in'], ks: ['k', 's'], gz: ['g', 'z'] });
+/* Syllabes jamais proposées seules : « con » (et « kon », qui se dit pareil) est une insulte. */
+const AVOID = new Set(['con', 'kon']);
+
 /* Difficulté a priori (échelle logit de l'Élo) : on avance d'environ
    0,1 par étape ; écouter est plus facile que lire, lire un mot plus
    facile que l'écrire. Réglage initial, recalé par la simulation. */
@@ -76,7 +82,7 @@ export function buildCurriculum(data) {
     return {
       text: parsed.text, seg, emoji, parsed,
       step: stepOfGpcs(parsed.gpcs),
-      phonemes: new Set(sounded.map(g => g.p)),
+      phonemes: new Set(sounded.flatMap(g => [g.p, ...(HEARD_PARTS[g.p] || [])])),
       initial: sounded[0]?.p ?? null,
       syllables: parsed.syllables.length,
       graphemes: parsed.graphemes.length,
@@ -107,7 +113,7 @@ export function buildCurriculum(data) {
     const out = [];
     const add = (c, v, reverse = false) => {
       const text = reverse ? v + c : c + v;
-      if (out.some(x => x.text === text)) return;
+      if (AVOID.has(text) || out.some(x => x.text === text)) return;
       out.push({ text, c, v, reverse, step: stepIndex, gpcs: [GRAPHEME_GPC[c], GRAPHEME_GPC[v]] });
     };
     const vowels = VOWEL_GRAPHEMES.filter(v => knownGrapheme(v, stepIndex));

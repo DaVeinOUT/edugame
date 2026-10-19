@@ -210,14 +210,18 @@ export function finishModule(profile, { module, results, seconds = 0 }, cur, now
   const { profile: p1, report } = finishSession(profile, { kind: 'practice', results, seconds }, cur, now);
   const a = adv(p1);
   const prev = a.modules[module.id] || { stars: 0, tries: 0 };
-  const stars = starsFor(report.accuracy);
+  // Juste avec l'aide (texte lu par Kaya : l'aménagement habituel des dyslexiques) = juste.
+  // L'Élo, lui, l'a déjà compté comme une demi-information.
+  const right = results.filter(r => r.outcome !== 'ko').length;
+  const accuracy = results.length ? right / results.length : 0;
+  const stars = starsFor(accuracy);
   const modules = { ...a.modules, [module.id]: { stars: Math.max(prev.stars, stars), tries: prev.tries + 1 } };
-  const passed = module.isControle && report.accuracy >= PASS;
+  const passed = module.isControle && accuracy >= PASS;
   const controles = passed ? { ...a.controles, [module.level]: true } : a.controles;
   const diploma = `diplome-${module.level}`;
   const newCards = passed && !p1.cards.includes(diploma) ? [diploma] : [];
   return {
     profile: { ...p1, cards: [...p1.cards, ...newCards], path: { ...p1.path, adv: { modules, controles } } },
-    report: { ...report, stars, passed, isControle: module.isControle, module: module.id, cards: [...report.cards, ...newCards] },
+    report: { ...report, ok: right, accuracy, stars, passed, isControle: module.isControle, module: module.id, cards: [...report.cards, ...newCards] },
   };
 }

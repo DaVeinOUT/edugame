@@ -31,6 +31,7 @@ import { catalogue, revealCard } from '../ui/cards.js';
 import { burst } from '../ui/fx.js';
 
 const BREAK_AFTER_MS = 12 * 60 * 1000;
+const EAR_KINDS = new Set(['listen', 'sound', 'syllable', 'hearword', 'build']);
 
 const STARS_SAY = {
   3: 'Trois étoiles ! Tu es un champion de la lecture !',
@@ -84,6 +85,8 @@ export const lesson = {
       const pools = reviewPool(cur, p0.path.open);
       items = selectItems(params.kinds.flatMap(k => pools[k]), { elo: p0.elo, mem: p0.mem, n: 10, rand });
     } else items = planPractice(cur, p0, { rand, n: 12 });
+    // Son coupé : les exercices d'écoute deviendraient de la copie du sous-titre — on ne garde que la lecture.
+    if (voice.muted && (mode === 'lesson' || mode === 'practice')) items = items.filter(it => !EAR_KINDS.has(it.kind));
 
     let alive = true;
     let finished = false;
@@ -160,7 +163,10 @@ export const lesson = {
 
     async function run() {
       if (!items.length) {
-        stage.replaceChildren(h('div', { class: 'paper prompt-card' }, h('p', { class: 'h2' }, 'Pas encore d\'exercice ici !')));
+        const mutedMsg = voice.muted && (mode === 'lesson' || mode === 'practice');
+        stage.replaceChildren(h('div', { class: 'paper prompt-card' }, h('p', { class: 'h2' }, mutedMsg
+          ? '🔇 Le son est coupé. Pour apprendre les sons, il faut entendre Kaya : demande à un grand de le remettre !'
+          : 'Pas encore d\'exercice ici !')));
         voice.say('Il n\'y a pas encore d\'exercice ici. Avance sur le chemin, et reviens plus tard !');
         await sleep(2500);
         if (alive) router.back();
@@ -186,7 +192,12 @@ export const lesson = {
         commit(i, q, res);
         if (!breakOffered && clock.ms() > BREAK_AFTER_MS && i < items.length - 2) {
           breakOffered = true;   // proposée une seule fois par leçon
-          if (await askBreak()) break;
+          if (await askBreak()) {
+            // Module ou contrôle interrompu : on garde le travail fait, mais ni étoiles ni contrôle
+            // sur une séance incomplète (sinon 9 réponses sur 17 suffiraient à « réussir »).
+            if (mode === 'module') return quit();
+            break;
+          }
           if (!alive) return;
         }
       }

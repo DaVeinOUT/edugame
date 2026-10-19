@@ -212,3 +212,12 @@ test('aucune question ne montre de phrase fautive à juger (« Quelle phrase est
   const bad = texts.filter(t => /(phrase|forme)s? (est|sont) (bien écrite|correcte|correctement)|bien orthographi/i.test(t));
   assert.deepEqual(bad, []);
 });
+
+test('un contrôle réussi avec l\'aide de Kaya compte comme réussi (l\'aide n\'est jamais une punition)', () => {
+  const p = withPath({ advanced: true });
+  const ctl = L.module('n3-controle');
+  const results = Array.from({ length: 12 }, (_, i) => ({ outcome: i < 6 ? 'help' : 'ok' }));
+  const { report } = finishModule(p, { module: ctl, results }, cur, NOW);
+  assert.equal(report.ok, 12);
+  assert.equal(report.passed, true);
+});

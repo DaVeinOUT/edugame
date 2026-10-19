@@ -19,7 +19,7 @@ export function runBuild(q, api) {
   const word = q.word;
   const card = h('div', { class: 'paper prompt-card' },
     h('div', { class: 'big-emoji', 'aria-hidden': 'true' }, word.emoji),
-    listenButton(() => voice.say(word.text, { slowWord: true }), 'Réécouter le mot'));
+    listenButton(() => voice.say(word.text, { slowWord: true, caption: '🔊' }), 'Réécouter le mot'));
   const slotEls = q.slots.map(s => h('div', { class: `slot${s.mute ? ' mute' : ''}`, 'aria-hidden': 'true' }, s.mute ? s.g : ''));
   const order = q.slots.map((s, i) => (s.mute ? -1 : i)).filter(i => i >= 0);
   const tiles = q.tiles.map(t => h('button', { type: 'button', class: 'gtile', 'data-g': t, 'aria-label': t }, t));
@@ -37,9 +37,10 @@ export function runBuild(q, api) {
     voice.seq(['Le son qui vient, c\'est', { sound: word.parsed.graphemes[order[pos]].p }, '.']);
   }
   showNext();
-  api.setReplay(() => voice.seq(q.prompt));
+  // Écrire le mot entendu : le sous-titre ne l'écrit pas (sinon c'est de la copie).
+  api.setReplay(() => voice.seq(q.prompt, { caption: q.caption }));
   api.setHelp(() => { helped = true; hint(); });
-  voice.seq(q.prompt);
+  voice.seq(q.prompt, { caption: q.caption });
 
   return new Promise(resolve => {
     tiles.forEach(t => t.addEventListener('click', async () => {
@@ -52,7 +53,7 @@ export function runBuild(q, api) {
         t.classList.add('shake');
         setTimeout(() => t.classList.remove('shake'), 450);
         if (here >= 2) hint();
-        else voice.seq(['Écoute bien :', { word: word.text }, '.']);
+        else voice.seq(['Écoute bien :', { word: word.text }, '.'], { caption: 'Écoute bien.' });
         return;
       }
       t.classList.add('used');

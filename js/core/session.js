@@ -44,7 +44,10 @@ export function itemsForStep(cur, s) {
       .map(id => ({ kind: 'sound', key: `snd:${id}`, step: s, target: id, guess: 1 / 3 }));
   }
   // « Touche le mot que tu entends » : les mots-outils de l'étape, puis quelques mots nouveaux.
-  const heard = [...cur.newToolsAt(s), ...words.slice(0, 3)]
+  // Pas de « Touche le mot » avant trois mots lisibles (sinon une question à un seul choix).
+  const readable = [...cur.tools, ...cur.words].filter(w => w.step <= s).length;
+  const heard = (readable < 3 ? [] : [...cur.newToolsAt(s), ...words.slice(0, 3)])
+    .filter((w, i, list) => list.findIndex(x => x.text === w.text) === i)   // « un » est à la fois mot-outil et mot illustré
     .map(w => ({ kind: 'hearword', key: `hw:${w.text}`, step: s, text: w.text, guess: 1 / 3 }));
   return {
     listen: step.ph && cur.withSound(step.ph).length ? [{ kind: 'listen', key: `pa:${step.ph}`, step: s, ph: step.ph, guess: 0.45 }] : [],

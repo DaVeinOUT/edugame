@@ -27,13 +27,13 @@ const VOICE_AVOID = /\b(eddy|flo|grandma|grandpa|grand-mère|grand-père|rocko|s
 /* Quand le fichier d'un son manque : ce que la synthèse sait dire
    correctement pour faire entendre ce son (les voyelles se disent
    seules ; les consonnes passent par une syllabe d'appui). */
-const SOUND_TTS = {
+export const SOUND_TTS = Object.freeze({
   a: 'a', i: 'i', o: 'o', u: 'u', ou: 'ou', e: 'eu', 'é': 'é', 'è': 'è', eu: 'eux',
-  on: 'on', an: 'an', in: 'hein', oi: 'oie', oin: 'coin',
+  on: 'on', an: 'an', in: 'hein', oi: 'oie', oin: 'ouin', ui: 'hui', ien: 'ien',
   m: 'mmmm', n: 'nnnn', l: 'llll', r: 'rrrr', s: 'ssss', z: 'zzzz', f: 'ffff', v: 'vvvv',
   ch: 'chhhh', j: 'jjjj', p: 'pe', b: 'be', t: 'te', d: 'de', k: 'ke', g: 'gue',
-  gn: 'gne', y: 'ye', w: 'oua', ks: 'ks', gz: 'gz',
-};
+  gn: 'gne', y: 'ye', w: 'ou',   // [w] : un [u] bref (« oua » ferait entendre [wa], absent de « kiwi »)
+});
 
 const synth = typeof speechSynthesis !== 'undefined' ? speechSynthesis : null;
 const DEFAULT_RATE = 0.9;
@@ -139,7 +139,7 @@ async function say(text, opts = {}) {
   if (interrupt) stop();
   const myGen = st.gen;
   const rate = opts.rate ?? (st.slow ? SLOW_RATE : DEFAULT_RATE) * (opts.slowWord ? 0.85 : 1);
-  if (!opts.noCaption) caption(text);
+  if (!opts.noCaption) caption(opts.caption ?? text);   // caption : sous-titre imposé (jamais la réponse)
   if (st.muted || st.screenReader) {
     await wait(Math.min(2600, estimate(text, rate) * 0.6));
     return;
@@ -186,9 +186,9 @@ function playFile(url, { rate = 1 } = {}) {
  * Fait entendre un son isolé (phonème) : fichier si disponible, sinon appui parlé.
  * @param {string} ph identifiant de phonème (« m », « ch », « on »…)
  */
-async function sound(ph, { noCaption = false } = {}) {
+async function sound(ph, { noCaption = false, caption: shown } = {}) {
   const myGen = st.gen;
-  if (!noCaption) caption(`« ${ph} »`);
+  if (!noCaption) caption(shown ?? `« ${ph} »`);
   if (st.muted || st.screenReader) { await wait(500); return; }
   // 1. la voix de l'adulte (enregistrée sur cet appareil) ; 2. un fichier du jeu
   const url = st.recordings.get(ph) || (st.soundFiles.has(ph) ? `${st.soundBase}${st.soundFiles.get(ph)}.mp3` : null);
@@ -212,10 +212,11 @@ async function sound(ph, { noCaption = false } = {}) {
  * @param {Array<string | object>} parts
  * @param {{ interrupt?: boolean }} [opts]
  */
-async function seq(parts, { interrupt = true } = {}) {
+async function seq(parts, { interrupt = true, caption: shown } = {}) {
   if (interrupt) stop();
   const myGen = st.gen;
-  caption(captionOf(parts));   // un seul sous-titre, la phrase entière
+  // Un seul sous-titre, la phrase entière — ou celui imposé pendant une question (sans la réponse).
+  caption(shown ?? captionOf(parts));
   for (const part of parts) {
     if (myGen !== st.gen) return;
     if (typeof part === 'string') await say(part, { interrupt: false, noCaption: true });
