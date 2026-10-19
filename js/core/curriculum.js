@@ -162,6 +162,7 @@ export function buildCurriculum(data) {
  * @param {{ kind: string, step: number, word?: { syllables: number, graphemes: number } }} item
  */
 export function difficultyOf(item) {
+  if (Number.isFinite(item.d)) return item.d;   // questions des niveaux : leur difficulté propre
   const D = DIFFICULTY;
   let d = D.base + D.perStep * item.step + (D.kind[item.kind] ?? 0);
   if (item.kind === 'read' && item.word) d += 0.15 * (item.word.syllables - 1);

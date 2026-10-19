@@ -64,6 +64,7 @@ export function emptyDevice(now = Date.now()) {
     order: [],
     classStep: null,      // l'enseignant aligne le parcours sur sa classe
     dailyMinutes: 0,      // 0 = pas de limite (réglage adulte)
+    adultPin: null,       // empreinte du code de l'espace des grands (jamais exportée)
     errors: [],
   };
 }

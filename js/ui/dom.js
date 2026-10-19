@@ -56,6 +56,6 @@ export const sleep = ms => new Promise(r => setTimeout(r, ms));
 
 /** Le joueur a-t-il demandé moins d'animations (système ou réglage) ? */
 export function reducedMotion() {
-  return document.body.classList.contains('comfort-reduced-motion')
+  return document.body.classList.contains('reduced-motion')
     || (typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches);
 }

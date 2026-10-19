@@ -17,6 +17,7 @@ import { openLevels, moduleRecord, controlePassed } from '../core/levels.js';
 import { classRows, toCSV, CLASS_COLUMNS } from '../core/report.js';
 import { AVATARS, UNIVERSES, AGES, cleanName } from '../core/schema.js';
 import { toast } from '../ui/fx.js';
+import { hashPin, checkPin, isPin, PIN_LENGTH } from '../core/pin.js';
 import { recordingSupported, startRecording, saveRecording, deleteRecording, loadRecordings } from '../services/recordings.js';
 
 /* Sons que l'adulte peut enregistrer (consonnes d'abord : ce sont elles que
@@ -73,8 +74,74 @@ let unlockedUntil = 0;
 const btn = (label, onclick, cls = 'btn btn-soft btn-sm') => h('button', { type: 'button', class: cls, onclick }, label);
 const section = (title, ...children) => h('section', { class: 'panel stack' }, h('h2', null, title), ...children);
 
+/* Le code de l'adulte : 5 erreurs de suite → 30 secondes d'attente. */
+const PIN_MAX_FAILS = 5;
+const PIN_COOLDOWN_MS = 30 * 1000;
+let pinFails = 0;
+let pinBlockedUntil = 0;
+
+function pinGate(ctx, saved) {
+  const { router } = ctx;
+  let typed = '';
+  const shown = h('p', { class: 'h2 center', 'aria-live': 'polite' }, '');
+  const press = async d => {
+    if (Date.now() < pinBlockedUntil) { toast('Patientez quelques secondes avant de réessayer'); return; }
+    typed += d;
+    shown.textContent = '● '.repeat(typed.length).trim();
+    if (typed.length < PIN_LENGTH) return;
+    const code = typed;
+    typed = '';
+    if (await checkPin(code, saved)) { pinFails = 0; unlockedUntil = Date.now() + UNLOCK_MS; router.refresh(); return; }
+    pinFails += 1;
+    if (pinFails >= PIN_MAX_FAILS) { pinFails = 0; pinBlockedUntil = Date.now() + PIN_COOLDOWN_MS; }
+    shown.textContent = '';
+    toast('Ce n\'est pas le bon code');
+  };
+  const pad = h('div', { class: 'gate-pad' }, [1, 2, 3, 4, 5, 6, 7, 8, 9, 0]
+    .map(d => h('button', { type: 'button', onclick: () => press(String(d)) }, String(d))));
+  return [h('p', null, 'Entrez le code de l\'espace des grands :'), shown, pad,
+    h('p', { class: 'note' }, 'Code oublié ? Il n\'existe que sur cet appareil : pour l\'effacer, il faut effacer les données du site dans le navigateur (les progrès aussi). Exportez une sauvegarde de temps en temps.')];
+}
+
+/* Le code (2 fois les mêmes 4 chiffres) : jamais gardé en clair, jamais exporté. */
+function pinForm(ctx, label = 'Enregistrer le code') {
+  const field = aria => h('input', { type: 'password', inputmode: 'numeric', autocomplete: 'off', maxlength: String(PIN_LENGTH), class: 'input pin-input', 'aria-label': aria });
+  const a = field('Code à 4 chiffres');
+  const b = field('Le même code, une seconde fois');
+  const save = btn(label, async () => {
+    if (!isPin(a.value) || a.value !== b.value) { toast('Tapez deux fois le même code de 4 chiffres'); return; }
+    const adultPin = await hashPin(a.value);
+    ctx.store.updateDevice(x => ({ ...x, adultPin }));
+    ctx.store.flush();
+    toast('Code enregistré : il sera demandé à chaque entrée');
+    ctx.router.refresh();
+  }, 'btn btn-primary btn-sm');
+  return h('div', { class: 'row wrap' }, a, b, save);
+}
+
+function pinSection(ctx) {
+  if (!ctx.store.device().adultPin) return null;
+  return section('Code de l\'espace des grands',
+    h('p', { class: 'note' }, 'Un code à 4 chiffres protège cet espace.'),
+    pinForm(ctx, 'Changer le code'),
+    btn('Retirer le code', () => {
+      ctx.store.updateDevice(x => ({ ...x, adultPin: null }));
+      ctx.router.refresh();
+    }, 'btn btn-soft btn-sm'));
+}
+
 function gate(view, ctx) {
-  const { voice, router } = ctx;
+  const { voice, router, store } = ctx;
+  const saved = store.device().adultPin;
+  if (saved) {
+    view.append(
+      h('div', { class: 'topbar' },
+        h('button', { class: 'icon-btn', type: 'button', 'aria-label': 'Retour', onclick: () => router.back() }, '←'),
+        h('h1', { class: 'title' }, 'Espace des grands')),
+      h('div', { class: 'panel stack center' }, pinGate(ctx, saved)));
+    voice.say('Cet espace est pour les grands ! Demande à un adulte.');
+    return;
+  }
   const digits = Array.from({ length: 3 }, () => 1 + Math.floor(Math.random() * 9));
   let typed = [];
   const shown = h('p', { class: 'h2 center', 'aria-live': 'polite' }, '');
@@ -252,6 +319,7 @@ function deviceTab(ctx) {
   const statusText = { ok: 'Voix française trouvée.', novoice: 'Aucune voix française sur cet appareil : installez-en une (Réglages du téléphone → Synthèse vocale) ; en attendant, les sous-titres s\'affichent.', unsupported: 'Ce navigateur ne sait pas parler : les sous-titres remplacent la voix.', unknown: 'Recherche des voix…' }[voice.status];
   return [
     installSection(ctx),
+    pinSection(ctx),
     section('Voix de Kaya', h('p', { class: 'note' }, statusText),
       voices.length ? h('div', { class: 'stack' }, voices.map(v => btn(`${v.name === voice.current() ? '✓ ' : ''}${v.name.replace(/\(.*\)/, '').trim()} · ${v.lang}`, () => {
         store.updateDevice(x => ({ ...x, voice: v.name }));
@@ -306,6 +374,7 @@ function dataTab(ctx) {
   let armed = false;
   const wipe = btn('Tout effacer sur cet appareil…', () => {
     if (!armed) { armed = true; wipe.textContent = 'Confirmer : TOUT effacer (pensez à exporter avant)'; wipe.className = 'btn btn-danger btn-sm'; return; }
+    if (Date.now() > unlockedUntil) { router.refresh(); return; }   // verrou revérifié avant tout effacement
     store.wipe();
     location.reload();
   });
@@ -314,6 +383,7 @@ function dataTab(ctx) {
     section('Enfants de cet appareil',
       h('table', { class: 'mini' }, h('tbody', null, store.profiles().map(p => {
         const del = btn('Supprimer', () => {
+          if (Date.now() > unlockedUntil) { router.refresh(); return; }
           if (del.dataset.armed) { store.removeProfile(p.id); ctx.applyTheme(); router.refresh(); return; }
           del.dataset.armed = '1'; del.textContent = 'Confirmer ?'; del.className = 'btn btn-danger btn-sm';
         });
@@ -323,7 +393,7 @@ function dataTab(ctx) {
     section('Sauvegarde',
       h('p', { class: 'note' }, 'Aucune donnée ne quitte l\'appareil. Pour changer de tablette, exportez un fichier puis importez-le sur l\'autre appareil.'),
       h('div', { class: 'row wrap' },
-        btn('💾 Exporter tout', () => download(`educa-sauvegarde-${new Date().toISOString().slice(0, 10)}.json`, store.exportAll())),
+        btn('💾 Exporter tout', () => download(`educa-sauvegarde-${localDay()}.json`, store.exportAll())),
         btn('📥 Importer', () => file.click())), file,
       store.degraded ? h('p', { class: 'note' }, '⚠️ Ce navigateur n\'enregistre pas la progression (navigation privée ou stockage plein). Installez EDUCA sur l\'écran d\'accueil.') : null),
     section('Effacer', h('p', { class: 'note' }, 'Supprime tous les profils, réglages et progrès de cet appareil.'), wipe),
@@ -398,11 +468,15 @@ export const adult = {
     else if (tab === 'classe') body = classTab(ctx, id => go({ tab: 'progres', child: id }));
     else if (!child) body = [section('Aucun enfant', btn('➕ Ajouter un enfant', () => router.go('welcome', { adding: true }), 'btn btn-primary'))];
     else body = tab === 'reglages' ? settingsTab(child, ctx) : progressTab(child, ctx);
+    // Pas encore de code : les élèves qui lisent passent le défi des chiffres — on propose d'en choisir un.
+    const pinBanner = store.device().adultPin ? null : section('🔒 Protégez l\'espace des grands',
+      h('p', { class: 'note' }, 'Les élèves qui savent lire peuvent passer le petit défi des chiffres. Choisissez un code à 4 chiffres : il sera demandé à chaque entrée.'),
+      pinForm(ctx));
     append(view, [
       h('div', { class: 'topbar' },
         h('button', { class: 'icon-btn', type: 'button', 'aria-label': 'Retour', onclick: () => router.back() }, '←'),
         h('h1', { class: 'title' }, 'Espace des grands')),
-      tabs, who, body,   // append() ignore « who » quand il n'y a qu'un enfant
+      tabs, pinBanner, who, body,   // append() ignore ce qui est null (« who » quand il n'y a qu'un enfant…)
     ]);
     // En quittant l'espace des grands (pas en changeant d'onglet), on reverrouille.
     return () => setTimeout(() => { if (router.current !== 'adult') unlockedUntil = 0; }, 0);

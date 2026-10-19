@@ -2,7 +2,7 @@
    Aucune dépendance : sert le dépôt tel quel, comme GitHub Pages. */
 import { createServer } from 'node:http';
 import { readFile, stat } from 'node:fs/promises';
-import { extname, join, normalize, resolve } from 'node:path';
+import { extname, join, normalize, resolve, sep } from 'node:path';
 
 const MIME = {
   '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8',
@@ -19,7 +19,7 @@ export function startServer(root = process.cwd(), port = 0) {
     try {
       const url = new URL(req.url, 'http://localhost');
       let path = normalize(join(base, decodeURIComponent(url.pathname)));
-      if (!path.startsWith(base)) { res.writeHead(403).end(); return; }
+      if (path !== base && !path.startsWith(base + sep)) { res.writeHead(403).end(); return; }
       const st = await stat(path).catch(() => null);
       if (st?.isDirectory()) path = join(path, 'index.html');
       const body = await readFile(path);

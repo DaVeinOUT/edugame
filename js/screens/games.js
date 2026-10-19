@@ -5,6 +5,7 @@
    ============================================================ */
 
 import { h } from '../ui/dom.js';
+import { hasReviewable } from '../core/levels.js';
 
 const GAMES = [
   { id: 'trace', ico: '✍️', label: 'Tracer', say: 'Tracer les lettres avec ton doigt', go: r => r.go('trace') },
@@ -24,7 +25,7 @@ export const games = {
     const screenReader = !!ctx.profile()?.comfort?.screenReader;
     const base = screenReader ? GAMES.filter(g => g.id !== 'trace') : GAMES;
     // Un module des niveaux déjà travaillé : on peut aussi le réviser librement.
-    const didModule = Object.keys(ctx.profile()?.path.adv?.modules || {}).length > 0;
+    const didModule = !!ctx.profile() && hasReviewable(ctx.levels, ctx.profile());
     const list = didModule ? [...base, LEVELS_REVIEW] : base;
     view.append(
       h('div', { class: 'topbar' },

@@ -12,7 +12,7 @@ import { eloBadge } from '../ui/elo.js';
 import { toast } from '../ui/fx.js';
 import { display } from '../core/elo.js';
 import { isDue } from '../core/srs.js';
-import { phonicsDone, nextModule, openLevels, moduleRecord, dueReviews } from '../core/levels.js';
+import { phonicsDone, nextModule, openLevels, moduleRecord, dueReviews, hasReviewable } from '../core/levels.js';
 import { captionOf } from '../services/voice.js';
 
 const greeted = new Set();   // une salutation par enfant et par ouverture de l'app
@@ -37,7 +37,9 @@ export function nextActivity(profile, cur, now = Date.now(), L = null) {
                  : `Pour commencer le niveau ${grade}, un petit contrôle : si tu le réussis, tu montes tout de suite ! Touche le gros bouton !`] };
     }
     if (m) return { mode: 'module', module: m.id, label: m.title, parts: [`Aujourd'hui : ${m.title}.`, 'Touche le gros bouton !'] };
-    return { mode: 'practice', label: 'Révisions', parts: ['Tu as fini tous les niveaux, bravo ! On révise ? Touche le gros bouton !'] };
+    // Tout fini : on révise les niveaux (pas les sons du CP).
+    return { mode: hasReviewable(L, profile) ? 'review' : 'practice', label: 'Révisions',
+             parts: ['Tu as fini tous les niveaux, bravo ! On révise ? Touche le gros bouton !'] };
   }
   const step = cur.step(profile.path.open);
   const due = Object.values(profile.mem).filter(r => r.b > 0 && isDue(r, now)).length;

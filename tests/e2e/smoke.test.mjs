@@ -378,3 +378,28 @@ test('mode lecteur d\'écran : Kaya se tait et ses phrases vont au lecteur d\'é
   assert.deepEqual(errors, []);
   await context.close();
 });
+
+test('l\'adulte choisit un code : il est ensuite demandé à chaque entrée', async () => {
+  const { context, page, errors } = await open();
+  await createChild(page, 'Ana');
+  await page.click('button[aria-label="Espace des grands"]');
+  const words = (await page.textContent('.panel .h1')).split(',').map(w => w.trim());
+  for (const w of words) await page.click(`.gate-pad button:text-is("${WORDS.indexOf(w)}")`);
+  await page.waitForSelector('[role="tablist"]');
+  await page.fill('input[aria-label="Code à 4 chiffres"]', '2580');
+  await page.fill('input[aria-label="Le même code, une seconde fois"]', '2580');
+  await page.click('text=Enregistrer le code');
+  await page.waitForSelector('text=Protégez', { state: 'detached' });
+  const saved = await page.evaluate(() => JSON.parse(localStorage.getItem('educa2:device')).adultPin);
+  assert.ok(saved?.hash && !JSON.stringify(saved).includes('2580'), 'empreinte seulement');
+  await page.click('button[aria-label="Retour"]');
+  await page.waitForSelector('.btn-play');
+  await page.click('button[aria-label="Espace des grands"]');
+  await page.waitForSelector('text=Entrez le code');
+  for (const d of '1111') await page.click(`.gate-pad button:text-is("${d}")`);
+  assert.equal(await page.$('[role="tablist"]'), null, 'un mauvais code n\'ouvre rien');
+  for (const d of '2580') await page.click(`.gate-pad button:text-is("${d}")`);
+  await page.waitForSelector('[role="tablist"]');
+  assert.deepEqual(errors, []);
+  await context.close();
+});

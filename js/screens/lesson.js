@@ -134,6 +134,7 @@ export const lesson = {
           contResolve = res;
           contBtn.hidden = false;
           contBtn.focus({ preventScroll: true });
+          contBtn.scrollIntoView({ block: 'center' });   // jamais sous le sous-titre fixe de Kaya
         });
       },
     };
@@ -289,7 +290,12 @@ export const lesson = {
     function commitPartial() {
       if (finished || results.length < 3) return;
       finished = true;
-      ctx.update(p => finishSession(p, { kind: 'practice', results, seconds: seconds() }, cur, Date.now()).profile);
+      // Séance interrompue : réponses et temps comptés, mais ni record, ni cartes, ni séance :
+      // ils attendent un bilan où l'enfant verra sa promotion (sinon la cérémonie serait perdue).
+      ctx.update(p => {
+        const out = finishSession(p, { kind: 'practice', results, seconds: seconds() }, cur, Date.now()).profile;
+        return { ...out, elo: { ...out.elo, peak: p.elo.peak }, cards: p.cards, stats: { ...out.stats, sessions: p.stats.sessions } };
+      });
       ctx.store.flush();
     }
 

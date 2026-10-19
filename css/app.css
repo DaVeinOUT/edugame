@@ -392,6 +392,7 @@ body.u-space .level-head .grade { color: #c4b5fd; }
 .module-btn.next { border-color: var(--brand); }
 .module-btn.locked { background: #e5e7eb; color: #4b5563; box-shadow: 0 4px 0 #c7cbd2; }   /* fermé, mais lisible (6:1) */
 .module-btn.controle { background: #fef3c7; }
+.module-btn.controle.locked { background: #e5e7eb; }   /* niveau fermé : son contrôle aussi */
 
 /* Présentation d'un son */
 .intro-card { padding: 22px; display: flex; flex-direction: column; align-items: center; gap: 10px; text-align: center; }
@@ -457,6 +458,8 @@ body.u-space .level-head .grade { color: #c4b5fd; }
 .mastery .m3 { background: #dcfce7; color: #166534; border-color: #86efac; }
 .chart { width: 100%; height: 170px; }
 .gate-pad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; max-width: 320px; margin: 0 auto; }
+.gate-pad button:nth-child(10) { grid-column: 2; }   /* le 0, centré sous 8 */
+.pin-input { width: 7.5em; font-size: 1.4rem; letter-spacing: .3em; text-align: center; }
 .gate-pad button { min-height: 64px; border-radius: 18px; border: 2px solid var(--card-edge); background: var(--card); font-size: 1.6rem; font-weight: 900; cursor: pointer; }
 table.mini { width: 100%; border-collapse: collapse; font-size: .95rem; }
 table.mini th, table.mini td { text-align: left; padding: 8px 6px; border-bottom: 1px solid var(--card-edge); vertical-align: top; }

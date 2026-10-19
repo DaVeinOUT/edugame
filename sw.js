@@ -10,7 +10,7 @@
    ============================================================ */
 
 /* <release> — généré par scripts/release.mjs, ne pas éditer à la main */
-const CACHE_NAME = 'educa-3a96631294';
+const CACHE_NAME = 'educa-2ab8a71d7b';
 const ASSETS = [
   './',
   './audio/mots/a-2.mp3',
@@ -327,6 +327,7 @@ const ASSETS = [
   './js/core/curriculum.js',
   './js/core/elo.js',
   './js/core/levels.js',
+  './js/core/pin.js',
   './js/core/placement.js',
   './js/core/questions.js',
   './js/core/report.js',

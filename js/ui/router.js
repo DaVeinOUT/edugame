@@ -28,15 +28,17 @@ export function createRouter({ root, ctx, onExitWarning }) {
     cleanup = null;
   }
 
-  function mount(name, params) {
+  function mount(name, params, { keepScroll = false } = {}) {
     const screen = screens.get(name);
     if (!screen) throw new Error(`écran inconnu : ${name}`);
     unmountCurrent();
     clear(root);
     const view = h('main', { class: `screen screen-${name}`, 'data-screen': name, tabindex: '-1' });
     root.append(view);
-    root.scrollTop = 0;
-    if (typeof scrollTo === 'function') scrollTo(0, 0);
+    if (!keepScroll) {
+      root.scrollTop = 0;
+      if (typeof scrollTo === 'function') scrollTo(0, 0);
+    }
     const id = ++mounts;
     const out = screen.mount(view, params || {}, ctx);
     if (id !== mounts) {
@@ -46,6 +48,7 @@ export function createRouter({ root, ctx, onExitWarning }) {
       return;
     }
     cleanup = typeof out === 'function' ? out : null;
+    if (keepScroll) return;   // refresh() rend lui-même le focus au contrôle touché
     // Le focus suit l'écran : utile au clavier, aux contacteurs et aux lecteurs d'écran.
     const target = view.querySelector('[data-autofocus]') || view;
     requestAnimationFrame(() => target.focus({ preventScroll: true }));
@@ -99,9 +102,17 @@ export function createRouter({ root, ctx, onExitWarning }) {
         if (i >= 0) overlays.splice(i, 1);
       };
     },
+    /* Même écran, redessiné (un réglage touché) : on garde la position et le focus. */
     refresh() {
       const cur = stack[stack.length - 1];
-      if (cur) mount(cur.name, cur.params);
+      if (!cur) return;
+      const y = typeof scrollY === 'number' ? scrollY : 0;
+      const controls = () => [...root.querySelectorAll('button, a[href], input')];
+      const i = controls().indexOf(document.activeElement);
+      mount(cur.name, cur.params, { keepScroll: true });
+      if (typeof scrollTo === 'function') scrollTo(0, y);
+      const again = i >= 0 ? controls()[i] : null;
+      (again || root.querySelector('main'))?.focus({ preventScroll: true });
     },
   };
 }

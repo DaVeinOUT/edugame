@@ -67,9 +67,10 @@ export function openLevels(L, profile, cur, points) {
   return out;
 }
 
-/** Module ouvert ? Le premier d'un niveau, puis en chaîne ; le contrôle toujours. */
+/** Module ouvert ? Le premier d'un niveau, puis en chaîne ; le contrôle toujours ;
+    tout le niveau une fois son contrôle réussi (on revoit librement ce qu'on a validé). */
 export function moduleOpen(L, profile, m) {
-  if (m.isControle) return true;
+  if (m.isControle || controlePassed(profile, m.level)) return true;
   const list = L.modulesOf(m.level).filter(x => !x.isControle);
   const i = list.findIndex(x => x.id === m.id);
   return i <= 0 || finished(adv(profile).modules[list[i - 1].id]);
@@ -195,6 +196,11 @@ function reviewQuestions(L, profile) {
  */
 export function planReview(L, profile, { rand = systemRandom, now = Date.now(), n = PER_SESSION } = {}) {
   return selectItems(reviewQuestions(L, profile), { elo: profile.elo, mem: profile.mem, now, n, rand }).map(q => mixAnswers(q, rand));
+}
+
+/** Y a-t-il quelque chose à réviser (un module déjà travaillé, hors contrôles) ? */
+export function hasReviewable(L, profile) {
+  return reviewQuestions(L, profile).length > 0;
 }
 
 /** Nombre de questions des niveaux à revoir maintenant. */
