@@ -28,3 +28,5 @@ Ne pas reprendre PR3 aveuglément : elle supprime le synthétiseur de secours et
 Commandes exécutées après suppression : `git fetch --prune origin`, `git remote set-head origin -a`, `git remote prune origin --dry-run`. Aucun autre nettoyage nécessaire. Références restantes : main, origin/main, origin/fix/consonnes-voix-humaine, origin/HEAD → origin/main. Aucun reset ni suppression locale forcée.
 
 Le connecteur GitHub a servi à lire dépôt/PR ; Git et gh ont couvert les références de branches, fonctionnalité absente des outils du connecteur disponibles.
+
+Livraisons suivantes poussées sur la même branche principale : `ded9863` (aides) et `1307ee5` (Kaya riggé). La CI applicative a réussi sur ces deux commits. La branche audio conserve son SHA initial ; aucune fusion ni suppression supplémentaire.

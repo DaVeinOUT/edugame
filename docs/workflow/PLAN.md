@@ -17,6 +17,8 @@ Une application de lecture fiable, avec des données locales préservées, des c
 
 État vérifié au 25 octobre 2026 : lots 1–5 réalisés dans le périmètre détaillé dans [PROGRESS.md](PROGRESS.md), 137 tests unitaires et 33 parcours navigateur réussis. Le lot 3 est un **prototype procédural réellement 3D** ; le GLB de production avec rig/skin/clips et les validations artistiques/matérielles restent à réaliser. Pour le lot 5, l’étape de classe autorise un accès et reste explicitement distincte d’une affectation automatique.
 
+Continuation vérifiée : traçabilité des aides livrée dans `ded9863` ; candidat GLB avec source Blender, rig et huit clips dans `1307ee5`, 149 tests unitaires et 41 parcours navigateur réussis. Le candidat artistique v1 est intégré et distinct du prototype procédural ; l’acceptation artistique finale, les essais matériels et l’étendue du lot 6 restent ouverts.
+
 ## Critères communs
 
 Chaque lot a un comportement visible, des vérifications adaptées, une revue et un état de reprise. Les tests du moteur et les contrôles hors ligne restent valides. Ne pas affaiblir une assertion pour cacher un défaut. Des médias générés, un plan rédigé ou un écran de démonstration isolé ne prouvent pas une intégration au parcours réel.

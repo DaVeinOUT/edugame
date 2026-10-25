@@ -1,0 +1,53 @@
+
+> educa@2.0.0-dev test:e2e
+> node --test --test-concurrency=1 "tests/e2e/**/*.test.mjs"
+
+✔ écrans de l'enfant, monde clair : aucune violation WCAG 2.2 AA grave (19361.7815ms)
+✔ monde sombre (« l'espace ») : contrastes conformes partout (18393.033042ms)
+✔ espace des grands : la porte et tous les onglets, monde clair et monde sombre (27511.916959ms)
+✔ niveaux des grands : chaque type d'exercice, la correction et le bilan (16026.995875ms)
+✔ vue de la classe : accessible, et le tableur exporté est lisible (4497.336625ms)
+✔ pages publiques (guide de l'enseignant, confidentialité) : accessibles (2185.837459ms)
+✔ navigation pendant une carte : la fermeture ne coupe pas la nouvelle consigne (2245.854584ms)
+✔ cartes illustrées et diplômes : ancien profil, rechargement, textes et compteur préservés (1840.249958ms)
+✔ modale : Tab et Maj+Tab restent dans la carte, Échap et retour restaurent le focus (968.731042ms)
+✔ fichier absent et réduction des mouvements : secours lisible et retournement utilisable (737.987792ms)
+✔ après installation complète, les deux illustrations sont consultables sans réseau (2048.1235ms)
+✔ Kaya : vrai maillage WebGL dans le parcours, une seule scène et réactions aux réponses (5064.286167ms)
+✔ Kaya : réduction système/profil et masquage arrêtent les boucles, le clavier reste utilisable (1255.334917ms)
+✔ Kaya : modèle/module absent, WebGL refusé et contexte perdu conservent le jeu et le secours entier (4596.268375ms)
+✔ Kaya : le vrai salut anime un os et le repos réduit neutralise le fondu (1581.580583ms)
+✔ Kaya : masquer pendant le chargement annule la création GPU et permet une reprise (1357.196833ms)
+✔ deux onglets : une seule session écrit, puis la reprise relit la réponse sauvegardée (3152.988ms)
+✔ pagehide sans visibilité : les dernières secondes sont sauvées avant libération du verrou (3699.029292ms)
+✔ une panne de sauvegarde en cours de leçon reste visible et récupère la réponse sur disque (3182.846583ms)
+✔ effacement complet : les sons IndexedDB et les profils disparaissent après rechargement (2449.986583ms)
+✔ diagnostic hors ligne : un fichier manquant invalide le statut prêt (1005.256916ms)
+✔ une mise à jour ne recharge pas la leçon si la sauvegarde échoue (6661.03875ms)
+✔ création protégée : le formulaire autorisé depuis les données adulte aboutit puis reverrouille (7198.030042ms)
+✔ un enfant crée son profil sans lire et arrive à l'accueil (6837.180709ms)
+✔ une leçon complète mène au bilan et enregistre la progression (12165.722291ms)
+✔ l'espace des grands demande de lire des chiffres écrits en lettres (6104.449458ms)
+✔ les sons purs synthétisés ont la bonne couleur (s aigu, m grave) et ne saturent pas (372.514583ms)
+✔ dès 10 ans, un test de positionnement situe l'enfant sur le chemin (9007.403875ms)
+✔ après une première visite, le jeu marche sans internet (1111.178916ms)
+✔ la voix enregistrée par l'adulte (blob:) est bien jouée malgré la CSP (5011.744708ms)
+✔ un grand déjà lecteur joue un module des niveaux CE1 → 3e (15699.665416ms)
+✔ les mots du jeu sont dits par une vraie voix humaine (fichier enregistré) (7119.468209ms)
+✔ les révisions des niveaux reprennent un module déjà travaillé (9587.179458ms)
+✔ au clavier seul (ou au contacteur), on joue une leçon (9866.520083ms)
+✔ mode lecteur d'écran : Kaya se tait et ses phrases vont au lecteur d'écran (3513.8945ms)
+✔ l'adulte choisit un code : il est ensuite demandé à chaque entrée (6914.256917ms)
+✔ les sons des consonnes passent par le lecteur audio commun (ils sonnent aussi en mode silencieux d'iPhone) (6932.767459ms)
+✔ les écoutes optionnelles et la réécoute sont tracées sans transformer une réponse juste en aide (2399.657375ms)
+✔ l’aide explicite qui lit le mot garde son résultat guidé et sa nature audio (401.796916ms)
+✔ le guidage automatique après deux erreurs de construction est observé sans réécrire le résultat (506.923042ms)
+✔ ancien profil : audio demandé et guidage restent distincts après réponse, rechargement et consultation adulte (7167.752833ms)
+ℹ tests 41
+ℹ suites 0
+ℹ pass 41
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 252216.085208

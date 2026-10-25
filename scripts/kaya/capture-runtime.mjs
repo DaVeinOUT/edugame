@@ -1,5 +1,6 @@
 /* Reproducible proofs on an isolated fictional profile, never on a child's data. */
-import { mkdir, writeFile, rm } from 'node:fs/promises';
+import { mkdir, writeFile, readFile, rm } from 'node:fs/promises';
+import { createHash } from 'node:crypto';
 import { resolve } from 'node:path';
 import { chromium } from 'playwright-core';
 import { startServer } from '../../tests/e2e/server.mjs';
@@ -35,11 +36,11 @@ try {
   };
   await page.getByRole('button', { name: 'Saluer Kaya', exact: true }).click();
   await capture('salut', 'bouton réel Saluer Kaya');
-  for (const [name, event] of [['ecoute', 'attentive'], ['aide', 'help'], ['encouragement', 'encourage'], ['celebration', 'success']]) {
+  for (const [name, event] of [['ecoute', 'attentive'], ['parole', 'speech-start'], ['aide', 'help'], ['encouragement', 'encourage'], ['celebration', 'success']]) {
     await page.evaluate(async event => {
       const { companionEvent } = await import('./js/ui/kaya.js');
       const el = document.querySelector('[data-kaya-companion]');
-      companionEvent(el, 'attentive'); companionEvent(el, event, ['success', 'encourage'].includes(event) ? 2600 : undefined);
+      companionEvent(el, 'speech-end'); companionEvent(el, 'attentive'); companionEvent(el, event, ['success', 'encourage'].includes(event) ? 2600 : undefined);
     }, event);
     await capture(name, `événement explicite ${event} pour démontrer le clip, sans réponse évaluée`);
   }
@@ -57,7 +58,8 @@ try {
   await video.saveAs(`${out}/animations-parcours.webm`);
   const originalVideo = await video.path();
   if (originalVideo !== `${out}/animations-parcours.webm`) await rm(originalVideo);
-  await writeFile(`${out}/proof.json`, JSON.stringify({ viewport: '390×844', browser: await browser.version(),
+  const assetHash = createHash('sha256').update(await readFile(new URL('../../assets/kaya/kaya-production-v1.glb', import.meta.url))).digest('hex');
+  await writeFile(`${out}/proof.json`, JSON.stringify({ assetHash, viewport: '390×844', browser: await browser.version(),
     timeline, errors, note: 'Les réactions techniques et les actions réelles sont distinguées dans timeline.' }, null, 2));
   if (errors.length) throw new Error(errors.join('\n'));
   console.log(`Captures et vidéo écrites dans ${out}`);
