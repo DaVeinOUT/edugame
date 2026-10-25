@@ -319,20 +319,31 @@ test('au clavier seul (ou au contacteur), on joue une leçon', async () => {
   assert.equal(await page.evaluate(() => document.activeElement?.textContent.includes('C\'est parti')), true, 'le bouton de départ a le focus');
   await page.keyboard.press('Enter');
   let answered = 0;
-  for (let k = 0; k < 120 && answered < 4; k++) {
-    const kind = await page.evaluate(() => {
-      const a = document.activeElement;
-      if (!a) return 'none';
-      if (a.matches('button[aria-label="Continuer"]')) return 'continue';
-      if (a.matches('.choice:not([disabled]), .gtile:not(.used)')) return 'answer';
-      return 'other';
-    });
-    if (kind === 'continue' || kind === 'answer') {
-      await page.keyboard.press('Enter');
-      if (kind === 'answer') answered = await page.$$eval('.dots i.ok, .dots i.ko', d => d.length);
-      await page.waitForTimeout(300);
-    } else {
+  const deadline = Date.now() + 90000;
+  while (answered < 4 && Date.now() < deadline) {
+    // Attendre la fin de la consigne/correction : ne pas consommer les Tab
+    // pendant une transition sans choix utilisable.
+    await page.waitForFunction(() => [...document.querySelectorAll(
+      '.choice:not([disabled]), .gtile:not(.used), button[aria-label="Continuer"]:not([hidden])'
+    )].some(el => el.getClientRects().length), null, { timeout: 20000 });
+    let kind = 'other';
+    for (let tab = 0; tab < 20; tab++) {
+      kind = await page.evaluate(() => {
+        const a = document.activeElement;
+        if (a?.matches('button[aria-label="Continuer"]:not([hidden])')) return 'continue';
+        if (a?.matches('.choice:not([disabled]), .gtile:not(.used)')) return 'answer';
+        return 'other';
+      });
+      if (kind !== 'other') break;
       await page.keyboard.press('Tab');
+    }
+    assert.notEqual(kind, 'other', 'un contrôle de la question doit être atteignable au clavier');
+    await page.keyboard.press('Enter');
+    if (kind === 'answer') {
+      await page.waitForFunction(n => document.querySelectorAll('.dots i.ok, .dots i.ko').length > n, answered);
+      answered = await page.$$eval('.dots i.ok, .dots i.ko', d => d.length);
+    } else {
+      await page.waitForSelector('button[aria-label="Continuer"]', { state: 'hidden' });
     }
   }
   assert.ok(answered >= 4, `réponses données au clavier : ${answered}`);

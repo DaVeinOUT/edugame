@@ -51,6 +51,8 @@ const st = {
   soundFiles: new Map(), soundBase: 'audio/sons/', recordings: new Map(),
   wordFiles: new Map(), wordBase: 'audio/mots/',
   captionFns: new Set(), live: null, audio: null,
+  playbackFns: new Set(), speaking: false, cancelUtterance: null,
+  phonemeController: null,
 };
 
 /* Confidentialité : une voix « en ligne » (ex. Google français sur
@@ -67,24 +69,29 @@ function rank(v) {
 
 function frenchVoices() {
   if (!synth) return [];
-  return synth.getVoices().filter(v => v.lang && v.lang.toLowerCase().startsWith('fr'));
+  return synth.getVoices().filter(v => v.localService === true && v.lang && v.lang.toLowerCase().startsWith('fr'));
 }
 
 function pickVoice() {
   if (!synth) return;
-  const all = synth.getVoices();
-  if (!all.length) return;
   const fr = frenchVoices().sort((a, b) => rank(a) - rank(b));
   st.voice = (st.preferred && fr.find(v => v.name === st.preferred)) || fr[0] || null;
-  st.localVoice = fr.find(v => v.localService) || st.voice;
+  st.localVoice = st.voice;
   st.status = fr.length ? 'ok' : 'novoice';
+}
+
+function playback(speaking) {
+  if (st.speaking === speaking) return;
+  st.speaking = speaking;
+  st.playbackFns.forEach(fn => { try { fn(speaking); } catch { /* rendu facultatif */ } });
 }
 
 function caption(text) {
   st.captionFns.forEach(fn => { try { fn(text); } catch { /* ignoré */ } });
   if (st.screenReader && st.live && text) {
+    const generation = st.gen;
     st.live.textContent = '';
-    setTimeout(() => { st.live.textContent = text; }, 30);
+    setTimeout(() => { if (generation === st.gen) st.live.textContent = text; }, 30);
   }
 }
 
@@ -94,12 +101,12 @@ const wait = ms => new Promise(r => setTimeout(r, ms));
 const estimate = (text, rate) => 900 + (text.length * 75) / rate;
 
 function utter(text, { rate, pitch = 1.05, highlight = null }, retried = false) {
+  if (!synth || !st.voice || st.muted || st.screenReader) return Promise.resolve();
+  const generation = st.gen;
   return new Promise(resolve => {
     const u = new SpeechSynthesisUtterance(text);
     u.lang = 'fr-FR';
-    const v = st.voice && !st.voice.localService && typeof navigator !== 'undefined' && !navigator.onLine
-      ? st.localVoice : st.voice;
-    if (v) u.voice = v;
+    u.voice = st.voice;
     u.rate = rate;
     u.pitch = pitch;
     let done = false;
@@ -108,17 +115,22 @@ function utter(text, { rate, pitch = 1.05, highlight = null }, retried = false) 
       done = true;
       clearTimeout(guard);
       highlight?.classList.remove('speaking');
+      if (st.cancelUtterance === finish) { st.cancelUtterance = null; playback(false); }
       resolve();
     };
     const guard = setTimeout(finish, estimate(text, rate) + 2500);
-    u.onstart = () => { st.unlocked = true; st.pending = null; highlight?.classList.add('speaking'); };
+    st.cancelUtterance = finish;
+    u.onstart = () => { if (done || generation !== st.gen) return; st.unlocked = true; st.pending = null; playback(true); highlight?.classList.add('speaking'); };
     u.onend = finish;
     u.onerror = e => {
+      if (done || generation !== st.gen) return;
       // Chrome avale parfois sa file : on retente une fois, sauf annulation voulue.
       if (!retried && e?.error !== 'canceled' && e?.error !== 'interrupted' && e?.error !== 'not-allowed') {
         done = true;
         clearTimeout(guard);
-        setTimeout(() => utter(text, { rate, pitch, highlight }, true).then(resolve), 120);
+        playback(false);
+        if (st.cancelUtterance === finish) st.cancelUtterance = null;
+        setTimeout(() => generation === st.gen ? utter(text, { rate, pitch, highlight }, true).then(resolve) : resolve(), 120);
         return;
       }
       if (e?.error === 'not-allowed') st.pending = text;   // pas encore de geste : rejoué au 1er toucher
@@ -152,7 +164,7 @@ async function say(text, opts = {}) {
     opts.highlight?.classList.remove('speaking');
     if (ok || myGen !== st.gen) return;
   }
-  if (!synth) {
+  if (!synth || !st.voice) {
     await wait(Math.min(2600, estimate(text, rate) * 0.6));
     return;
   }
@@ -189,6 +201,8 @@ function playFile(url, { rate = 1 } = {}) {
         clearTimeout(guard);
         a.onended = null;
         a.onerror = null;
+        a.onplaying = null;
+        playback(false);
         if (pendingEnd === finish) pendingEnd = null;
         resolve(ok);
       };
@@ -196,6 +210,7 @@ function playFile(url, { rate = 1 } = {}) {
       pendingEnd = finish;
       a.onended = () => finish(true);
       a.onerror = () => finish(false);
+      a.onplaying = () => { if (!done) playback(true); };
       a.play().catch(() => finish(false));
     } catch {
       resolve(false);
@@ -224,7 +239,15 @@ async function sound(ph, { noCaption = false, caption: shown } = {}) {
     if (myGen !== st.gen) return;
     if (synthUrl && (await playFile(synthUrl) || myGen !== st.gen)) return;
     const ctx = audioContext();
-    if (ctx) { await playPhoneme(ctx, ph); return; }
+    if (ctx) {
+      const controller = new AbortController();
+      st.phonemeController?.abort();
+      st.phonemeController = controller;
+      playback(true);
+      try { await playPhoneme(ctx, ph, { signal: controller.signal }); }
+      finally { if (st.phonemeController === controller) { st.phonemeController = null; playback(false); } }
+      return;
+    }
   }
   // 4. voyelles : la synthèse vocale les dit correctement
   const fallback = SOUND_TTS[ph];
@@ -269,6 +292,11 @@ export function captionOf(parts) {
 /** Coupe tout : synthèse, fichier en cours, séquences. */
 function stop() {
   st.gen++;
+  st.pending = null;
+  st.cancelUtterance?.();
+  st.phonemeController?.abort();
+  st.phonemeController = null;
+  playback(false);
   try { synth?.cancel(); } catch { /* rien */ }
   try { st.audio?.pause(); } catch { /* rien */ }
   pendingEnd?.(false);
@@ -327,7 +355,7 @@ export const voice = {
   },
   configure({ muted, screenReader, slow, preferred } = {}) {
     if (muted !== undefined) { st.muted = !!muted; if (st.muted) stop(); }
-    if (screenReader !== undefined) st.screenReader = !!screenReader;
+    if (screenReader !== undefined) { st.screenReader = !!screenReader; if (st.screenReader) stop(); }
     if (slow !== undefined) st.slow = !!slow;
     if (preferred !== undefined) { st.preferred = preferred; pickVoice(); }
   },
@@ -343,10 +371,15 @@ export const voice = {
   },
   hasWord: text => st.wordFiles.has(String(text).trim().toLowerCase()),
   /** Sons purs enregistrés par l'adulte (Map phonème → URL). */
-  setRecordings(map) { st.recordings = map instanceof Map ? map : new Map(); },
+  setRecordings(map) {
+    const next = map instanceof Map ? map : new Map();
+    for (const url of st.recordings.values()) if (![...next.values()].includes(url)) URL.revokeObjectURL(url);
+    st.recordings = next;
+  },
   hasRecording: ph => st.recordings.has(ph),
   say, seq, sound, stop,
   onCaption(fn) { st.captionFns.add(fn); return () => st.captionFns.delete(fn); },
+  onPlayback(fn) { st.playbackFns.add(fn); fn(st.speaking); return () => st.playbackFns.delete(fn); },
   get status() { return st.status; },
   get muted() { return st.muted; },
   /** Voix proposées à l'adulte (sans les voix gadgets). */

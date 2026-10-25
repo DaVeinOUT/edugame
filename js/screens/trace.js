@@ -10,8 +10,8 @@
 
 import { h, sleep } from '../ui/dom.js';
 import { shuffle } from '../core/rng.js';
-import { activeClock } from '../core/time.js';
-import { addPlayTime } from '../core/session.js';
+import { createPlayTime } from '../services/play-time.js';
+import { restedToday } from '../core/session.js';
 import { traceBoard } from '../activities/trace.js';
 import { setMood, kayaEl } from '../ui/kaya.js';
 import { burst } from '../ui/fx.js';
@@ -31,9 +31,7 @@ export const trace = {
     let alive = true;
     let busy = false;          // pendant le bravo : pas de double étoile, pas de lettre sautée
     let board = null;
-    const clock = activeClock();
-    view.addEventListener('pointerdown', () => clock.tick());
-    view.addEventListener('keydown', () => clock.tick());
+    const playTime = createPlayTime({ view, ctx, profileId: p.id });
     const kaya = kayaEl({ size: 'tiny' });
     const holder = h('div', { class: 'stack' });
     const fb = h('div', { class: 'feedback', role: 'status' });
@@ -63,6 +61,13 @@ export const trace = {
     }
 
     function next() {
+      playTime.checkpoint();
+      const current = ctx.store.profile(p.id);
+      if (current && restedToday(current, ctx.store.device().dailyMinutes || 0)) {
+        playTime.finish();
+        ctx.restHome();
+        return;
+      }
       i += 1;
       if (i >= letters.length) end();
       else show();
@@ -85,7 +90,7 @@ export const trace = {
         burst(board.el, { count: 10 });
         fb.className = 'feedback ok';
         fb.textContent = 'Bravo !';
-        ctx.update(prof => ({ ...prof, wallet: prof.wallet + 1 }));
+        ctx.store.updateProfile(p.id, prof => ({ ...prof, wallet: prof.wallet + 1 }));
         await voice.say('Bravo ! Très belle lettre !');
         if (!alive) return;
         busy = false;
@@ -100,6 +105,7 @@ export const trace = {
     }
 
     async function end() {
+      playTime.finish();
       busy = true;
       [clearBtn, skipBtn, doneBtn, hearBtn].forEach(b => { b.hidden = true; });
       holder.replaceChildren(h('div', { class: 'paper prompt-card' },
@@ -118,8 +124,7 @@ export const trace = {
     return () => {
       alive = false;
       voice.stop();
-      const s = clock.ms() / 1000;
-      if (s >= 1) ctx.update(prof => addPlayTime(prof, s, Date.now()));   // compte pour le plafond du jour
+      playTime.finish();
     };
   },
 };

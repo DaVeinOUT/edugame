@@ -1,72 +1,164 @@
-/* ============================================================
-   UI/KAYA.JS — Kaya, le bébé jaguar
-   Un SVG léger (zéro image à télécharger) qui a des humeurs :
-   content, en train de parler, qui réfléchit, qui encourage.
-   Kaya réagit à l'enfant : c'est un compagnon, pas un décor.
-   ============================================================ */
-
+/* Kaya behaviour is independent of its local 3D / SVG renderers. */
 import { h } from './dom.js';
+import { createCompanion } from '../core/companion.js';
+import { KAYA_FALLBACK } from './kaya-fallback.js';
 
-const SVG = `
-<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
- <g class="k-body">
-  <circle cx="48" cy="55" r="26" fill="#F6AD37"/><circle cx="152" cy="55" r="26" fill="#F6AD37"/>
-  <circle cx="48" cy="55" r="13" fill="#B45309"/><circle cx="152" cy="55" r="13" fill="#B45309"/>
-  <ellipse cx="100" cy="110" rx="74" ry="68" fill="#F6AD37"/>
-  <g fill="#8A5306">
-   <circle cx="62" cy="62" r="6"/><circle cx="62" cy="62" r="2.6" fill="#F6AD37"/>
-   <circle cx="100" cy="50" r="6.5"/><circle cx="100" cy="50" r="2.8" fill="#F6AD37"/>
-   <circle cx="138" cy="62" r="6"/><circle cx="138" cy="62" r="2.6" fill="#F6AD37"/>
-   <circle cx="36" cy="105" r="5"/><circle cx="36" cy="105" r="2" fill="#F6AD37"/>
-   <circle cx="164" cy="105" r="5"/><circle cx="164" cy="105" r="2" fill="#F6AD37"/>
-   <circle cx="46" cy="138" r="4.4"/><circle cx="154" cy="138" r="4.4"/>
-  </g>
-  <ellipse cx="100" cy="142" rx="34" ry="25" fill="#FDE7B0"/>
-  <ellipse class="k-cheeks" cx="62" cy="132" rx="9" ry="6" fill="#fb7185" opacity=".45"/>
-  <ellipse class="k-cheeks" cx="138" cy="132" rx="9" ry="6" fill="#fb7185" opacity=".45"/>
-  <path class="k-brows" d="M58 80 q12 -9 24 -3 M118 77 q12 -6 24 3" stroke="#6B3305" stroke-width="4" stroke-linecap="round" fill="none"/>
-  <g transform="translate(70,103)"><g>
-   <ellipse rx="15" ry="17" fill="#fff"/><circle r="8" fill="#3B2204"/><circle cx="-3" cy="-4" r="3" fill="#fff"/>
-   <animateTransform attributeName="transform" type="scale" additive="sum" values="1 1;1 1;1 0.06;1 1;1 1" keyTimes="0;0.9;0.94;0.98;1" dur="4.6s" repeatCount="indefinite"/>
-  </g></g>
-  <g transform="translate(130,103)"><g>
-   <ellipse rx="15" ry="17" fill="#fff"/><circle r="8" fill="#3B2204"/><circle cx="-3" cy="-4" r="3" fill="#fff"/>
-   <animateTransform attributeName="transform" type="scale" additive="sum" values="1 1;1 1;1 0.06;1 1;1 1" keyTimes="0;0.9;0.94;0.98;1" dur="4.6s" repeatCount="indefinite"/>
-  </g></g>
-  <path d="M90,128 h20 q5,0 2.6,4.6 l-9,10 q-3.6,4 -7.2,0 l-9,-10 q-2.4,-4.6 2.6,-4.6 z" fill="#6B3305"/>
-  <path class="k-smile" d="M100,141 v5 M100,146 q-6,8 -16,4 M100,146 q6,8 16,4" stroke="#6B3305" stroke-width="3.6" stroke-linecap="round" fill="none"/>
-  <path class="k-open" d="M86,146 q14,18 28,0 q-14,5 -28,0z" fill="#6B3305"/>
-  <ellipse class="k-o" cx="100" cy="151" rx="5" ry="6" fill="#6B3305"/>
-  <g stroke="#D97706" stroke-width="2" stroke-linecap="round" opacity=".55" fill="none">
-   <path d="M64,138 q-14,-2 -26,-7"/><path d="M64,146 q-14,2 -26,6"/><path d="M136,138 q14,-2 26,-7"/><path d="M136,146 q14,2 26,6"/>
-  </g>
- </g>
-</svg>`;
+let visualHidden = false;
+let motionLimited = false;
+const now = () => performance.now();
 
-const MOODS = ['is-happy', 'is-think', 'is-oops', 'is-talking'];
+function paint(el) {
+  const state = el._kayaController.get(now());
+  el.dataset.state = state.state;
+  el.classList.toggle('is-talking', state.speaking);
+  el._renderKaya?.(state);
+  return state;
+}
 
-/**
- * @param {{ size?: 'tiny'|'small'|'large'|'', mood?: string }} [opts]
- */
-export function kayaEl({ size = '', mood = '' } = {}) {
-  const el = h('div', { class: `kaya ${size}`.trim(), html: SVG });
+/** Whole-body SVG is immediate; at most one eligible companion receives a 3D scene. */
+export function kayaEl({ size = '', mood = '', companion = size === '' || size === 'large', quiet = false } = {}) {
+  const visual = h('div', { class: 'kaya-visual', 'aria-hidden': 'true', html: KAYA_FALLBACK });
+  const el = h('div', { class: `kaya ${size} ${companion ? 'kaya-companion' : 'kaya-portrait'} ${quiet ? 'kaya-quiet' : ''}`.trim(), role: companion ? 'group' : 'img', 'aria-label': 'Kaya, bébé jaguar' }, visual);
+  el._kayaController = createCompanion({ quiet, now: now() });
+  el.dataset.state = quiet ? 'attentive' : 'idle';
+  el.dataset.renderer = 'fallback';
+  if (companion) {
+    el.dataset.kayaCompanion = '';
+    const toggle = h('button', { type: 'button', class: 'kaya-toggle', 'aria-expanded': String(!visualHidden) }, visualHidden ? 'Afficher Kaya' : 'Masquer Kaya');
+    const motion = h('button', { type: 'button', class: 'kaya-motion', 'aria-pressed': String(motionLimited) }, 'Calmer les gestes');
+    toggle.addEventListener('click', () => {
+      visualHidden = !visualHidden;
+      toggle.textContent = visualHidden ? 'Afficher Kaya' : 'Masquer Kaya';
+      toggle.setAttribute('aria-expanded', String(!visualHidden));
+      companionEvent(el, visualHidden ? 'hide' : 'show');
+    });
+    motion.addEventListener('click', () => {
+      motionLimited = !motionLimited;
+      motion.setAttribute('aria-pressed', String(motionLimited));
+      el.classList.toggle('kaya-still', motionLimited); paint(el);
+    });
+    el.append(h('div', { class: 'kaya-controls' }, toggle, quiet ? null : motion));
+    if (visualHidden) el._kayaController.send('hide', now());
+    el.classList.toggle('kaya-still', motionLimited);
+  }
   if (mood) setMood(el, mood);
+  paint(el);
   return el;
 }
 
-/** Change l'humeur de Kaya (« happy », « think », « oops »), pour ms millisecondes si donné. */
-export function setMood(el, mood, ms = 0) {
-  if (!el) return;
-  MOODS.filter(m => m !== 'is-talking').forEach(m => el.classList.remove(m));
-  if (mood) el.classList.add(`is-${mood}`);
+export function companionEvent(el, event, duration) {
+  if (!el?._kayaController) return;
+  el._kayaController.send(event, now(), duration);
+  paint(el);
   clearTimeout(el._moodTimer);
-  if (ms) el._moodTimer = setTimeout(() => el.classList.remove(`is-${mood}`), ms);
+  const until = el._kayaController.get(now()).until;
+  if (until) el._moodTimer = setTimeout(() => paint(el), Math.max(0, until - now()) + 10);
 }
 
-/** La bouche de Kaya bouge le temps (estimé) de la phrase. */
-export function talk(el, text) {
+/** Existing evaluated feedback API: no changes to scoring or hints. */
+export function setMood(el, mood, ms = 0) {
   if (!el) return;
-  el.classList.add('is-talking');
+  el.classList.remove('is-happy', 'is-think', 'is-oops');
+  if (mood) el.classList.add(`is-${mood}`);
+  companionEvent(el, { happy: 'success', think: 'help', oops: 'encourage' }[mood] || 'attentive', ms || undefined);
+}
+
+/** Compatibility for tiny caption portraits only. Companion speech uses onPlayback. */
+export function talk(el, text) {
+  if (!el || el.hasAttribute('data-kaya-companion')) return;
+  companionEvent(el, 'speech-start');
   clearTimeout(el._talkTimer);
-  el._talkTimer = setTimeout(() => el.classList.remove('is-talking'), Math.min(7000, 500 + String(text).length * 62));
+  el._talkTimer = setTimeout(() => companionEvent(el, 'speech-end'), Math.min(7000, 500 + String(text).length * 62));
+}
+
+/** Mount one companion; background/offscreen/reduced-motion paths have no render loop. */
+function mountCompanion(el) {
+  let alive = true, webgl = null, failed = false, loading = false, frame = 0, restTimer = null;
+  let visible = true, previousFrame = -Infinity;
+  const visual = el.querySelector('.kaya-visual');
+  const media = matchMedia('(prefers-reduced-motion: reduce)');
+  const motion = () => !media.matches && !motionLimited && !document.body.classList.contains('reduced-motion');
+  const model = el._kayaController;
+  const cancel = () => { cancelAnimationFrame(frame); frame = 0; };
+  const staticDraw = state => {
+    if (!webgl || state.hidden || state.paused || !visible) return;
+    try { webgl.update(state, now() / 1000, motion()); }
+    catch { fallback(); }
+  };
+  const loop = time => {
+    frame = 0;
+    if (!alive) return;
+    const state = model.get(time);
+    el.dataset.state = state.state;
+    if (state.hidden || state.paused || !visible || !motion() || !webgl) return;
+    if (time - previousFrame >= 32) { previousFrame = time; staticDraw(state); }
+    frame = requestAnimationFrame(loop);
+  };
+  function fallback() {
+    failed = true; cancel();
+    webgl?.destroy(); webgl = null;
+    if (alive) el.dataset.renderer = 'fallback';
+  }
+  async function load() {
+    if (loading || failed || webgl || !alive || !visible || document.hidden || model.get(now()).hidden) return;
+    loading = true;
+    try {
+      const { createKaya3D } = await import('./kaya-3d.js');
+      if (!alive || failed || !visible || document.hidden || model.get(now()).hidden || !el.isConnected) return;
+      webgl = createKaya3D(visual, fallback);
+      webgl.update(model.get(now()), now() / 1000, motion());
+      el.dataset.renderer = '3d';
+    } catch { fallback(); }
+    finally { loading = false; if (alive) refresh(); }
+  }
+  function refresh() {
+    if (!alive) return;
+    cancel();
+    const state = model.get(now());
+    el.dataset.state = state.state;
+    el.classList.toggle('kaya-still', !motion());
+    if (!state.hidden && !state.paused && visible && !document.hidden) {
+      if (!webgl) load();
+      else { staticDraw(state); if (motion()) frame = requestAnimationFrame(loop); }
+    }
+  }
+  const onVisibility = () => { model.send(document.hidden ? 'pause' : 'resume', now()); refresh(); };
+  const onMotion = () => refresh();
+  const preferences = new MutationObserver(onMotion);
+  preferences.observe(document.body, { attributes: true, attributeFilter: ['class'] });
+  const intersection = typeof IntersectionObserver === 'function' ? new IntersectionObserver(entries => {
+    visible = entries[0].isIntersecting;
+    model.send(visible && !document.hidden ? 'resume' : 'pause', now()); refresh();
+  }) : null;
+  const resize = typeof ResizeObserver === 'function' ? new ResizeObserver(() => { webgl?.resize(); refresh(); }) : null;
+  el._renderKaya = refresh;
+  document.addEventListener('visibilitychange', onVisibility);
+  media.addEventListener('change', onMotion);
+  intersection?.observe(el); resize?.observe(visual);
+  restTimer = setInterval(() => { if (!document.hidden && visible) { paint(el); } }, 15000);
+  if (document.hidden) model.send('pause', now());
+  refresh();
+  return () => {
+    alive = false; model.send('navigation', now()); cancel();
+    clearInterval(restTimer); clearTimeout(el._moodTimer); clearTimeout(el._talkTimer);
+    document.removeEventListener('visibilitychange', onVisibility);
+    media.removeEventListener('change', onMotion);
+    intersection?.disconnect(); resize?.disconnect(); preferences.disconnect();
+    delete el._renderKaya; webgl?.destroy(); webgl = null;
+    el.dataset.renderer = 'fallback';
+  };
+}
+
+/** Called once by main. Child replacements dispose the preceding scene before mounting. */
+export function observeCompanions(root, voice) {
+  let current = null, destroy = null;
+  const scan = () => {
+    const next = root.querySelector('[data-kaya-companion]');
+    if (current === next) return;
+    destroy?.(); current = next; destroy = next ? mountCompanion(next) : null;
+  };
+  const observer = new MutationObserver(scan);
+  observer.observe(root, { childList: true, subtree: true }); scan();
+  const offPlayback = voice.onPlayback?.(speaking => { if (current) companionEvent(current, speaking ? 'speech-start' : 'speech-end'); });
+  return () => { observer.disconnect(); offPlayback?.(); destroy?.(); current = null; };
 }

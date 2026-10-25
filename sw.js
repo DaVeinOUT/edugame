@@ -10,9 +10,13 @@
    ============================================================ */
 
 /* <release> — généré par scripts/release.mjs, ne pas éditer à la main */
-const CACHE_NAME = 'educa-6650d2536f';
+const CACHE_NAME = 'educa-9526902335';
 const ASSETS = [
   './',
+  './assets/cards/r_first-160.webp',
+  './assets/cards/r_first-640.webp',
+  './assets/cards/son-m-160.webp',
+  './assets/cards/son-m-640.webp',
   './audio/mots/a-2.mp3',
   './audio/mots/a.mp3',
   './audio/mots/abeille.mp3',
@@ -303,6 +307,7 @@ const ASSETS = [
   './css/app.css',
   './css/cards.css',
   './css/fonts.css',
+  './css/kaya.css',
   './fonts/OpenDyslexic-Bold.woff',
   './fonts/OpenDyslexic-Regular.woff',
   './fonts/andika-400.woff2',
@@ -324,6 +329,7 @@ const ASSETS = [
   './js/activities/intro.js',
   './js/activities/text.js',
   './js/activities/trace.js',
+  './js/core/companion.js',
   './js/core/curriculum.js',
   './js/core/elo.js',
   './js/core/levels.js',
@@ -338,6 +344,7 @@ const ASSETS = [
   './js/core/session.js',
   './js/core/srs.js',
   './js/core/time.js',
+  './js/data/card-art.js',
   './js/data/curriculum.js',
   './js/data/levels.js',
   './js/data/sounds.js',
@@ -358,7 +365,9 @@ const ASSETS = [
   './js/screens/trace.js',
   './js/screens/welcome.js',
   './js/services/errors.js',
+  './js/services/offline.js',
   './js/services/phonemes.js',
+  './js/services/play-time.js',
   './js/services/recordings.js',
   './js/services/sfx.js',
   './js/services/store.js',
@@ -368,11 +377,17 @@ const ASSETS = [
   './js/ui/dom.js',
   './js/ui/elo.js',
   './js/ui/fx.js',
+  './js/ui/kaya-3d.js',
+  './js/ui/kaya-fallback.js',
+  './js/ui/kaya-model.js',
   './js/ui/kaya.js',
   './js/ui/overlay.js',
+  './js/ui/profile-badge.js',
   './js/ui/router.js',
   './js/ui/theme.js',
   './js/ui/word.js',
+  './js/vendor/three/three.core.js',
+  './js/vendor/three/three.module.js',
   './manifest.json',
 ];
 /* </release> */
@@ -393,6 +408,16 @@ self.addEventListener('activate', event => {
 
 self.addEventListener('message', event => {
   if (event.data && event.data.type === 'SKIP_WAITING') self.skipWaiting();
+  if (event.data?.type === 'CHECK_OFFLINE' && event.ports[0]) {
+    event.waitUntil((async () => {
+      try {
+        const cache = await caches.open(CACHE_NAME);
+        const keys = new Set((await cache.keys()).map(r => r.url));
+        const complete = ASSETS.every(path => keys.has(new URL(path, self.location.href).href));
+        event.ports[0].postMessage({ type: 'OFFLINE_STATUS', complete });
+      } catch { event.ports[0].postMessage({ type: 'OFFLINE_STATUS', complete: false }); }
+    })());
+  }
 });
 
 /* Safari (iPad, iPhone) lit l'audio par morceaux (en-tête Range) et refuse une réponse

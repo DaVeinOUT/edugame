@@ -211,7 +211,34 @@ export function silenceUrl() {
 }
 
 /** Joue le son et attend sa fin (Web Audio direct : dernier recours). */
-export function playPhoneme(ctx, ph) {
-  const dur = renderPhoneme(ctx, ph);
-  return new Promise(resolve => setTimeout(resolve, (dur + 0.12) * 1000));
+export function playPhoneme(ctx, ph, { signal } = {}) {
+  if (signal?.aborted) return Promise.resolve();
+  // Toute la recette passe par cette sortie : la déconnexion coupe aussi les
+  // sources déjà programmées, sans fermer le contexte partagé avec les effets.
+  const out = ctx.createGain();
+  out.connect(ctx.destination);
+  return new Promise((resolve, reject) => {
+    let timer;
+    let finished = false;
+    const cleanup = () => {
+      if (finished) return;
+      finished = true;
+      clearTimeout(timer);
+      signal?.removeEventListener('abort', cleanup);
+      out.disconnect();
+      resolve();
+    };
+    signal?.addEventListener('abort', cleanup, { once: true });
+    if (signal?.aborted) { cleanup(); return; }
+    try {
+      const dur = renderPhoneme(ctx, ph, ctx.currentTime + 0.02, out);
+      timer = setTimeout(cleanup, (dur + 0.12) * 1000);
+    } catch (error) {
+      clearTimeout(timer);
+      signal?.removeEventListener('abort', cleanup);
+      out.disconnect();
+      finished = true;
+      reject(error);
+    }
+  });
 }

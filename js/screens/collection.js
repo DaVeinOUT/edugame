@@ -8,7 +8,7 @@
 import { h, append } from '../ui/dom.js';
 import { catalogue, cardThumb, revealCard } from '../ui/cards.js';
 
-const SECTIONS = [['son', 'Les sons'], ['exploit', 'Les exploits'], ['titre', 'Les titres d\'échecs']];
+const SECTIONS = [['son', 'Les sons'], ['exploit', 'Les exploits'], ['titre', 'Les titres d\'échecs'], ['diplome', 'Les diplômes']];
 
 export const collection = {
   mount(view, params, ctx) {

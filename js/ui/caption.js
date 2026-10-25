@@ -5,7 +5,7 @@
    sans voix française. Toucher le sous-titre le fait répéter.
    ============================================================ */
 
-import { kayaEl, talk } from './kaya.js';
+import { kayaEl, companionEvent } from './kaya.js';
 
 /**
  * @param {HTMLElement} el conteneur #caption (vide)
@@ -23,9 +23,9 @@ export function mountCaption(el, voice) {
     clearTimeout(timer);
     text.textContent = t;
     el.classList.add('show');
-    talk(mini, t);
     timer = setTimeout(() => el.classList.remove('show'), Math.max(2600, t.length * 95));
   });
+  voice.onPlayback?.(speaking => companionEvent(mini, speaking ? 'speech-start' : 'speech-end'));
   el.addEventListener('click', () => {
     if (text.textContent) voice.say(text.textContent);
   });

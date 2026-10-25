@@ -24,7 +24,7 @@ function tx(mode, fn) {
     const t = db.transaction(STORE, mode);
     const out = fn(t.objectStore(STORE));
     t.oncomplete = () => { db.close(); resolve(out?.result ?? out); };
-    t.onerror = () => { db.close(); reject(t.error); };
+    t.onerror = t.onabort = () => { db.close(); reject(t.error); };
   }));
 }
 
@@ -62,6 +62,7 @@ export function deleteRecording(ph) {
 }
 
 export function clearRecordings() {
+  if (typeof indexedDB === 'undefined') return Promise.resolve();
   return tx('readwrite', store => store.clear());
 }
 

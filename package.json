@@ -2,7 +2,7 @@
   "name": "educa",
   "version": "2.0.0-dev",
   "private": true,
-  "description": "EDUCA — apprendre à lire en jouant, hors-ligne, pour chaque enfant (PWA sans dépendance d'exécution).",
+  "description": "EDUCA — apprendre à lire en jouant, hors-ligne, avec Kaya en 3D locale et profils sur l’appareil.",
   "license": "MIT",
   "type": "module",
   "scripts": {

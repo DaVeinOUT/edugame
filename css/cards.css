@@ -15,8 +15,8 @@
   transform: rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)); transform-style: preserve-3d;
   transition: transform .12s ease-out; will-change: transform;
 }
-.card-wrap:focus-visible { outline: none; }
-.card-wrap.idle { animation: cardFloat 5.5s ease-in-out infinite; }
+.card-wrap:focus-visible { outline: 4px solid #fff; outline-offset: 7px; box-shadow: 0 0 0 10px #174ea6; border-radius: 18px; }
+.card-wrap.idle { animation: none; }
 @keyframes cardFloat { 0%, 100% { transform: rotateX(4deg) rotateY(-7deg); } 50% { transform: rotateX(-4deg) rotateY(7deg); } }
 .card-inner { width: 100%; height: 100%; transform-style: preserve-3d; transition: transform .7s cubic-bezier(.4, 0, .2, 1); position: relative; }
 .card-inner.flipped { transform: rotateY(180deg); }
@@ -100,3 +100,53 @@
 .coll-item .n { font-size: .68rem; opacity: .85; line-height: 1.1; }
 .coll-item.locked { background: rgba(0, 0, 0, .08); border: 2px dashed var(--card-edge); color: var(--muted); filter: grayscale(1); }
 .coll-item.locked .g { opacity: .35; }
+
+/* Deux prototypes illustrés. Le texte d'apprentissage reste dans le DOM. */
+.card-wrap:has(.illustrated-card) { width: min(76vw, 270px); height: min(114vw, 405px); }
+.illustrated-card { font-family: var(--ui-font); background: #fcf4dc; color: #342615; border-width: 3px; }
+.illustrated-card .card-top { padding: 8px 10px 5px; gap: 8px; flex: none; }
+.illustrated-card .cat-tag { font-family: var(--ui-font); color: #342615; background: #fff9eb; font-size: 10px; letter-spacing: .04em; border-color: #907451; }
+.illustrated-card .card-num { color: #56432e; font-size: 10px; }
+.illustrated-card .art-zone { min-height: 0; margin: 0 7px; overflow: hidden; border-radius: 10px; background: #e4d3a9; }
+.card-image-stack { position: relative; width: 100%; height: 100%; min-height: 0; }
+.card-image-stack > img, .thumb-media > img { width: 100%; height: 100%; object-fit: contain; display: block; opacity: 0; }
+.image-fallback { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; }
+.image-fallback .e { font-size: 64px; }
+.has-card-image > img { opacity: 1; }
+.has-card-image > .image-fallback { visibility: hidden; }
+.illustrated-graph { position: absolute; left: 7px; top: 7px; width: 49px; height: 55px; border-radius: 12px; background: #fff9eb; color: #342615; font-family: var(--read-font); font-size: 46px; font-weight: 700; line-height: 1; box-shadow: 0 2px 8px #34261540; }
+.illustrated-card .divider { margin-top: 6px; }
+.illustrated-card .card-bottom { padding: 7px 10px; flex: none; }
+.illustrated-card .letter-name { font-family: var(--ui-font); font-size: 18px; letter-spacing: 0; }
+.illustrated-card .letter-word { color: #56432e; font-size: 14px; line-height: 1.25; }
+.illustrated-card .card-footer { margin-top: 5px; }
+.illustrated-card .xp-badge { color: #56432e; }
+.illustrated-card .card-glow { box-shadow: inset 0 0 16px #c4964126; }
+.card-wrap.revealed .illustrated-card .holo { opacity: .12; animation: none; }
+.card-wrap.revealed .illustrated-card .glare-fx { opacity: .16; }
+.coll-item:focus-visible { outline: 4px solid var(--chrome-ink); outline-offset: 3px; }
+.illustrated-thumb { padding: 5px; gap: 5px; }
+.thumb-media { display: block; position: relative; width: 100%; height: 105px; overflow: hidden; border-radius: 10px; background: #e4d3a9; }
+.thumb-media .image-fallback { font-size: 40px; }
+.illustrated-thumb .g { font-size: 1.8rem; }
+.illustrated-thumb .n { font-size: .75rem; line-height: 1.2; opacity: 1; }
+
+/* Le dialogue garde les styles d'overlay du jeu, sans les marges natives. */
+dialog.overlay { margin: 0; border: 0; width: 100%; max-width: none; height: 100%; max-height: none; overflow-y: auto; }
+dialog.overlay > :not(.overlay-close) { flex-shrink: 0; }
+dialog.overlay:not([open]) { display: none; }
+dialog.overlay::backdrop { background: transparent; }
+.overlay-close { position: fixed; top: max(10px, env(safe-area-inset-top)); right: max(10px, env(safe-area-inset-right)); z-index: 2; background: #fff; color: #342615; }
+
+@media (max-height: 650px) {
+  dialog.overlay { justify-content: flex-start; padding-top: 70px; padding-bottom: 24px; }
+  .card-stage { gap: 10px; }
+  .card-wrap:has(.illustrated-card) { width: 215px; height: 323px; }
+  .card-halo { width: 260px; height: 260px; margin: -130px 0 0 -130px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .card-wrap, .card-inner, .card .holo, .card .glare-fx, .theme-gold { animation: none !important; transition: none !important; }
+  .card-wrap { transform: none !important; }
+}
+body.reduced-motion .card-wrap, body.reduced-motion .card-inner, body.reduced-motion .theme-gold { animation: none !important; transition: none !important; }
+body.reduced-motion .card-wrap { transform: none !important; }

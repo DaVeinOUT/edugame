@@ -18,7 +18,8 @@ import { classRows, toCSV, CLASS_COLUMNS } from '../core/report.js';
 import { AVATARS, UNIVERSES, AGES, cleanName } from '../core/schema.js';
 import { toast } from '../ui/fx.js';
 import { hashPin, checkPin, isPin, PIN_LENGTH } from '../core/pin.js';
-import { recordingSupported, startRecording, saveRecording, deleteRecording, loadRecordings } from '../services/recordings.js';
+import { recordingSupported, startRecording, saveRecording, deleteRecording, loadRecordings, clearRecordings } from '../services/recordings.js';
+import { OFFLINE_LABELS } from '../services/offline.js';
 
 /* Sons que l'adulte peut enregistrer (consonnes d'abord : ce sont elles que
    la synthèse vocale prononce mal). */
@@ -70,6 +71,8 @@ function soundsSection(ctx) {
 const WORDS = ['zéro', 'un', 'deux', 'trois', 'quatre', 'cinq', 'six', 'sept', 'huit', 'neuf'];
 const UNLOCK_MS = 10 * 60 * 1000;
 let unlockedUntil = 0;
+export const adultUnlocked = () => Date.now() <= unlockedUntil;
+export const lockAdult = () => { unlockedUntil = 0; };
 
 const btn = (label, onclick, cls = 'btn btn-soft btn-sm') => h('button', { type: 'button', class: cls, onclick }, label);
 const section = (title, ...children) => h('section', { class: 'panel stack' }, h('h2', null, title), ...children);
@@ -316,11 +319,20 @@ function deviceTab(ctx) {
   const d = store.device();
   const refresh = () => ctx.router.refresh();
   const voices = voice.choices();
-  const statusText = { ok: 'Voix française trouvée.', novoice: 'Aucune voix française sur cet appareil : installez-en une (Réglages du téléphone → Synthèse vocale) ; en attendant, les sous-titres s\'affichent.', unsupported: 'Ce navigateur ne sait pas parler : les sous-titres remplacent la voix.', unknown: 'Recherche des voix…' }[voice.status];
+  const statusText = { ok: 'Voix française locale disponible. Les voix distantes sont exclues.', novoice: 'Aucune voix française locale : les mots et sons enregistrés restent audibles, mais les consignes complètes nécessitent une voix française installée sur l’appareil. Les sous-titres restent disponibles.', unsupported: 'Synthèse vocale indisponible : seuls les mots et sons enregistrés sont audibles. Les sous-titres restent disponibles.', unknown: 'Recherche des voix locales…' }[voice.status];
+  const offlineText = h('p', { class: 'note', role: 'status' }, OFFLINE_LABELS[ctx.offline?.status || 'unavailable']);
   return [
     installSection(ctx),
     pinSection(ctx),
+    section('Disponibilité hors ligne', offlineText,
+      btn('Vérifier le téléchargement', async () => {
+        offlineText.textContent = OFFLINE_LABELS.checking;
+        await ctx.offline?.check();
+        offlineText.textContent = OFFLINE_LABELS[ctx.offline?.status || 'unavailable'];
+      })),
     section('Voix de Kaya', h('p', { class: 'note' }, statusText),
+      h('p', { class: 'note' }, 'Avant de laisser l’enfant seul, testez le son sur cet appareil. Le téléchargement des fichiers ne garantit pas la présence d’une voix système locale.'),
+      btn('Tester un son, un mot et une consigne', () => voice.seq([{ sound: 'a' }, { word: 'moto' }, 'Bonjour, on lit ensemble ?'])),
       voices.length ? h('div', { class: 'stack' }, voices.map(v => btn(`${v.name === voice.current() ? '✓ ' : ''}${v.name.replace(/\(.*\)/, '').trim()} · ${v.lang}`, () => {
         store.updateDevice(x => ({ ...x, voice: v.name }));
         voice.configure({ preferred: v.name });
@@ -335,7 +347,7 @@ function deviceTab(ctx) {
         refresh();
       } }, 'Mode silencieux (classe, bibliothèque) : sous-titres seulement', h('span', { class: 'state' }, d.muted ? 'Oui' : 'Non'))),
     section('En classe',
-      h('p', { class: 'note' }, 'Étape de la classe : le chemin de TOUS les enfants de cette tablette s\'ouvre jusqu\'au son travaillé en classe.'),
+      h('p', { class: 'note' }, 'Étape de la classe : autorise l’accès à ce son pour tous les enfants. Le bouton Jouer garde la progression individuelle ; ce réglage n’assigne pas une leçon et ne valide aucun acquis.'),
       h('div', { class: 'seg' }, [h('button', { type: 'button', 'aria-pressed': d.classStep == null ? 'true' : 'false', onclick: () => { store.updateDevice(x => ({ ...x, classStep: null })); refresh(); } }, 'Aucune'),
         ...ctx.cur.steps.map((s, i) => h('button', { type: 'button', class: 'read', 'aria-pressed': d.classStep === i ? 'true' : 'false', onclick: () => { store.updateDevice(x => ({ ...x, classStep: i })); refresh(); } }, s.show))]),
       h('h3', null, 'Temps de jeu maximum par jour'),
@@ -358,6 +370,7 @@ function dataTab(ctx) {
   file.addEventListener('change', () => {
     const f = file.files?.[0];
     if (!f) return;
+    if (f.size > 10 * 1024 * 1024) { toast('Fichier refusé : maximum 10 Mio.'); file.value = ''; return; }
     const reader = new FileReader();
     reader.onload = () => {
       try {
@@ -372,11 +385,19 @@ function dataTab(ctx) {
     file.value = '';
   });
   let armed = false;
-  const wipe = btn('Tout effacer sur cet appareil…', () => {
+  const wipe = btn('Tout effacer sur cet appareil…', async () => {
     if (!armed) { armed = true; wipe.textContent = 'Confirmer : TOUT effacer (pensez à exporter avant)'; wipe.className = 'btn btn-danger btn-sm'; return; }
     if (Date.now() > unlockedUntil) { router.refresh(); return; }   // verrou revérifié avant tout effacement
-    store.wipe();
-    location.reload();
+    wipe.disabled = true;
+    try {
+      await clearRecordings();
+      ctx.voice.setRecordings(new Map());
+      if (!store.wipe()) throw new Error('Les profils n’ont pas pu être effacés.');
+      location.reload();
+    } catch {
+      wipe.disabled = false;
+      toast('Effacement incomplet. Les données restantes sont conservées : réessayez avant de fermer.', { ms: 8000 });
+    }
   });
   const errors = store.device().errors || [];
   return [
@@ -392,11 +413,12 @@ function dataTab(ctx) {
       btn('➕ Ajouter un enfant', () => router.go('welcome', { adding: true }), 'btn btn-primary btn-sm')),
     section('Sauvegarde',
       h('p', { class: 'note' }, 'Aucune donnée ne quitte l\'appareil. Pour changer de tablette, exportez un fichier puis importez-le sur l\'autre appareil.'),
+      h('p', { class: 'note' }, 'L’import réunit les cartes et les acquis des profils portant le même identifiant, sans additionner leurs compteurs : le maximum est conservé. Les réglages de cet appareil sont conservés lorsqu’il a déjà des profils. Sur un appareil vide, la limite quotidienne est restaurée. Le code adulte et les sons enregistrés au micro ne sont pas importés.'),
       h('div', { class: 'row wrap' },
         btn('💾 Exporter tout', () => download(`educa-sauvegarde-${localDay()}.json`, store.exportAll())),
         btn('📥 Importer', () => file.click())), file,
       store.degraded ? h('p', { class: 'note' }, '⚠️ Ce navigateur n\'enregistre pas la progression (navigation privée ou stockage plein). Installez EDUCA sur l\'écran d\'accueil.') : null),
-    section('Effacer', h('p', { class: 'note' }, 'Supprime tous les profils, réglages et progrès de cet appareil.'), wipe),
+    section('Effacer', h('p', { class: 'note' }, 'Supprime tous les profils, réglages, progrès et sons enregistrés au micro. Les fichiers du jeu téléchargés pour le hors ligne restent disponibles.'), wipe),
     section('Confidentialité',
       h('p', null, 'EDUCA fonctionne sans compte, sans serveur, sans publicité ni mesure d\'audience. Tout reste sur cet appareil (stockage local du navigateur). Les voix utilisées sont celles du téléphone.')),
     errors.length ? section('Journal technique', h('ul', { class: 'note' }, errors.slice(-8).reverse().map(e => h('li', null, `${new Date(e.t).toLocaleString('fr-FR')} — ${e.where} — ${e.msg}`)))) : null,
@@ -448,13 +470,24 @@ export const adult = {
     const { store, router } = ctx;
     ctx.voice.stop();
     if (Date.now() > unlockedUntil) { gate(view, ctx); return undefined; }
+    if (params.createProfile) { router.go('welcome', { adding: true }, { replace: true }); return undefined; }
     const tab = params.tab || 'progres';
     const children = store.profiles();
     const child = children.find(p => p.id === params.child) || store.active() || children[0];
     const go = patch => router.go('adult', { ...params, ...patch }, { replace: true });
     const shown = children.length > 1 ? TABS : TABS.filter(([id]) => id !== 'classe');
-    const tabs = h('div', { class: 'tabs', role: 'tablist' }, shown.map(([id, label]) => h('button', {
-      type: 'button', role: 'tab', 'aria-selected': tab === id ? 'true' : 'false', onclick: () => go({ tab: id }),
+    const tabs = h('div', { class: 'tabs', role: 'tablist', 'aria-label': 'Espace des grands' }, shown.map(([id, label], index) => h('button', {
+      type: 'button', role: 'tab', id: `adult-tab-${id}`, 'aria-controls': `adult-panel-${id}`,
+      tabindex: tab === id ? '0' : '-1', 'data-autofocus': tab === id || null,
+      'aria-selected': tab === id ? 'true' : 'false', onclick: () => go({ tab: id }),
+      onkeydown: event => {
+        let next;
+        if (event.key === 'ArrowRight') next = (index + 1) % shown.length;
+        if (event.key === 'ArrowLeft') next = (index + shown.length - 1) % shown.length;
+        if (event.key === 'Home') next = 0;
+        if (event.key === 'End') next = shown.length - 1;
+        if (next !== undefined) { event.preventDefault(); go({ tab: shown[next][0] }); }
+      },
     }, label)));
     const who = children.length > 1 && (tab === 'progres' || tab === 'reglages')
       ? h('div', { class: 'row wrap no-print' }, children.map(p => h('button', {
@@ -476,9 +509,10 @@ export const adult = {
       h('div', { class: 'topbar' },
         h('button', { class: 'icon-btn', type: 'button', 'aria-label': 'Retour', onclick: () => router.back() }, '←'),
         h('h1', { class: 'title' }, 'Espace des grands')),
-      tabs, pinBanner, who, body,   // append() ignore ce qui est null (« who » quand il n'y a qu'un enfant…)
+      tabs, pinBanner, who,
+      h('div', { class: 'stack', role: 'tabpanel', id: `adult-panel-${tab}`, 'aria-labelledby': `adult-tab-${tab}`, tabindex: '0' }, body),
     ]);
     // En quittant l'espace des grands (pas en changeant d'onglet), on reverrouille.
-    return () => setTimeout(() => { if (router.current !== 'adult') unlockedUntil = 0; }, 0);
+    return () => setTimeout(() => { if (!['adult', 'welcome'].includes(router.current)) lockAdult(); }, 0);
   },
 };

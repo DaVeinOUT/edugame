@@ -24,6 +24,9 @@ export function createRouter({ root, ctx, onExitWarning }) {
   let mounts = 0;
 
   function unmountCurrent() {
+    while (overlays.length) {
+      try { overlays.pop()(); } catch { /* fermer les fenêtres de l’écran précédent */ }
+    }
     try { cleanup?.(); } catch { /* un écran qui plante en partant ne bloque pas la navigation */ }
     cleanup = null;
   }

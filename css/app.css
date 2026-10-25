@@ -241,6 +241,18 @@ body.u-space .ladder .ladder-level { color: #c4b5fd; }
   border-radius: 999px; font-weight: 900; box-shadow: var(--shadow); transition: transform .25s ease; max-width: 94vw;
 }
 .toast.show { transform: translate(-50%, 0); }
+.toast { pointer-events: none; }
+.toast button, .toast a { pointer-events: auto; }
+
+/* Repère stable : forme, nombre et points identifient aussi deux mêmes animaux. */
+.profile-badge { display: inline-grid; grid-template-columns: 1fr auto; gap: 1px 5px; align-items: center; justify-content: center; min-width: 48px; padding: 4px 7px; border: 2px solid currentColor; border-radius: 10px; color: var(--ink); background: var(--paper, #fff); font-size: 1rem; line-height: 1.1; vertical-align: middle; }
+.profile-badge-shape { font-size: 1.25rem; }
+.profile-badge-number { font-weight: 900; }
+.profile-badge-dots { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(4, 4px); gap: 3px; justify-content: center; min-height: 4px; }
+.profile-badge-dots i { display: block; width: 4px; height: 4px; border-radius: 50%; background: currentColor; }
+.profile-identity-preview { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 12px; }
+.profile-identity-preview .avatar { font-size: 2.5rem; }
+.save-status { max-width: 720px; margin: 12px auto; }
 
 /* === LE CHEMIN === */
 .path { display: flex; flex-direction: column; gap: 18px; padding: 8px 0 40px; }

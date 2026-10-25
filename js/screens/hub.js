@@ -7,13 +7,14 @@
    ============================================================ */
 
 import { h } from '../ui/dom.js';
-import { kayaEl } from '../ui/kaya.js';
+import { kayaEl, companionEvent } from '../ui/kaya.js';
 import { eloBadge } from '../ui/elo.js';
 import { toast } from '../ui/fx.js';
 import { display } from '../core/elo.js';
 import { isDue } from '../core/srs.js';
 import { phonicsDone, nextModule, openLevels, moduleRecord, dueReviews, hasReviewable } from '../core/levels.js';
 import { captionOf } from '../services/voice.js';
+import { profileBadge } from '../ui/profile-badge.js';
 
 const greeted = new Set();   // une salutation par enfant et par ouverture de l'app
 let warnedStorage = false;
@@ -96,7 +97,7 @@ export const hub = {
       h('div', { class: 'hub-head' },
         h('button', { class: 'avatar', type: 'button', 'aria-label': several ? 'Changer d\'enfant' : 'Mon profil',
           onclick: () => router.go(several ? 'profiles' : 'ladder') }, p.avatar),
-        h('div', { class: 'grow' }, h('div', { class: 'hub-name' }, p.name || 'Bonjour !'),
+        h('div', { class: 'grow' }, h('div', { class: 'row wrap' }, h('div', { class: 'hub-name' }, p.name || 'Bonjour !'), profileBadge(p)),
           h('span', { class: 'wallet', 'aria-label': `${p.wallet} étoiles` }, '⭐ ', String(p.wallet))),
         h('button', { class: 'icon-btn', type: 'button', 'aria-label': 'Espace des grands', onclick: () => router.go('adult') }, '⚙️')),
       h('div', { class: 'row centered' }, eloBadge(points, () => router.go('ladder'))),
@@ -110,9 +111,11 @@ export const hub = {
 
     // params.rest : on arrive d'un jeu refusé par le plafond quotidien — Kaya l'explique.
     if (!greeted.has(p.id) || params.first || params.migrated || params.rest) {
+      companionEvent(kaya, rested ? 'rest' : 'greeting');
       greeted.add(p.id);
       voice.seq(parts);
     }
+    if (rested) companionEvent(kaya, 'rest');
     if (store.degraded && !warnedStorage) {
       warnedStorage = true;
       toast('Attention : ce navigateur ne garde pas la progression (navigation privée ?)', { ms: 6000 });

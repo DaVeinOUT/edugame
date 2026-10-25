@@ -24,18 +24,50 @@ export function localDay(t = Date.now()) {
  * @param {number} [cap]
  */
 export function activeClock(start = Date.now(), cap = IDLE_CAP_MS) {
-  let last = start;
+  let cursor = start;
+  let gesture = start;
   let total = 0;
-  const gap = t => Math.min(cap, Math.max(0, t - last));
+  let paused = false;
+  let intervals = [];
+
+  const advance = t => {
+    if (!Number.isFinite(t) || t <= cursor) return;
+    if (!paused) {
+      const end = Math.min(t, gesture + cap);
+      if (end > cursor) {
+        total += end - cursor;
+        intervals.push([cursor, end]);
+      }
+    }
+    cursor = t;
+  };
+
   return {
-    /** Un geste (toucher, touche du clavier, réponse). */
+    /** Un geste réel ; un relevé périodique ne doit jamais appeler tick(). */
     tick(t = Date.now()) {
-      total += gap(t);
-      last = t;
+      advance(t);
+      if (!paused) gesture = cursor;
     },
-    /** Temps actif depuis le départ, en millisecondes. */
     ms(t = Date.now()) {
-      return total + gap(t);
+      advance(t);
+      return total;
+    },
+    pause(t = Date.now()) {
+      advance(t);
+      paused = true;
+    },
+    resume(t = Date.now()) {
+      advance(t);
+      if (!paused) return;
+      paused = false;
+      gesture = cursor;
+    },
+    /** Intervalles actifs depuis le dernier relevé, pour une attribution par jour. */
+    takeIntervals(t = Date.now()) {
+      advance(t);
+      const out = intervals;
+      intervals = [];
+      return out;
     },
   };
 }

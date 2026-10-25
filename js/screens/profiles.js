@@ -7,9 +7,10 @@
 import { h } from '../ui/dom.js';
 import { kayaEl } from '../ui/kaya.js';
 import { AVATAR_NAMES } from './welcome.js';
+import { profileBadge } from '../ui/profile-badge.js';
 
 const cap = s => s.charAt(0).toUpperCase() + s.slice(1);
-const SAY = 'Qui joue ? Touche ton animal !';
+const SAY = 'Qui joue ? Touche ton animal avec ton repère !';
 
 export const profiles = {
   mount(view, params, ctx) {
@@ -23,8 +24,9 @@ export const profiles = {
         ctx.applyTheme();
         router.go('hub', {}, { reset: true });
       },
-    }, h('span', { class: 'avatar', 'aria-hidden': 'true' }, p.avatar), p.name || cap(AVATAR_NAMES[p.avatar] || 'Joueur'))));
-    grid.append(h('button', { type: 'button', class: 'who', onclick: () => router.go('welcome', { adding: true }) },
+    }, h('span', { class: 'avatar', 'aria-hidden': 'true' }, p.avatar), profileBadge(p), p.name || cap(AVATAR_NAMES[p.avatar] || 'Joueur'))));
+    grid.append(h('button', { type: 'button', class: 'who', onclick: () => store.device().adultPin
+      ? router.go('adult', { createProfile: true }) : router.go('welcome', { adding: true }) },
       h('span', { class: 'avatar', 'aria-hidden': 'true' }, '➕'), 'Nouveau'));
     view.append(
       h('div', { class: 'topbar' }, h('h1', { class: 'title' }, 'Qui joue ?'),
