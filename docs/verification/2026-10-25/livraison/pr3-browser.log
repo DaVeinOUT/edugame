@@ -1,0 +1,33 @@
+
+> educa@2.0.0-dev test:e2e
+> node --test --test-concurrency=1 "tests/e2e/**/*.test.mjs"
+
+✔ écrans de l'enfant, monde clair : aucune violation WCAG 2.2 AA grave (23673.057041ms)
+✔ monde sombre (« l'espace ») : contrastes conformes partout (18462.887708ms)
+✔ espace des grands : la porte et tous les onglets, monde clair et monde sombre (31464.687959ms)
+✔ niveaux des grands : chaque type d'exercice, la correction et le bilan (21236.172875ms)
+✔ vue de la classe : accessible, et le tableur exporté est lisible (4338.747375ms)
+✔ pages publiques (guide de l'enseignant, confidentialité) : accessibles (2056.642542ms)
+✔ un enfant crée son profil sans lire et arrive à l'accueil (6632.439417ms)
+✔ une leçon complète mène au bilan et enregistre la progression (12938.08725ms)
+✔ l'espace des grands demande de lire des chiffres écrits en lettres (5958.439042ms)
+✔ les sons des lettres enregistrés ont la bonne couleur (s aigu, ch moyen, m grave) et la bonne durée (321.769541ms)
+✔ dès 10 ans, un test de positionnement situe l'enfant sur le chemin (10799.389334ms)
+✔ après une première visite, le jeu marche sans internet (2830.109042ms)
+✔ la voix enregistrée par l'adulte (blob:) est bien jouée malgré la CSP (5385.796041ms)
+✔ un grand déjà lecteur joue un module des niveaux CE1 → 3e (18320.036709ms)
+✔ les mots du jeu sont dits par une vraie voix humaine (fichier enregistré) (7008.1195ms)
+✔ les révisions des niveaux reprennent un module déjà travaillé (15573.400083ms)
+✔ au clavier seul (ou au contacteur), on joue une leçon (8404.786625ms)
+✔ mode lecteur d'écran : Kaya se tait et ses phrases vont au lecteur d'écran (1941.449083ms)
+✔ l'adulte choisit un code : il est ensuite demandé à chaque entrée (7619.316167ms)
+✔ les sons des consonnes passent par le lecteur audio commun (ils sonnent aussi en mode silencieux d'iPhone) (6572.104667ms)
+✔ retoucher « réécouter » pendant un son ne fait jamais parler la synthèse par-dessus (6319.049084ms)
+ℹ tests 21
+ℹ suites 0
+ℹ pass 21
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 219185.708458
