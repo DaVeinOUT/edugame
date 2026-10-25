@@ -15,7 +15,7 @@ Une application de lecture fiable, avec des données locales préservées, des c
 - [x] **5 — Consolidation données et classe.** Traiter limite quotidienne, restauration, effacement, assignations et identification des élèves, selon les lots de l’audit.
 - [ ] **6 — Qualité et étendue.** Faire la revue des comportements, des compétences et de l’accessibilité ; améliorer les contenus et le tableau adulte par incréments ; étendre les illustrations après validation des prototypes.
 
-État vérifié au 25 octobre 2026 : lots 1–5 réalisés dans le périmètre détaillé dans [PROGRESS.md](PROGRESS.md), 137 tests unitaires et 33 parcours navigateur réussis. Le lot 3 est un **prototype procédural réellement 3D** ; le GLB de production avec rig/skin/clips et les validations artistiques/matérielles restent à réaliser. Pour le lot 5, l’étape de classe autorise un accès et reste explicitement distincte d’une affectation automatique.
+Première passe du 25 octobre 2026, conservée comme jalon : lots 1–5 réalisés dans le périmètre détaillé dans [PROGRESS.md](PROGRESS.md), 137 tests unitaires et 33 parcours navigateur réussis. Le lot 3 livrait alors un **prototype procédural réellement 3D** ; le GLB riggé était encore à construire. Pour le lot 5, l’étape de classe autorise un accès et reste explicitement distincte d’une affectation automatique.
 
 Continuation vérifiée : traçabilité des aides livrée dans `ded9863` ; candidat GLB avec source Blender, rig et huit clips dans `1307ee5`, 149 tests unitaires et 41 parcours navigateur réussis. Le candidat artistique v1 est intégré et distinct du prototype procédural ; l’acceptation artistique finale, les essais matériels et l’étendue du lot 6 restent ouverts.
 
