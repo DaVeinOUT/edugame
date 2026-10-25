@@ -13,6 +13,9 @@ import { burst, plusOne } from '../ui/fx.js';
 export const PRAISE = ['Bravo !', 'Super !', 'Génial !', 'Parfait !', 'Bien joué !', 'Excellent !', 'Oui !'];
 export const praise = rand => PRAISE[Math.floor(rand() * PRAISE.length)];
 
+/** Un écouteur annonce l’action, sans changer le résultat évalué. */
+export const noteSupport = (api, type) => api.noteSupport?.(type);
+
 /**
  * Grille de réponses. La promesse `chosen` se résout au premier choix.
  * @param {{ id: string, text?: string, emoji?: string, say?: string }[]} options

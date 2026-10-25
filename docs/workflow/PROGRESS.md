@@ -42,3 +42,9 @@ Preuves, commandes et captures : [validation du 25 octobre](../verification/2026
 ## Lot suivant ouvert
 
 Fiche quatre vues générée avec image_gen et conservée sous `docs/design/kaya-compagnon/production/`. Blender officiel portable 4.5.9 arm64, hash vérifié, est disponible hors du dépôt ; première version de modèle organique riggé/animé en correction artistique, non encore adoptée dans le jeu. Traçabilité des aides en cours dans un lot distinct. Voir le rapport de branches à la prochaine mise à jour.
+
+## Lot 6 — aides livré après la livraison initiale
+
+Traçabilité locale implémentée et vérifiée : six types de demandes, 128 dernières réponses documentées, compatibilité des anciens profils et fusion des journaux par identifiant. Le panneau adulte et le CSV exposent le périmètre et l’historique non détaillé. Les scores, acquis, SRS, Élo et conditions de gain ne changent pas. [Contrat](SUPPORT-OBSERVATIONS.md). Validation sur une copie exacte de l’index, séparée de l’itération artistique en cours : **145/145 unités**, **39/39 navigateur**, cache `educa-95321c8aa6` à jour (377 fichiers). Preuves sous `docs/verification/2026-10-25/aides/`.
+
+Kaya : source Blender 4.5.9 et GLB avec un skin, 14 joints et huit clips construits à partir de la fiche originale. Les poids du salut sont encore en correction ; les captures/vidéos actuelles de production sont intermédiaires, pas une livraison finale. Le renderer GLB local et le placement agrandi sont en intégration.

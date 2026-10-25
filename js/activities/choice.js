@@ -13,7 +13,7 @@
 import { h, sleep } from '../ui/dom.js';
 import { wordEl, sentenceEl } from '../ui/word.js';
 import { spokenSyllables } from '../core/seg.js';
-import { choiceGrid, lock, mark, listenButton, cheer, comfort, praise } from './common.js';
+import { choiceGrid, lock, mark, listenButton, cheer, comfort, praise, noteSupport } from './common.js';
 
 function setupPrompt(q, api) {
   const { voice, cur } = api;
@@ -23,23 +23,23 @@ function setupPrompt(q, api) {
   let help = null;
   if (q.kind === 'sound') {
     kind = 'letter';
-    card.append(listenButton(() => voice.sound(q.ph, { caption: '🔊' }), 'Réécouter le son'));
+    card.append(listenButton(() => { noteSupport(api, 'instruction-replay'); voice.sound(q.ph, { caption: '🔊' }); }, 'Réécouter le son'));
     help = () => voice.seq(q.anchor ? ['Écoute :', { sound: q.ph }, '. Comme dans', { word: q.anchor }, '.']
       : ['Écoute bien :', { sound: q.ph }, { pause: 300 }, { sound: q.ph }]);
   } else if (q.kind === 'hearword') {
     kind = 'syllable';
-    card.append(listenButton(() => voice.say(q.answer, { slowWord: true, caption: '🔊' }), 'Réécouter le mot'));
+    card.append(listenButton(() => { noteSupport(api, 'instruction-replay'); voice.say(q.answer, { slowWord: true, caption: '🔊' }); }, 'Réécouter le mot'));
     help = () => voice.seq([{ word: q.answer }, { pause: 300 }, { word: q.answer }]);
   } else if (q.kind === 'syllable') {
     kind = 'syllable';
-    card.append(listenButton(() => voice.say(q.answer, { slowWord: true, caption: '🔊' }), 'Réécouter la syllabe'));
+    card.append(listenButton(() => { noteSupport(api, 'instruction-replay'); voice.say(q.answer, { slowWord: true, caption: '🔊' }); }, 'Réécouter la syllabe'));
     help = () => voice.seq([{ word: q.answer }, { pause: 300 }, { word: q.answer }]);
   } else if (q.kind === 'listen') {
     if (q.mode === 'contains') {
       kind = 'yesno';
       card.append(h('div', { class: 'big-emoji', 'aria-hidden': 'true' }, q.word.emoji));
     }
-    card.append(listenButton(() => voice.seq(q.prompt, { caption: q.caption }), 'Réécouter'));
+    card.append(listenButton(() => { noteSupport(api, 'instruction-replay'); voice.seq(q.prompt, { caption: q.caption }); }, 'Réécouter'));
     if (q.mode === 'initial') hear = o => voice.say(o.say, { slowWord: true });
     help = () => voice.seq([...q.prompt]);
   } else if (q.kind === 'read') {
@@ -97,7 +97,7 @@ function explain(q, chosen, cur) {
 export async function runChoice(q, api) {
   const { voice, cur } = api;
   const { card, kind, hear, help } = setupPrompt(q, api);
-  const grid = choiceGrid(q.options, { kind, onHear: hear });
+  const grid = choiceGrid(q.options, { kind, onHear: hear ? o => { noteSupport(api, 'option-audio'); hear(o); } : null });
   api.stage.replaceChildren(card, grid.el);
   let helped = false;
   let reading = 0;   // jeton : « Réécouter » ou « Aide » arrêtent la lecture en cours
@@ -115,8 +115,12 @@ export async function runChoice(q, api) {
       }
     }
   }
-  api.setReplay(() => speakPrompt());
-  api.setHelp(help ? () => { reading += 1; helped = true; help(); } : null);
+  api.setReplay(() => { noteSupport(api, 'instruction-replay'); speakPrompt(); });
+  api.setHelp(help ? () => {
+    noteSupport(api, 'explicit-help');
+    if (q.kind === 'read' || q.kind === 'sentence') noteSupport(api, 'text-audio');
+    reading += 1; helped = true; help();
+  } : null);
   speakPrompt();
 
   // api.skipped : « je ne sais pas » (test de positionnement) — jamais deviner au hasard.

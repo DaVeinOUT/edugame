@@ -9,6 +9,7 @@
 import { display, titleFor } from './elo.js';
 import { localDay } from './time.js';
 import { openLevels, phonicsDone } from './levels.js';
+import { supportSummary } from './support.js';
 
 const WEEK_DAYS = 7;
 
@@ -16,7 +17,23 @@ export const CLASS_COLUMNS = Object.freeze([
   ['name', 'Enfant'], ['points', 'Force de lecture'], ['title', 'Titre'], ['step', 'Chemin des sons'],
   ['level', 'Niveau'], ['controles', 'Contrôles réussis'], ['weekMinutes', 'Minutes (7 jours)'],
   ['lastDay', 'Dernière séance'], ['watch', 'À surveiller'],
+  ['supportCoverage', 'Réponses détaillées'], ['supportSuccess', 'Réussites détaillées'],
 ]);
+
+/** Les intitulés restent prudents : aucune maîtrise n’est déduite du journal. */
+export function supportReport(profile) {
+  const summary = supportSummary(profile);
+  return {
+    ...summary,
+    scope: `${summary.documented} dernières réponses documentées (maximum ${summary.limit})`,
+    history: summary.counterMismatch ? 'Compteurs importés non additionnés ; les journaux peuvent diverger.'
+      : summary.notDetailed ? `${summary.notDetailed} autres réponses sans détail conservé.` : 'Aucun autre résultat dans le compteur.',
+    coverageLabel: !summary.documented ? 'Historique non détaillé'
+      : summary.counterMismatch ? `${summary.documented} détaillées (compteurs importés)` : `${summary.documented} / ${summary.total}`,
+    successLabel: !summary.documented ? 'Non documentées'
+      : `${summary.withoutSupport} sans aide enregistrée ; ${summary.replayOnly} avec réécoute demandée ; ${summary.audio} avec support audio demandé ; ${summary.guided} guidées`,
+  };
+}
 
 /** Les 7 derniers jours du calendrier local (changement d'heure compris). */
 function lastDays(now, n = WEEK_DAYS) {
@@ -45,6 +62,7 @@ export function classRows(profiles, cur, L, now = Date.now()) {
     const lastKey = Object.keys(days).filter(k => days[k] > 0).sort().at(-1);
     const [topConfusion] = Object.entries(p.stats.confusions || {}).sort((a, b) => b[1] - a[1]);
     const reached = openLevels(L, p, cur, points);
+    const support = supportReport(p);
     return {
       id: p.id,
       avatar: p.avatar,
@@ -57,6 +75,8 @@ export function classRows(profiles, cur, L, now = Date.now()) {
       weekMinutes: Math.round(week.reduce((sum, k) => sum + (days[k] || 0), 0) / 60),
       lastDay: shortDate(lastKey),
       watch: topConfusion ? topConfusion[0].replace('/', ' ↔ ') : '—',
+      supportCoverage: support.coverageLabel,
+      supportSuccess: support.successLabel,
     };
   });
 }

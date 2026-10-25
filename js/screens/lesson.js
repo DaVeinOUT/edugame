@@ -20,6 +20,7 @@ import { selectItems } from '../core/select.js';
 import { makeQuestion } from '../core/questions.js';
 import { systemRandom } from '../core/rng.js';
 import { createPlayTime } from '../services/play-time.js';
+import { createSupportTrace } from '../core/support.js';
 import { planModule, finishModule, nextModule, planReview } from '../core/levels.js';
 import { display } from '../core/elo.js';
 import { runChoice } from '../activities/choice.js';
@@ -95,6 +96,8 @@ export const lesson = {
     const results = [];
     const playTime = createPlayTime({ view, ctx, profileId: p0.id });
     const clock = playTime.clock;
+    const support = createSupportTrace();
+    const supportSession = globalThis.crypto?.randomUUID?.() || `${Date.now()}-${Math.random()}`;
 
     /* --- mise en page --- */
     const kaya = kayaEl({ size: 'small', companion: true, quiet: true });
@@ -124,6 +127,7 @@ export const lesson = {
       voice, sfx, cur, rand, kaya, stage, module,
       age: p0.age, open: p0.path.open,
       alive: () => alive,
+      noteSupport(type) { support.note(type); },
       feedback(type, text) { fb.className = `feedback ${type || ''}`.trim(); fb.textContent = text || ''; },
       setReplay(fn) { replayFn = fn; replayBtn.hidden = !fn; },
       setHelp(fn) { helpFn = fn; helpBtn.hidden = !fn; },
@@ -144,8 +148,9 @@ export const lesson = {
       if (recorded >= i) return;
       recorded = i;
       clock.tick();
-      results.push(res);
-      ctx.update(p => applyAnswer(p, q, res, Date.now()));
+      const observed = { ...res, support: support.close() };
+      results.push(observed);
+      ctx.store.updateProfile(p0.id, p => applyAnswer(p, q, observed, Date.now()));
       setDot(i, res.outcome === 'ok' ? 'ok' : 'ko');
     }
 
@@ -184,6 +189,7 @@ export const lesson = {
         api.feedback('', '');
         // Les modules des grands donnent directement leurs questions (core/levels.js).
         const q = mode === 'module' || mode === 'review' ? items[i] : makeQuestion(items[i], cur, { rand, age: api.age, open: api.open });
+        support.reset({ eventId: `${supportSession}:${i}`, screenReader: p0.comfort.screenReader });
         if (q.kind === 'adv') api.module = L.module(q.module);   // l'aide rappelle la règle du bon module
         api.onAnswer = res => { if (alive) commit(i, q, res); };
         const pending = q.kind === 'adv' ? runText(q, api)

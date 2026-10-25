@@ -11,6 +11,7 @@
 import { initialState, prudent, toPoints, ELO } from './elo.js';
 import { BOX_MAX } from './srs.js';
 import { systemRandom } from './rng.js';
+import { sanitizeSupport, mergeSupport } from './support.js';
 
 export const SCHEMA_VERSION = 2;
 
@@ -127,6 +128,7 @@ export function newProfile(info = {}, now = Date.now(), rand = systemRandom) {
     cards: [],
     wallet: 0,            // étoiles gagnées par l'effort (jamais retirées)
     firstTimes: {},
+    support: sanitizeSupport(null),
   };
 }
 
@@ -267,6 +269,7 @@ export function sanitizeProfile(raw, now = Date.now(), { maxStep = Number.MAX_SA
     cards: Array.isArray(raw.cards) ? [...new Set(raw.cards.filter(c => typeof c === 'string'))] : [],
     wallet: count(raw.wallet),
     firstTimes: primitives(raw.firstTimes),
+    support: sanitizeSupport(raw.support),
     ...(isObj(raw.legacy) ? { legacy: raw.legacy } : {}),
   };
 }
@@ -358,6 +361,7 @@ export function mergeProfiles(local, incoming) {
     cards: [...new Set([...local.cards, ...incoming.cards])],
     wallet: Math.max(local.wallet, incoming.wallet),
     firstTimes: { ...incoming.firstTimes, ...local.firstTimes },
+    support: mergeSupport(local.support, incoming.support),
     elo: { ...chosen.elo, peak: Math.max(local.elo.peak || 0, incoming.elo.peak || 0) },
     path: { ...chosen.path, open: Math.max(local.path.open, incoming.path.open),
       stars: maxValues(local.path.stars, incoming.path.stars),

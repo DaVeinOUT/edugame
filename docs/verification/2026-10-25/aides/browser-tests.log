@@ -1,0 +1,51 @@
+
+> educa@2.0.0-dev test:e2e
+> node --test --test-concurrency=1 "tests/e2e/**/*.test.mjs"
+
+✔ écrans de l'enfant, monde clair : aucune violation WCAG 2.2 AA grave (18699.641458ms)
+✔ monde sombre (« l'espace ») : contrastes conformes partout (18111.599541ms)
+✔ espace des grands : la porte et tous les onglets, monde clair et monde sombre (28180.985084ms)
+✔ niveaux des grands : chaque type d'exercice, la correction et le bilan (20879.273167ms)
+✔ vue de la classe : accessible, et le tableur exporté est lisible (6681.742375ms)
+✔ pages publiques (guide de l'enseignant, confidentialité) : accessibles (5113.012209ms)
+✔ navigation pendant une carte : la fermeture ne coupe pas la nouvelle consigne (3876.5595ms)
+✔ cartes illustrées et diplômes : ancien profil, rechargement, textes et compteur préservés (2773.679875ms)
+✔ modale : Tab et Maj+Tab restent dans la carte, Échap et retour restaurent le focus (1348.746375ms)
+✔ fichier absent et réduction des mouvements : secours lisible et retournement utilisable (1212.887667ms)
+✔ après installation complète, les deux illustrations sont consultables sans réseau (3436.600666ms)
+✔ Kaya : vrai maillage WebGL dans le parcours, une seule scène et réactions aux réponses (9637.354792ms)
+✔ Kaya : réduction système/profil et masquage arrêtent les boucles, le clavier reste utilisable (10630.899709ms)
+✔ Kaya : modèle/module absent, WebGL refusé et contexte perdu conservent le jeu et le secours entier (9180.316458ms)
+✔ deux onglets : une seule session écrit, puis la reprise relit la réponse sauvegardée (6040.818084ms)
+✔ pagehide sans visibilité : les dernières secondes sont sauvées avant libération du verrou (3664.946625ms)
+✔ une panne de sauvegarde en cours de leçon reste visible et récupère la réponse sur disque (6654.427167ms)
+✔ effacement complet : les sons IndexedDB et les profils disparaissent après rechargement (2393.538708ms)
+✔ diagnostic hors ligne : un fichier manquant invalide le statut prêt (836.392083ms)
+✔ une mise à jour ne recharge pas la leçon si la sauvegarde échoue (6837.403792ms)
+✔ création protégée : le formulaire autorisé depuis les données adulte aboutit puis reverrouille (7104.139458ms)
+✔ un enfant crée son profil sans lire et arrive à l'accueil (6789.83025ms)
+✔ une leçon complète mène au bilan et enregistre la progression (13333.139875ms)
+✔ l'espace des grands demande de lire des chiffres écrits en lettres (6321.791041ms)
+✔ les sons purs synthétisés ont la bonne couleur (s aigu, m grave) et ne saturent pas (372.120083ms)
+✔ dès 10 ans, un test de positionnement situe l'enfant sur le chemin (9063.402667ms)
+✔ après une première visite, le jeu marche sans internet (1037.929375ms)
+✔ la voix enregistrée par l'adulte (blob:) est bien jouée malgré la CSP (5297.200542ms)
+✔ un grand déjà lecteur joue un module des niveaux CE1 → 3e (16574.57375ms)
+✔ les mots du jeu sont dits par une vraie voix humaine (fichier enregistré) (6652.93725ms)
+✔ les révisions des niveaux reprennent un module déjà travaillé (15878.652875ms)
+✔ au clavier seul (ou au contacteur), on joue une leçon (7824.443916ms)
+✔ mode lecteur d'écran : Kaya se tait et ses phrases vont au lecteur d'écran (3728.148667ms)
+✔ l'adulte choisit un code : il est ensuite demandé à chaque entrée (7834.943833ms)
+✔ les sons des consonnes passent par le lecteur audio commun (ils sonnent aussi en mode silencieux d'iPhone) (7053.293208ms)
+✔ les écoutes optionnelles et la réécoute sont tracées sans transformer une réponse juste en aide (2148.664416ms)
+✔ l’aide explicite qui lit le mot garde son résultat guidé et sa nature audio (377.733875ms)
+✔ le guidage automatique après deux erreurs de construction est observé sans réécrire le résultat (500.9095ms)
+✔ ancien profil : audio demandé et guidage restent distincts après réponse, rechargement et consultation adulte (4141.440708ms)
+ℹ tests 39
+ℹ suites 0
+ℹ pass 39
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 294468.117542

@@ -10,7 +10,7 @@
    ============================================================ */
 
 /* <release> — généré par scripts/release.mjs, ne pas éditer à la main */
-const CACHE_NAME = 'educa-9526902335';
+const CACHE_NAME = 'educa-95321c8aa6';
 const ASSETS = [
   './',
   './assets/cards/r_first-160.webp',
@@ -343,6 +343,7 @@ const ASSETS = [
   './js/core/select.js',
   './js/core/session.js',
   './js/core/srs.js',
+  './js/core/support.js',
   './js/core/time.js',
   './js/data/card-art.js',
   './js/data/curriculum.js',

@@ -14,7 +14,7 @@ import { display, toPoints, titleFor } from '../core/elo.js';
 import { isMastered } from '../core/srs.js';
 import { localDay } from '../core/time.js';
 import { openLevels, moduleRecord, controlePassed } from '../core/levels.js';
-import { classRows, toCSV, CLASS_COLUMNS } from '../core/report.js';
+import { classRows, toCSV, CLASS_COLUMNS, supportReport } from '../core/report.js';
 import { AVATARS, UNIVERSES, AGES, cleanName } from '../core/schema.js';
 import { toast } from '../ui/fx.js';
 import { hashPin, checkPin, isPin, PIN_LENGTH } from '../core/pin.js';
@@ -229,10 +229,17 @@ function progressTab(p, ctx) {
   const conf = Object.entries(p.stats.confusions || {}).sort((a, b) => b[1] - a[1]).slice(0, 5);
   const readable = cur.readableAt(p.path.open).slice(-3).map(w => w.text);
   const minutes = Math.round((p.stats.seconds || 0) / 60);
+  const supports = supportReport(p);
   return [
     section('Force de lecture (Élo)',
       h('p', null, `Affiché à l'enfant : ${shown} — ${title.name}. Estimation actuelle : ${toPoints(p.elo.theta)} (± ${Math.round(sigma * 174)}).`),
       curve(p.elo.history || [])),
+    section('Aides et aménagements observés',
+      h('p', null, supports.scope),
+      h('p', null, supports.documented ? supports.successLabel : 'Les anciens résultats ne permettent pas de déduire une lecture autonome.'),
+      h('p', { class: 'note' }, supports.history),
+      supports.documented ? h('p', null, `${supports.incorrect} réponses incorrectes dans ce relevé.`) : null,
+      h('p', { class: 'note' }, 'Une demande audio peut être un aménagement : elle ne change pas le score. Ce relevé décrit les demandes enregistrées, sans prouver que le son a été entendu ni valider une maîtrise.')),
     section('Le chemin',
       h('p', null, `Étape ${p.path.open + 1} sur ${cur.steps.length} : le son « ${step.show} ». Étoiles : ${Object.values(p.path.stars).reduce((a, b) => a + b, 0)}.`),
       grid,
