@@ -1,0 +1,27 @@
+{
+  "keyboardWithStateWaits": {
+    "answers": 4,
+    "log": [
+      {
+        "answer": 1,
+        "tabs": 2
+      },
+      {
+        "answer": 2,
+        "tabs": 2
+      },
+      {
+        "answer": 3,
+        "tabs": 2
+      },
+      {
+        "answer": 4,
+        "tabs": 2
+      }
+    ]
+  },
+  "webkitBasic": {
+    "hubVisible": true,
+    "errors": []
+  }
+}
