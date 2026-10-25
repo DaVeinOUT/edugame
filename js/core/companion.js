@@ -1,6 +1,6 @@
 /* Deterministic companion behaviour. Rendering and speech never decide progress. */
-export const COMPANION_STATES = Object.freeze(['idle', 'greeting', 'attentive', 'speaking', 'helping', 'celebrating', 'resting', 'paused', 'hidden']);
-const DURATIONS = { greeting: 1800, helping: 4500, celebrating: 1400, encourage: 1400 };
+export const COMPANION_STATES = Object.freeze(['idle', 'greeting', 'attentive', 'speaking', 'helping', 'encouraging', 'celebrating', 'resting', 'paused', 'hidden']);
+const DURATIONS = { greeting: 2400, helping: 4500, celebrating: 1400, encouraging: 1400 };
 
 export function createCompanion({ quiet = false, now = 0 } = {}) {
   let base = quiet ? 'attentive' : 'idle';
@@ -36,7 +36,7 @@ export function createCompanion({ quiet = false, now = 0 } = {}) {
       if (event === 'speech-start') { speaking = base !== 'resting'; return snapshot(); }
       if (event === 'rest') { base = 'resting'; speaking = false; reaction = null; until = 0; return snapshot(); }
       if (event === 'wake' || event === 'attentive') { base = event === 'attentive' || quiet ? 'attentive' : 'idle'; activeAt = last; reaction = null; until = 0; }
-      const next = { greeting: 'greeting', help: 'helping', success: 'celebrating', encourage: 'attentive' }[event];
+      const next = { greeting: 'greeting', help: 'helping', success: 'celebrating', encourage: 'encouraging' }[event];
       if (next && base !== 'resting') {
         activeAt = last;
         // An evaluated answer cannot interrupt help, nor queue a delayed celebration.

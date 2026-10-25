@@ -11,13 +11,17 @@ function paint(el) {
   const state = el._kayaController.get(now());
   el.dataset.state = state.state;
   el.classList.toggle('is-talking', state.speaking);
+  const rest = el.querySelector('.kaya-rest');
+  if (rest) rest.textContent = state.state === 'resting' ? 'Réveiller Kaya' : 'Repos';
   el._renderKaya?.(state);
   return state;
 }
 
 /** Whole-body SVG is immediate; at most one eligible companion receives a 3D scene. */
 export function kayaEl({ size = '', mood = '', companion = size === '' || size === 'large', quiet = false } = {}) {
-  const visual = h('div', { class: 'kaya-visual', 'aria-hidden': 'true', html: KAYA_FALLBACK });
+  const visual = companion
+    ? h('button', { class: 'kaya-visual', type: 'button', 'aria-label': quiet ? 'Kaya écoute' : 'Saluer Kaya', html: KAYA_FALLBACK })
+    : h('div', { class: 'kaya-visual', 'aria-hidden': 'true', html: KAYA_FALLBACK });
   const el = h('div', { class: `kaya ${size} ${companion ? 'kaya-companion' : 'kaya-portrait'} ${quiet ? 'kaya-quiet' : ''}`.trim(), role: companion ? 'group' : 'img', 'aria-label': 'Kaya, bébé jaguar' }, visual);
   el._kayaController = createCompanion({ quiet, now: now() });
   el.dataset.state = quiet ? 'attentive' : 'idle';
@@ -26,6 +30,13 @@ export function kayaEl({ size = '', mood = '', companion = size === '' || size =
     el.dataset.kayaCompanion = '';
     const toggle = h('button', { type: 'button', class: 'kaya-toggle', 'aria-expanded': String(!visualHidden) }, visualHidden ? 'Afficher Kaya' : 'Masquer Kaya');
     const motion = h('button', { type: 'button', class: 'kaya-motion', 'aria-pressed': String(motionLimited) }, 'Calmer les gestes');
+    const rest = h('button', { type: 'button', class: 'kaya-rest', onclick: () => {
+      companionEvent(el, el._kayaController.get(now()).state === 'resting' ? 'wake' : 'rest');
+    } }, 'Repos');
+    visual.addEventListener('click', () => {
+      if (el._kayaController.get(now()).state === 'resting') companionEvent(el, 'wake');
+      companionEvent(el, quiet ? 'attentive' : 'greeting');
+    });
     toggle.addEventListener('click', () => {
       visualHidden = !visualHidden;
       toggle.textContent = visualHidden ? 'Afficher Kaya' : 'Masquer Kaya';
@@ -37,7 +48,7 @@ export function kayaEl({ size = '', mood = '', companion = size === '' || size =
       motion.setAttribute('aria-pressed', String(motionLimited));
       el.classList.toggle('kaya-still', motionLimited); paint(el);
     });
-    el.append(h('div', { class: 'kaya-controls' }, toggle, quiet ? null : motion));
+    el.append(h('div', { class: 'kaya-controls' }, toggle, quiet ? null : motion, quiet ? null : rest));
     if (visualHidden) el._kayaController.send('hide', now());
     el.classList.toggle('kaya-still', motionLimited);
   }
@@ -73,7 +84,7 @@ export function talk(el, text) {
 
 /** Mount one companion; background/offscreen/reduced-motion paths have no render loop. */
 function mountCompanion(el) {
-  let alive = true, webgl = null, failed = false, loading = false, frame = 0, restTimer = null;
+  let alive = true, webgl = null, failed = false, loading = false, frame = 0, restTimer = null, loadAbort = null;
   let visible = true, previousFrame = -Infinity;
   const visual = el.querySelector('.kaya-visual');
   const media = matchMedia('(prefers-reduced-motion: reduce)');
@@ -102,14 +113,17 @@ function mountCompanion(el) {
   async function load() {
     if (loading || failed || webgl || !alive || !visible || document.hidden || model.get(now()).hidden) return;
     loading = true;
+    const abort = new AbortController(); loadAbort = abort;
     try {
       const { createKaya3D } = await import('./kaya-3d.js');
       if (!alive || failed || !visible || document.hidden || model.get(now()).hidden || !el.isConnected) return;
-      webgl = createKaya3D(visual, fallback);
+      const instance = await createKaya3D(visual, fallback, { signal: abort.signal });
+      if (!alive || failed || !visible || document.hidden || model.get(now()).hidden || !el.isConnected) { instance.destroy(); return; }
+      webgl = instance;
       webgl.update(model.get(now()), now() / 1000, motion());
       el.dataset.renderer = '3d';
-    } catch { fallback(); }
-    finally { loading = false; if (alive) refresh(); }
+    } catch { if (!abort.signal.aborted) fallback(); }
+    finally { loading = false; if (loadAbort === abort) loadAbort = null; if (alive) refresh(); }
   }
   function refresh() {
     if (!alive) return;
@@ -117,6 +131,7 @@ function mountCompanion(el) {
     const state = model.get(now());
     el.dataset.state = state.state;
     el.classList.toggle('kaya-still', !motion());
+    if (state.hidden || state.paused || !visible || document.hidden) loadAbort?.abort();
     if (!state.hidden && !state.paused && visible && !document.hidden) {
       if (!webgl) load();
       else { staticDraw(state); if (motion()) frame = requestAnimationFrame(loop); }
@@ -139,7 +154,7 @@ function mountCompanion(el) {
   if (document.hidden) model.send('pause', now());
   refresh();
   return () => {
-    alive = false; model.send('navigation', now()); cancel();
+    alive = false; loadAbort?.abort(); model.send('navigation', now()); cancel();
     clearInterval(restTimer); clearTimeout(el._moodTimer); clearTimeout(el._talkTimer);
     document.removeEventListener('visibilitychange', onVisibility);
     media.removeEventListener('change', onMotion);

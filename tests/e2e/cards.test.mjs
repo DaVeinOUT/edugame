@@ -91,6 +91,7 @@ test('modale : Tab et Maj+Tab restent dans la carte, Échap et retour restaurent
     await page.waitForFunction(() => document.activeElement?.classList.contains('card-wrap'));
     assert.equal(await page.$eval('#app', el => el.inert), true);
     await page.keyboard.press('Shift+Tab');
+    await page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
     assert.equal(await page.evaluate(() => !!document.activeElement.closest('[role="dialog"]')), true);
     assert.equal(await page.evaluate(() => document.activeElement.getAttribute('aria-label')), 'Fermer la fenêtre');
     await page.keyboard.press('Tab');

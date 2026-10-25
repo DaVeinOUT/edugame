@@ -38,8 +38,9 @@ et sons embarqués restent disponibles sans synthèse vocale. Les sous-titres et
   (imprimable, exportable en tableur), [guide de l'enseignant](guide.html).
 - **Motivation** : un seul gros bouton « Jouer », le chemin des 66 sons, des cartes à collectionner
   (méritées, jamais au hasard) révélées en 3D, diplômes de fin de niveau.
-- **Kaya entier** : prototype en vraie 3D procédurale locale, animations liées au jeu et secours SVG accessible.
-  Ce prototype ne constitue pas encore le GLB de production avec rig et clips exportés.
+- **Kaya entier** : GLB local avec skin, 14 articulations et huit animations, source Blender éditable,
+  accueil agrandi et secours SVG accessible. Le candidat artistique v1 reste stylisé et lisse ; sa validation
+  visuelle finale et les mesures sur tablette sont distinctes des tests techniques.
 - **Hors-ligne et installable** : après téléchargement complet vérifié, le jeu s’ouvre sans internet ; s'installe
   comme une application sur tablette et téléphone.
 - **Accessibilité** : parcours clavier et contrôles automatisés axe-core sur les écrans testés ;

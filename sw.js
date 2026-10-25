@@ -10,13 +10,14 @@
    ============================================================ */
 
 /* <release> — généré par scripts/release.mjs, ne pas éditer à la main */
-const CACHE_NAME = 'educa-95321c8aa6';
+const CACHE_NAME = 'educa-4c87e707ca';
 const ASSETS = [
   './',
   './assets/cards/r_first-160.webp',
   './assets/cards/r_first-640.webp',
   './assets/cards/son-m-160.webp',
   './assets/cards/son-m-640.webp',
+  './assets/kaya/kaya-production-v1.glb',
   './audio/mots/a-2.mp3',
   './audio/mots/a.mp3',
   './audio/mots/abeille.mp3',
@@ -379,6 +380,7 @@ const ASSETS = [
   './js/ui/elo.js',
   './js/ui/fx.js',
   './js/ui/kaya-3d.js',
+  './js/ui/kaya-animation.js',
   './js/ui/kaya-fallback.js',
   './js/ui/kaya-model.js',
   './js/ui/kaya.js',
@@ -387,6 +389,8 @@ const ASSETS = [
   './js/ui/router.js',
   './js/ui/theme.js',
   './js/ui/word.js',
+  './js/vendor/three/BufferGeometryUtils.js',
+  './js/vendor/three/GLTFLoader.js',
   './js/vendor/three/three.core.js',
   './js/vendor/three/three.module.js',
   './manifest.json',

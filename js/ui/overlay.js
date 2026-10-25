@@ -30,12 +30,10 @@ export function openOverlay(router, { content, className = '', label = '', dismi
   updateBackground();
   let done = false;
   let resolveClosed;
-  let frame;
   const closed = new Promise(r => { resolveClosed = r; });
   const close = () => {
     if (done) return;
     done = true;
-    cancelAnimationFrame(frame);
     unregister();
     if (el.open && typeof el.close === 'function') el.close();
     stack.splice(stack.indexOf(el), 1);
@@ -61,6 +59,8 @@ export function openOverlay(router, { content, className = '', label = '', dismi
   });
   if (typeof el.showModal === 'function') el.showModal();
   else el.setAttribute('open', '');
-  frame = requestAnimationFrame(() => (el.querySelector('[data-autofocus]') || controls(el)[0] || el).focus());
+  // showModal a déjà rendu la fenêtre focalisable : ne pas reposer le focus
+  // au frame suivant après une première tabulation rapide de l’enfant.
+  (el.querySelector('[data-autofocus]') || controls(el)[0] || el).focus({ preventScroll: true });
   return { el, close, closed };
 }

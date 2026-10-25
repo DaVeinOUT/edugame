@@ -5,8 +5,8 @@ import { createCompanion } from '../../js/core/companion.js';
 test('greeting is bounded and does not repeat itself', () => {
   const c = createCompanion();
   assert.equal(c.send('greeting', 10).state, 'greeting');
-  assert.equal(c.get(1810).state, 'idle');
-  assert.equal(c.get(2000).state, 'idle');
+  assert.equal(c.get(2410).state, 'idle');
+  assert.equal(c.get(3000).state, 'idle');
 });
 test('real playback and gestures remain independent, help takes priority over success', () => {
   const c = createCompanion({ quiet: true });
@@ -42,4 +42,11 @@ test('quiet exercise stays attentive during inactivity and ignores stale clocks'
   c.send('success', 90010, 400);
   assert.equal(c.get(90410).state, 'attentive');
   assert.equal(c.get(100).state, 'attentive');
+});
+test('une erreur appelle un encouragement borné sans tristesse ni changement de score', () => {
+  const c = createCompanion({ quiet: true });
+  assert.equal(c.send('encourage', 0).state, 'encouraging');
+  assert.equal(c.send('speech-start', 20).state, 'encouraging');
+  assert.equal(c.get(1400).state, 'speaking');
+  assert.equal(c.send('speech-end', 1500).state, 'attentive');
 });

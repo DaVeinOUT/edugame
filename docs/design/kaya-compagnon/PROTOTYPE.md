@@ -1,5 +1,7 @@
 # Prototype local de Kaya — 25 octobre 2026
 
+> État historique du premier lot, conservé pour comparaison. Le nouveau candidat GLB, sa source éditable et son rig sont décrits dans [production/MODEL-PIPELINE.md](production/MODEL-PIPELINE.md). Les poids et résultats ci-dessous concernent le prototype initial.
+
 ## Réalisé
 
 Kaya entier est rendu à l'accueil et dans la zone réservée au-dessus de la leçon. Le secours SVG entier est présent immédiatement. Le compagnon ne recouvre pas l'exercice et ses commandes restent des boutons HTML : masquer/afficher, et calmer les gestes à l'accueil. Le choix visuel est conservé pendant l'ouverture du jeu ; il ne modifie aucune donnée de progression.

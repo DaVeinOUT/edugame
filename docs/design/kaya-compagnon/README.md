@@ -4,7 +4,7 @@
 
 Kaya devient un petit personnage entier qui accompagne l’enfant dans EDUCA : présence douce, expressions compréhensibles et réactions liées à l’activité. L’inspiration demandée est la présence d’un compagnon animé de ChatGPT. Le personnage et ses fichiers restent originaux ; il n’est pas nécessaire de copier un compagnon existant ni de modifier les réglages de ChatGPT.
 
-L’état actuel du jeu utilise un visage SVG (`js/ui/kaya.js`) avec quelques humeurs. Les illustrations des cartes donnent une référence plus détaillée. Une image rendue en style 3D reste une image : ce document ne prétend pas qu’un modèle animé existe déjà.
+Le jeu a reçu un prototype procédural, puis un candidat GLB riggé avec source Blender et huit clips. Le cahier ci-dessous reste la cible artistique et comportementale. La [procédure de production](production/MODEL-PIPELINE.md), la [fiche de personnage](production/CHARACTER-SHEET.md) et [PROGRESS.md](../../workflow/PROGRESS.md) distinguent les livrables vérifiés de la validation artistique finale.
 
 ## Identité visuelle à conserver
 

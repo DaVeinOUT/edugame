@@ -14,10 +14,11 @@ before(async () => {
 });
 after(async () => { await browser?.close(); server?.close(); });
 
-async function hub({ reduced = false, profileReduced = false, missing = false, webgl = true, canvas2d = true, sw = false } = {}) {
+async function hub({ reduced = false, profileReduced = false, missing = false, webgl = true, canvas2d = true, broken = false, decode = false, delay = false, sw = false } = {}) {
   const context = await browser.newContext({ viewport: { width: 390, height: 844 },
     serviceWorkers: sw ? 'allow' : 'block', reducedMotion: reduced ? 'reduce' : 'no-preference' });
-  await context.addInitScript(({ webgl, canvas2d }) => {
+  await context.addInitScript(({ webgl, canvas2d, decode }) => {
+    if (decode) window.createImageBitmap = () => Promise.reject(new Error("Image decoding refused"));
     const pending = new Set(); const request = window.requestAnimationFrame.bind(window); const cancel = window.cancelAnimationFrame.bind(window);
     window.requestAnimationFrame = fn => { const id = request(t => { pending.delete(id); fn(t); }); pending.add(id); return id; };
     window.cancelAnimationFrame = id => { pending.delete(id); cancel(id); };
@@ -29,9 +30,17 @@ async function hub({ reduced = false, profileReduced = false, missing = false, w
       if (type.startsWith('webgl') && context && !window.__createdWebglContexts.includes(context)) window.__createdWebglContexts.push(context);
       return context;
     };
-  }, { webgl, canvas2d });
+  }, { webgl, canvas2d, decode });
   const page = await context.newPage();
+  let releaseModel, started;
+  const hold = new Promise(resolve => { releaseModel = resolve; });
+  const modelStarted = new Promise(resolve => { started = resolve; });
+  if (delay) await page.route('**/assets/kaya/*.glb', async route => {
+    started(); await hold;
+    try { await route.continue(); } catch { /* la page a pu annuler la demande */ }
+  });
   if (missing) await page.route('**/js/ui/kaya-3d.js', route => route.abort());
+  if (broken) await page.route('**/assets/kaya/*.glb', route => route.fulfill({ status: 200, body: 'invalid GLB' }));
   await page.goto(url);
   await page.evaluate(({ profileReduced }) => {
     const at = Date.now(), id = 'pkaya001';
@@ -40,7 +49,7 @@ async function hub({ reduced = false, profileReduced = false, missing = false, w
       cards: [], stats: { answers: 11 }, path: { open: 0, stars: {} }, comfort: { screenReader: true, reducedMotion: profileReduced } }));
   }, { profileReduced });
   await page.reload(); await page.waitForSelector('.btn-play');
-  return { page, context };
+  return { page, context, releaseModel, modelStarted };
 }
 
 test('Kaya : vrai maillage WebGL dans le parcours, une seule scène et réactions aux réponses', async () => {
@@ -76,7 +85,7 @@ test('Kaya : vrai maillage WebGL dans le parcours, une seule scène et réaction
     });
     assert.equal(overlap, false, 'le compagnon occupe sa zone au-dessus de l’exercice');
     await page.locator('.choice:not([disabled])').first().click();
-    assert.ok(['celebrating', 'attentive', 'speaking'].includes(await page.getAttribute('.lesson-top .kaya', 'data-state')));
+    assert.ok(['celebrating', 'encouraging', 'attentive', 'speaking'].includes(await page.getAttribute('.lesson-top .kaya', 'data-state')));
     await page.waitForFunction(() => JSON.parse(localStorage.getItem('educa2:p:pkaya001')).stats.answers === 12);
     const answers = await page.evaluate(() => JSON.parse(localStorage.getItem('educa2:p:pkaya001')).stats.answers);
     assert.equal(answers, 12);
@@ -109,19 +118,57 @@ test('Kaya : réduction système/profil et masquage arrêtent les boucles, le cl
 });
 
 test('Kaya : modèle/module absent, WebGL refusé et contexte perdu conservent le jeu et le secours entier', async () => {
-  for (const settings of [{ missing: true }, { webgl: false }, { canvas2d: false }, {}]) {
+  for (const settings of [{ missing: true }, { broken: true }, { decode: true }, { webgl: false }, {}]) {
     const { page, context } = await hub(settings);
     try {
-      if (!settings.missing && settings.webgl !== false && settings.canvas2d !== false) {
+      if (!settings.missing && !settings.broken && !settings.decode && settings.webgl !== false) {
         await page.waitForSelector('.kaya[data-renderer="3d"] canvas');
         await page.$eval('[data-kaya-canvas]', canvas => canvas.getContext('webgl2').getExtension('WEBGL_lose_context').loseContext());
       }
       await page.waitForSelector('.kaya[data-renderer="fallback"] .kf-tail');
       await page.waitForFunction(() => document.querySelector('[data-kaya-companion]')?.dataset.renderer === 'fallback' && !document.querySelector('[data-kaya-canvas]'));
-      if (settings.canvas2d === false) await page.waitForFunction(() => window.__createdWebglContexts.length === 1 && window.__createdWebglContexts.every(gl => gl.isContextLost()));
+      if (settings.broken || settings.decode) assert.equal(await page.evaluate(() => window.__createdWebglContexts.length), 0, 'pas de contexte GPU en attente d’un modèle défectueux');
       assert.ok(await page.locator('.kaya .kf-paw').count());
       await page.click('.btn-play'); await page.waitForSelector('.intro-card');
       assert.ok(await page.getByRole('button', { name: 'C\'est parti ! ▶', exact: true }).isVisible());
     } finally { await context.close(); }
   }
+});
+
+
+test('Kaya : le vrai salut anime un os et le repos réduit neutralise le fondu', async () => {
+  const { page, context } = await hub();
+  try {
+    await page.waitForSelector('[data-model="gltf"]');
+    await page.getByRole('button', { name: 'Saluer Kaya', exact: true }).click();
+    await page.waitForTimeout(250);
+    const first = await page.$eval('[data-kaya-canvas]', c => c._kayaInspect());
+    await page.waitForTimeout(400);
+    const second = await page.$eval('[data-kaya-canvas]', c => c._kayaInspect());
+    assert.equal(first.clip, 'greeting');
+    assert.equal(Object.keys(first.bones).length, 14);
+    const paw = Object.keys(first.bones).find(name => /upperarm.*R/.test(name));
+    assert.ok(paw); assert.notDeepEqual(first.bones[paw], second.bones[paw], 'la patte du skin change réellement de pose');
+    await page.getByRole('button', { name: 'Repos', exact: true }).click();
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    await page.waitForFunction(() => window.__pendingFrames() === 0);
+    const rest = await page.$eval('[data-kaya-canvas]', c => c._kayaInspect());
+    assert.equal(rest.clip, 'resting'); assert.equal(rest.weights.resting, 1);
+    for (const [name, weight] of Object.entries(rest.weights)) if (name !== 'resting') assert.equal(weight, 0);
+    assert.ok(Object.values(rest.morphs).filter(m => m.Blink > .8).length >= 2, 'les deux paupières utilisent leur pose de repos');
+  } finally { await context.close(); }
+});
+
+test('Kaya : masquer pendant le chargement annule la création GPU et permet une reprise', async () => {
+  const { page, context, modelStarted, releaseModel } = await hub({ delay: true });
+  try {
+    await modelStarted;
+    await page.getByRole('button', { name: 'Masquer Kaya', exact: true }).click();
+    releaseModel();
+    await page.waitForTimeout(250);
+    assert.equal(await page.locator('[data-kaya-canvas]').count(), 0);
+    assert.equal(await page.evaluate(() => window.__createdWebglContexts.length), 0);
+    await page.getByRole('button', { name: 'Afficher Kaya', exact: true }).click();
+    await page.waitForSelector('[data-model="gltf"]');
+  } finally { releaseModel(); await context.close(); }
 });

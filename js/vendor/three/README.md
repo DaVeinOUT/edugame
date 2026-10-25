@@ -12,3 +12,10 @@ Les deux modules sont précachés à l'installation ; chargement JS dynamique po
 le compagnon, secours SVG immédiat. La licence est copiée dans le site assemblé.
 Documentation de référence : https://threejs.org/docs/ et
 https://threejs.org/manual/#en/cleanup
+
+Le candidat de production utilise aussi `GLTFLoader.js` (114 744 octets) et
+`BufferGeometryUtils.js` (35 551 octets), issus respectivement de
+`examples/jsm/loaders/` et `examples/jsm/utils/` dans le même tag officiel r180.
+Seuls leurs imports sont réécrits vers les modules locaux voisins. Même licence
+MIT ; aucun décodeur distant. Total du moteur et du chargeur : 870 319 octets.
+Le GLB contient son atlas et ses buffers ; toute URI externe est refusée.

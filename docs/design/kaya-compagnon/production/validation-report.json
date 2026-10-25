@@ -1,0 +1,20 @@
+{
+  "file": "assets/kaya/kaya-production-v1.glb",
+  "bytes": 1869788,
+  "skins": 1,
+  "joints": 14,
+  "triangles": 42652,
+  "exportedVertices": 23518,
+  "weightedVertices": 23518,
+  "clipsSeconds": {
+    "idle": 4.0,
+    "greeting": 2.4000000953674316,
+    "attentive": 3.0,
+    "speaking": 2.0,
+    "helping": 3.200000047683716,
+    "encouraging": 2.4000000953674316,
+    "celebrating": 2.4000000953674316,
+    "resting": 4.0
+  },
+  "embeddedImages": 1
+}
