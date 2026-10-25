@@ -66,6 +66,8 @@ La CI lance tous les tests **avant** de publier, et ne publie que l'application.
 Les [documents de travail](docs/README.md) regroupent l’[audit du 25 octobre 2026](docs/audits/2026-10-25/AUDIT.md),
 les [consignes d’amélioration pour Codex](docs/audits/2026-10-25/PROMPTS_CODEX.md) et la
 [proposition de cartes illustrées par IA](docs/design/cartes-ia/README.md).
+Le [message de reprise](docs/workflow/CONTINUER.md) explique comment poursuivre avec les agents et skills du dépôt,
+notamment vers [Kaya compagnon en 3D](docs/design/kaya-compagnon/README.md).
 
 ## Principes
 

@@ -6,6 +6,8 @@ _bmad-output/
 # Fichiers système macOS
 .DS_Store
 AGENTS.md
+# Instructions partagées du projet, à récupérer aussi dans VS Code.
+!/AGENTS.md
 IDENTITY.md
 SOUL.md
 USER.md

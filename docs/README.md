@@ -1,5 +1,14 @@
 # Documents de travail d’EDUCA
 
+## Reprise du travail avec agents et skills
+
+- [Message à copier dans Codex sur VS Code](workflow/CONTINUER.md)
+- [Mission et critères des lots](workflow/PLAN.md)
+- [État courant et prochaine action](workflow/PROGRESS.md)
+- [Kaya compagnon : comportement et vraie 3D](design/kaya-compagnon/README.md)
+
+Les instructions partagées sont dans [AGENTS.md](../AGENTS.md), les cinq rôles dans `.codex/agents/` et les quatre skills dans `.agents/skills/`. Ce dispositif organise la suite du travail ; le compagnon 3D et les corrections applicatives restent à implémenter.
+
 ## Audit du 25 octobre 2026
 
 - [Audit complet : preuves, priorités et feuille de route](audits/2026-10-25/AUDIT.md)
