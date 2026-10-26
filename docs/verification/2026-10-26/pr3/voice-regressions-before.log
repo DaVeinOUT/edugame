@@ -1,0 +1,65 @@
+✖ remplacer un fichier sans nouvelle génération est une annulation, jamais une erreur de synthèse (9.485416ms)
+✖ un son demandé pendant une séquence coupe ses mots suivants et la précédente bouche (4.1545ms)
+✔ un MP3 absent utilise seulement la voix locale de secours et synchronise la bouche (2.215209ms)
+✔ un fichier absent et une préférence distante ne déclenchent jamais de voix distante (1.463958ms)
+✔ le mode silencieux et le lecteur d’écran ne lancent aucun MP3 ni synthèse (1006.49625ms)
+ℹ tests 5
+ℹ suites 0
+ℹ pass 3
+ℹ fail 2
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1105.434958
+
+✖ failing tests:
+
+test at tests/unit/voice-sequences.test.mjs:41:1
+✖ remplacer un fichier sans nouvelle génération est une annulation, jamais une erreur de synthèse (9.485416ms)
+  AssertionError [ERR_ASSERTION]: aucune synthèse par-dessus le fichier qui le remplace
+  + actual - expected
+
+  + [
+  +   {
+  +     text: 'moto',
+  +     voice: {
+  +       lang: 'fr-FR',
+  +       localService: true,
+  +       name: 'Audrey'
+  +     }
+  +   }
+  + ]
+  - []
+
+      at TestContext.<anonymous> (file:///private/tmp/educa-pr3-integration/tests/unit/voice-sequences.test.mjs:47:10)
+      at async Test.run (node:internal/test_runner/test:1125:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:358:3) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: [ { text: 'moto', voice: [Object] } ],
+    expected: [],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at tests/unit/voice-sequences.test.mjs:54:1
+✖ un son demandé pendant une séquence coupe ses mots suivants et la précédente bouche (4.1545ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+
+    [
+      'audio/sons/m.mp3',
+      'audio/sons/s.mp3',
+  +   'audio/mots/moto.mp3'
+    ]
+
+      at TestContext.<anonymous> (file:///private/tmp/educa-pr3-integration/tests/unit/voice-sequences.test.mjs:62:10)
+      at async Test.run (node:internal/test_runner/test:1125:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:787:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: [ 'audio/sons/m.mp3', 'audio/sons/s.mp3', 'audio/mots/moto.mp3' ],
+    expected: [ 'audio/sons/m.mp3', 'audio/sons/s.mp3' ],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }

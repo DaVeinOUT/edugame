@@ -100,26 +100,18 @@ export async function runChoice(q, api) {
   const grid = choiceGrid(q.options, { kind, onHear: hear ? o => { noteSupport(api, 'option-audio'); hear(o); } : null });
   api.stage.replaceChildren(card, grid.el);
   let helped = false;
-  let reading = 0;   // jeton : « Réécouter » ou « Aide » arrêtent la lecture en cours
-
-  async function speakPrompt() {
-    const token = ++reading;
-    // Le sous-titre de la question ne donne jamais la réponse (sinon on la copie au lieu d'écouter).
-    await voice.seq(q.prompt, { caption: q.caption });
-    if (q.kind === 'listen' && q.mode === 'initial') {
-      for (const b of grid.buttons) {
-        if (token !== reading || !api.alive() || grid.isDone()) return;
-        b.classList.add('speaking');
-        await voice.say(b.dataset.say, { interrupt: false, slowWord: true });
-        b.classList.remove('speaking');
-      }
-    }
+  function speakPrompt() {
+    // Même génération pour consigne et mots proposés : toute autre lecture
+    // coupe la séquence entière, sans reprise tardive après réponse/navigation.
+    const words = q.kind === 'listen' && q.mode === 'initial'
+      ? grid.buttons.map(b => ({ word: b.dataset.say, highlight: b })) : [];
+    return voice.seq([...q.prompt, ...words], { caption: q.caption });
   }
   api.setReplay(() => { noteSupport(api, 'instruction-replay'); speakPrompt(); });
   api.setHelp(help ? () => {
     noteSupport(api, 'explicit-help');
     if (q.kind === 'read' || q.kind === 'sentence') noteSupport(api, 'text-audio');
-    reading += 1; helped = true; help();
+    helped = true; help();
   } : null);
   speakPrompt();
 

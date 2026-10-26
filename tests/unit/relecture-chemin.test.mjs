@@ -47,13 +47,15 @@ test('l\'aide dit les syllabes comme elles se prononcent', () => {
   assert.deepEqual(spokenSyllables(parseSeg('d-i-x:s')), ['dix']);
 });
 
-test('chaque son du chemin peut être entendu (fichier, son fabriqué ou synthèse)', async () => {
+test('chaque son du chemin et des mots est dit par une voix humaine enregistrée', async () => {
   const { SOUND_FILES } = await import('../../js/data/sounds.js');
-  const { canSynth } = await import('../../js/services/phonemes.js');
   const { SOUND_TTS } = await import('../../js/services/voice.js');
-  const playable = ph => Boolean(SOUND_FILES[ph] || canSynth(ph) || SOUND_TTS[ph]);
   const sounds = new Set(cur.steps.map(s => s.ph).filter(Boolean));
   for (const s of cur.steps) for (const m of (s.intro || '').matchAll(/\[([^\]]+)\]/g)) sounds.add(m[1]);
-  const silent = [...sounds].filter(ph => !playable(ph));
-  assert.deepEqual(silent, [], `sons muets : ${silent.join(', ')}`);
+  for (const w of cur.words) for (const ph of w.phonemes) sounds.add(ph);
+  for (const t of cur.tools) for (const g of t.parsed.graphemes) if (!g.mute) sounds.add(g.p);
+  const unrecorded = [...sounds].filter(ph => !SOUND_FILES[ph]);
+  assert.deepEqual(unrecorded, [], `sons sans enregistrement : ${unrecorded.join(', ')}`);
+  const noFallback = [...sounds].filter(ph => !SOUND_TTS[ph]);
+  assert.deepEqual(noFallback, [], `sons sans secours parlé (fichier illisible) : ${noFallback.join(', ')}`);
 });

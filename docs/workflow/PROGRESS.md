@@ -1,5 +1,27 @@
 # État de reprise — EDUCA
 
+## 26 octobre 2026 — consonnes humaines intégrées et vérifiées
+
+PR3 est intégrée à la base main `81db985` dans un worktree distinct, sans
+écraser le travail Kaya mené en parallèle. Ses 24 MP3, le manifeste et leur
+provenance sont conservés. Les protections de voix locale, d’annulation,
+de lecture réelle et de sauvegarde restent présentes ; le synthétiseur de
+phonèmes local est conservé comme secours. Deux défauts d’interruption ont
+été reproduits puis corrigés. Les mots proposés et la consigne partagent
+maintenant la même séquence annulable.
+
+Résultat intégré réellement exécuté : **154/154 unités**, **45/45 navigateur
+Brave**, aucun ignoré ; cache **educa-22be3a4534, 405 fichiers**, à jour.
+Assemblage, décodage des 35 fichiers hors ligne, Range audio, MP3 absent et
+arrêt de la bouche vérifiés. [Preuves et limites](../verification/2026-10-26/pr3/INTEGRATION.md).
+Ces résultats remplacent les anciens 97/21 pour cette intégration. L’écoute
+humaine des phonèmes sur matériel physique reste à faire.
+
+Prochaine action : fusionner cette tête vérifiée via PR3, vérifier son inclusion
+dans main, puis supprimer sa branche sans force. L’itération artistique 2 de
+Kaya et son menu accessible avancent séparément ; aucun résultat final de ce
+second lot n’est annoncé ici. L’état du 25 octobre ci-dessous est historique.
+
 ## Dernier état vérifié — 25 octobre 2026
 
 Les changements applicatifs sont commités et poussés sur **main** :

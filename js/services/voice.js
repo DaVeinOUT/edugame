@@ -6,8 +6,8 @@
    • enchaîne des phrases, des sons et des pauses (séquences) ;
    • affiche des SOUS-TITRES de tout ce qu'il dit (classe en mode
      silencieux, enfant malentendant, téléphone sans voix) ;
-   • joue les sons isolés des lettres (« mmm ») depuis de petits
-     fichiers quand ils existent, sinon s'appuie sur un mot ;
+   • joue les sons isolés des lettres (« mmm ») depuis les fichiers
+     humains embarqués, avec un secours local si un fichier manque ;
    • dit les MOTS du jeu avec une vraie voix humaine (enregistrements
      libres de Lingua Libre, audio/mots/) ; la synthèse prend le relais
      pour les mots sans enregistrement ;
@@ -33,6 +33,7 @@ export const SOUND_TTS = Object.freeze({
   m: 'mmmm', n: 'nnnn', l: 'llll', r: 'rrrr', s: 'ssss', z: 'zzzz', f: 'ffff', v: 'vvvv',
   ch: 'chhhh', j: 'jjjj', p: 'pe', b: 'be', t: 'te', d: 'de', k: 'ke', g: 'gue',
   gn: 'gne', y: 'ye', w: 'ou',   // [w] : un [u] bref (« oua » ferait entendre [wa], absent de « kiwi »)
+  ks: 'x',                       // dernier secours parlé si le fichier et le son pur sont indisponibles
 });
 
 const synth = typeof speechSynthesis !== 'undefined' ? speechSynthesis : null;
@@ -162,7 +163,7 @@ async function say(text, opts = {}) {
     opts.highlight?.classList.add('speaking');
     const ok = await playFile(`${st.wordBase}${file}.mp3`, { rate: st.slow ? WORD_SLOW_RATE : WORD_RATE });
     opts.highlight?.classList.remove('speaking');
-    if (ok || myGen !== st.gen) return;
+    if (ok !== false || myGen !== st.gen) return; // fin ou annulation ; seule une erreur autorise le secours
   }
   if (!synth || !st.voice) {
     await wait(Math.min(2600, estimate(text, rate) * 0.6));
@@ -183,9 +184,10 @@ function player() {
   return st.player;
 }
 
+/** true : fin, false : erreur, null : annulation/remplacement. */
 function playFile(url, { rate = 1 } = {}) {
   return new Promise(resolve => {
-    pendingEnd?.(false);   // une nouvelle lecture remplace la précédente
+    pendingEnd?.(null);   // une nouvelle lecture remplace la précédente sans déclencher un secours
     try {
       const a = player();
       a.src = url;
@@ -219,10 +221,12 @@ function playFile(url, { rate = 1 } = {}) {
 }
 
 /**
- * Fait entendre un son isolé (phonème) : fichier si disponible, sinon appui parlé.
+ * Fait entendre un son isolé : enregistrement, son pur local, puis voix locale.
  * @param {string} ph identifiant de phonème (« m », « ch », « on »…)
+ * @param {{ interrupt?: boolean, noCaption?: boolean, caption?: string }} [opts]
  */
-async function sound(ph, { noCaption = false, caption: shown } = {}) {
+async function sound(ph, { interrupt = true, noCaption = false, caption: shown } = {}) {
+  if (interrupt) stop();
   const myGen = st.gen;
   if (!noCaption) caption(shown ?? `« ${ph} »`);
   if (st.muted || st.screenReader) { await wait(500); return; }
@@ -230,14 +234,17 @@ async function sound(ph, { noCaption = false, caption: shown } = {}) {
   const url = st.recordings.get(ph) || (st.soundFiles.has(ph) ? `${st.soundBase}${st.soundFiles.get(ph)}.mp3` : null);
   if (url) {
     const ok = await playFile(url);
-    if (ok || myGen !== st.gen) return;
+    if (ok !== false || myGen !== st.gen) return;
   }
   // 3. consonne : son pur fabriqué (jamais « me » pour [m]), joué comme un fichier par le lecteur
   //    commun (sonne aussi en mode silencieux d'iPhone) ; sinon Web Audio direct.
   if (canSynth(ph)) {
     const synthUrl = await phonemeUrl(ph).catch(() => null);
     if (myGen !== st.gen) return;
-    if (synthUrl && (await playFile(synthUrl) || myGen !== st.gen)) return;
+    if (synthUrl) {
+      const played = await playFile(synthUrl);
+      if (played !== false || myGen !== st.gen) return;
+    }
     const ctx = audioContext();
     if (ctx) {
       const controller = new AbortController();
@@ -251,7 +258,10 @@ async function sound(ph, { noCaption = false, caption: shown } = {}) {
   }
   // 4. voyelles : la synthèse vocale les dit correctement
   const fallback = SOUND_TTS[ph];
-  if (fallback && synth) await utter(fallback, { rate: 0.7 });
+  if (fallback && synth && st.voice) {
+    if (interrupt) await wait(90); // Chrome : speak juste après cancel peut disparaître
+    if (myGen === st.gen) await utter(fallback, { rate: 0.7 });
+  }
 }
 
 /**
@@ -269,7 +279,7 @@ async function seq(parts, { interrupt = true, caption: shown } = {}) {
     if (myGen !== st.gen) return;
     if (typeof part === 'string') await say(part, { interrupt: false, noCaption: true });
     else if (part.pause) await wait(part.pause);
-    else if (part.sound) await sound(part.sound, { noCaption: true });
+    else if (part.sound) await sound(part.sound, { interrupt: false, noCaption: true });
     else if (part.word) await say(part.word, { interrupt: false, slowWord: true, highlight: part.highlight, noCaption: true });
     else if (part.say) await say(part.say, { ...part, interrupt: false, noCaption: true });
   }
@@ -299,7 +309,7 @@ function stop() {
   playback(false);
   try { synth?.cancel(); } catch { /* rien */ }
   try { st.audio?.pause(); } catch { /* rien */ }
-  pendingEnd?.(false);
+  pendingEnd?.(null);
   st.audio = null;
 }
 

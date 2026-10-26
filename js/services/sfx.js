@@ -7,7 +7,7 @@
 let ctx = null;
 let muted = false;
 
-/** Contexte audio partagé (effets et sons purs des consonnes). */
+/** Contexte audio partagé (effets et secours local des phonèmes). */
 export function audioContext() {
   if (!ctx) {
     const AC = globalThis.AudioContext || globalThis.webkitAudioContext;

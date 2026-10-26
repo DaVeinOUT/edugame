@@ -100,7 +100,7 @@ test('l\'espace des grands demande de lire des chiffres écrits en lettres', asy
   await context.close();
 });
 
-test('les sons purs synthétisés ont la bonne couleur (s aigu, m grave) et ne saturent pas', async () => {
+test('le secours local synthétisé garde sa couleur (s aigu, m grave) et ne saturent pas', async () => {
   const { context, page } = await open();
   await page.goto(url);
   const res = await page.evaluate(async () => {
@@ -126,6 +126,34 @@ test('les sons purs synthétisés ont la bonne couleur (s aigu, m grave) et ne s
     assert.ok(r.peak <= 1, `${ph} sature`);
   }
   assert.ok(res.p.dur < 0.6, 'un petit bruit sec reste court');
+  await context.close();
+});
+
+test('les sons des lettres enregistrés ont la bonne couleur (s aigu, ch moyen, m grave) et la bonne durée', async () => {
+  const { context, page } = await open();
+  await page.goto(url);
+  const res = await page.evaluate(async () => {
+    const ctx = new OfflineAudioContext(1, 44100, 44100);
+    const measure = async ph => {
+      const audio = await ctx.decodeAudioData(await (await fetch(`audio/sons/${ph}.mp3`)).arrayBuffer());
+      const data = audio.getChannelData(0);
+      let zc = 0; let sum = 0; let peak = 0;
+      for (let i = 1; i < data.length; i++) {
+        if ((data[i - 1] < 0) !== (data[i] < 0)) zc++;
+        sum += data[i] * data[i];
+        peak = Math.max(peak, Math.abs(data[i]));
+      }
+      return { zcr: zc / data.length, rms: Math.sqrt(sum / data.length), peak, dur: audio.duration };
+    };
+    return { s: await measure('s'), ch: await measure('ch'), m: await measure('m'), p: await measure('p') };
+  });
+  assert.ok(res.s.zcr > res.ch.zcr && res.ch.zcr > res.m.zcr, `ordre aigu→grave attendu : ${JSON.stringify(res)}`);
+  for (const [ph, r] of Object.entries(res)) {
+    assert.ok(r.rms > 0.01, `${ph} trop faible`);
+    assert.ok(r.peak <= 1, `${ph} sature`);
+  }
+  assert.ok(res.m.dur >= 0.5 && res.s.dur >= 0.5, 'une consonne qu\'on peut prolonger est tenue (« mmmm »)');
+  assert.ok(res.p.dur < 0.35, 'une explosion reste brève (« p(e) »)');
   await context.close();
 });
 
@@ -431,7 +459,30 @@ test('les sons des consonnes passent par le lecteur audio commun (ils sonnent au
     await voice.sound('s');
     return srcs;
   });
-  assert.equal(played.filter(s => s.startsWith('blob:')).length, 2, `lectures : ${played}`);
+  for (const ph of ['m', 's']) assert.ok(played.some(s => s.endsWith(`/audio/sons/${ph}.mp3`)), `lectures : ${played}`);
+  assert.ok(!played.includes('refusé'), `lectures : ${played}`);
+  assert.deepEqual(errors, []);
+  await context.close();
+});
+
+test('retoucher « réécouter » pendant un son ne fait jamais parler la synthèse par-dessus', async () => {
+  const { context, page, errors } = await open();
+  await createChild(page, 'Noé');
+  const spoken = await page.evaluate(async () => {
+    const said = [];
+    const speak = speechSynthesis.speak.bind(speechSynthesis);
+    speechSynthesis.speak = u => { said.push(u.text); speak(u); };
+    const { voice } = await import('./js/services/voice.js');
+    const later = ms => new Promise(r => setTimeout(r, ms));
+    const first = voice.sound('m');                       // deux appuis rapides
+    await later(50);
+    await Promise.all([first, voice.sound('m')]);
+    const kaya = voice.seq(['Écoute', { sound: 'm' }, 'encore', { sound: 'm' }]);   // un appui pendant que Kaya parle
+    await later(50);
+    await Promise.all([kaya, voice.sound('m')]);
+    return said;
+  });
+  assert.ok(!spoken.some(t => /^m+$/.test(t)), `synthèse par-dessus l'enregistrement : ${spoken}`);
   assert.deepEqual(errors, []);
   await context.close();
 });
