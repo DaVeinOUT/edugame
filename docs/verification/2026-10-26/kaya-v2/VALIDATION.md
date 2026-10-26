@@ -5,6 +5,12 @@ Retouche de la source Blender v1 existante, intégrée après la fusion PR3
 de finition. Le prototype initial, la retouche v1, cette v2 et la qualité finale
 restent des jalons distincts.
 
+Livraison applicative et preuves : **`9fbf716`**, poussée sur main. Sa
+[CI GitHub](https://github.com/DaVeinOUT/edugame/actions/runs/40260421391) a réussi
+(unités, cache, navigateur et workflow de publication existant).
+[Métadonnées relues](ci.json). La mise à jour documentaire suivante conserve
+exactement les ressources applicatives et le cache testés sur ce commit.
+
 ## Résultat visible et appréciation
 
 Les iris sont plus ambrés et moins saillants, les contours moins noirs, le nez
@@ -85,7 +91,7 @@ garantie pour d’autres versions de Blender. `build.sh` exporte désormais la s
   sur 280 ms avec easing ; test de continuité, retour vers un clip déjà contributeur
   et réduction des mouvements réussis.
 - Les assertions de repos ciblent explicitement les deux paupières, indépendamment
-  des nouveaux morphs d’iris. [Relance ciblée Kaya](kaya-targeted.log).
+  des nouveaux morphs d’iris. [Relance ciblée Kaya : 6/6](kaya-targeted.log).
 - `npm run release`, puis `node scripts/release.mjs --check` :
   **educa-20de197a2b, 405 fichiers**, à jour — [journal](release.log).
 - Site assemblé, vrai GLB et réponse de leçon persistée, rechargement sans réseau,

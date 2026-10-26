@@ -2,6 +2,13 @@
 
 ## 26 octobre 2026 — Kaya, itération artistique 2 intégrée
 
+Code et preuves commités et poussés sur **main : `9fbf716`**. La CI de ce commit
+a réussi (unités, cache, navigateur et workflow de publication existant) :
+[exécution GitHub](https://github.com/DaVeinOUT/edugame/actions/runs/40260421391),
+[preuve](../verification/2026-10-26/kaya-v2/ci.json).
+La mise à jour documentaire suivante ne change aucune ressource jouée.
+Seule main reste locale/distante et principale ; aucun push forcé.
+
 **Deuxième lot implémenté et vérifié sur le main contenant PR3.** Retouche du
 `.blend` v1 existant : regard plus ambré et moins saillant, contours moins noirs,
 museau/menton/nez rapprochés, rosettes adoucies, pelage plus mat, paupières
@@ -21,7 +28,8 @@ avec Échap et restitution du focus. La leçon garde son affichage compact.
   les sources livrées. [Procédure](../design/kaya-compagnon/production/v2/README.md).
 - `npm test` : **156/156** ; Brave `npm run test:e2e` : **46/46**, aucun ignoré.
   Relance ciblée Kaya après renforcement des assertions de paupières également
-  documentée dans le journal dédié. Cache **educa-20de197a2b, 405 fichiers**, à jour.
+  réussie **6/6**, documentée dans le journal dédié. Cache **educa-20de197a2b,
+  405 fichiers**, à jour.
 - Assemblage et contrôles hors ligne Chromium 155/SwiftShader et WebKit desktop
   27.2/Apple GPU : vrai GLB au bon SHA, réponse persistée, deux cartes et
   35 fichiers de sons, Range206 ; aucune erreur JS/console.
