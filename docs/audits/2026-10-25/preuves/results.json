@@ -1,0 +1,123 @@
+{
+  "date": "2026-10-25",
+  "commit": "fd23ac1",
+  "static": {
+    "inventory": {
+      "steps": 66,
+      "words": 263,
+      "tools": 39,
+      "sentences": 21,
+      "levels": 4,
+      "ordinaryModules": 40,
+      "controls": 4,
+      "questions": 727,
+      "byLevel": [
+        {
+          "id": "n3",
+          "grade": "CE1-CE2",
+          "modules": 11,
+          "items": 186
+        },
+        {
+          "id": "n4",
+          "grade": "CM1-CM2",
+          "modules": 11,
+          "items": 181
+        },
+        {
+          "id": "n5",
+          "grade": "6e-5e",
+          "modules": 11,
+          "items": 182
+        },
+        {
+          "id": "n6",
+          "grade": "4e-3e",
+          "modules": 11,
+          "items": 178
+        }
+      ],
+      "stepsWithoutNewWord": [
+        "a",
+        "i",
+        "l",
+        "o",
+        "r",
+        "u",
+        "e",
+        "é",
+        "es",
+        "bdpq",
+        "est",
+        "im",
+        "et",
+        "ent",
+        "ti"
+      ]
+    },
+    "failedWrite": {
+      "memory": "Après panne",
+      "disk": "Initial",
+      "degraded": true
+    },
+    "importLimit": {
+      "exported": 15,
+      "restored": 0
+    },
+    "multiInstance": {
+      "expectedAnswers": 2,
+      "actualAnswers": 1
+    },
+    "assistedControl": {
+      "module": "n3-controle",
+      "total": 17,
+      "passed": true,
+      "accuracy": 1
+    },
+    "failedProgression": {
+      "openAfterTwoAllWrong": 1,
+      "stars": {
+        "a": 0
+      }
+    },
+    "mutedEarlyLesson": {
+      "planned": 10,
+      "retained": 0
+    }
+  },
+  "browser": {
+    "initialNavigation": {
+      "title": "EDUCA — Apprendre à lire avec Kaya",
+      "viewport": 390,
+      "scrollWidth": 390
+    },
+    "collection": {
+      "earnedDiploma": true,
+      "visibleDiplomas": 0,
+      "title": "Mes cartes · 2/83"
+    },
+    "modalFocus": {
+      "insideDialog": false,
+      "focused": "<button type=\"button\" class=\"coll-item locked\" aria-label=\"Carte mystère\"><span class=\"g\">?</span><span class=\"n\">…</span></button>",
+      "backgroundInert": false
+    },
+    "escapeAfterFocusLeak": 1,
+    "axeAllImpacts": {
+      "violations": [],
+      "incomplete": [
+        {
+          "id": "color-contrast",
+          "nodes": 216
+        },
+        {
+          "id": "label-content-name-mismatch",
+          "nodes": 1
+        }
+      ]
+    },
+    "recordingAfterWipe": [
+      "audit"
+    ],
+    "errors": []
+  }
+}

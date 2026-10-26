@@ -15,7 +15,7 @@ import { h, sleep } from '../ui/dom.js';
 import { setMood } from '../ui/kaya.js';
 import { shuffle } from '../core/rng.js';
 import { PASS, homophones } from '../core/levels.js';
-import { choiceGrid, lock, mark, cheer, comfort, praise } from './common.js';
+import { choiceGrid, lock, mark, cheer, comfort, praise, noteSupport } from './common.js';
 
 const SKILL_ICON = {
   lecture: '📖', comprehension: '🧠', orthographe: '✏️', grammaire: '🧩',
@@ -61,13 +61,14 @@ function helpFor(q, api) {
   if (q.type === 'text') {
     const own = q.item?.rule;   // texte d'un module ordinaire : on relit le texte, sans règle générale
     return () => {
+      noteSupport(api, 'text-audio');
       if (own) api.feedback('', typo(own));
       api.voice.seq(['Écoute le texte.', { pause: 250 }, { say: q.passage }, ...(own ? [{ pause: 400 }, own] : [])]);
     };
   }
   const sameSound = q.type !== 'pick' && homophones(q.options.map(o => o.text));
   if (rule && (q.item?.rule || q.type === 'gap' || q.type === 'pick' || sameSound)) return () => { show(); api.voice.seq([rule]); };
-  return () => api.voice.seq(q.options.flatMap(o => [{ say: o.text }, { pause: 300 }]));
+  return () => { noteSupport(api, 'option-audio'); api.voice.seq(q.options.flatMap(o => [{ say: o.text }, { pause: 300 }])); };
 }
 
 /**
@@ -96,15 +97,15 @@ async function runChoose(q, api) {
     // sauf si les réponses se prononcent pareil (a / à…) : les entendre n'aiderait pas, et tromperait.
     const sameSound = homophones(q.options.map(o => o.text));
     grid = choiceGrid(q.options.map(o => ({ ...o, text: typo(o.text), say: o.text })),
-      { kind: 'textopt', onHear: sameSound ? null : o => voice.say(o.say) });
+      { kind: 'textopt', onHear: sameSound ? null : o => { noteSupport(api, 'option-audio'); voice.say(o.say); } });
     grid.el.classList.add('one-col');
   }
   api.stage.replaceChildren(card, grid.el);
 
   let helped = false;
-  api.setReplay(() => voice.seq(q.prompt));
+  api.setReplay(() => { noteSupport(api, 'instruction-replay'); voice.seq(q.prompt); });
   const help = helpFor(q, api);
-  api.setHelp(() => { helped = true; help(); });
+  api.setHelp(() => { noteSupport(api, 'explicit-help'); helped = true; help(); });
   voice.seq(q.prompt);
 
   const chosen = await grid.chosen;
@@ -155,11 +156,12 @@ function runOrder(q, api) {
   let helped = false;
   const hint = () => {
     if (pos >= target.length) return;
+    noteSupport(api, 'construction-hint');
     btns.find(b => !b.classList.contains('used') && b.dataset.w === target[pos])?.classList.add('hint');
     voice.seq(['Le mot qui vient, c\'est', { say: target[pos] }, '.']);
   };
-  api.setReplay(() => voice.seq(q.prompt));
-  api.setHelp(() => { helped = true; hint(); });
+  api.setReplay(() => { noteSupport(api, 'instruction-replay'); voice.seq(q.prompt); });
+  api.setHelp(() => { noteSupport(api, 'explicit-help'); helped = true; hint(); });
   voice.seq(q.prompt);
 
   return new Promise(resolve => {

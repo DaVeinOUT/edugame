@@ -11,6 +11,7 @@
 import { initialState, prudent, toPoints, ELO } from './elo.js';
 import { BOX_MAX } from './srs.js';
 import { systemRandom } from './rng.js';
+import { sanitizeSupport, mergeSupport } from './support.js';
 
 export const SCHEMA_VERSION = 2;
 
@@ -20,6 +21,39 @@ export const AVATARS = Object.freeze([
   '🐯', '🦊', '🐼', '🐨', '🐸', '🦁', '🐵', '🐰',
   '🐻', '🐶', '🐱', '🦄', '🐢', '🐬', '🦉', '🐙',
 ]);
+
+/* Repères persistants : 8 formes et 8 numéros/quantités donnent les 64
+   premières variantes ; les numéros suivants permettent de plus grands groupes. */
+export const BADGE_SHAPES = Object.freeze([
+  ['★', 'Étoile'], ['♥', 'Cœur'], ['◆', 'Losange'], ['●', 'Rond'],
+  ['▲', 'Triangle'], ['☀', 'Soleil'], ['☾', 'Lune'], ['✿', 'Fleur'],
+].map(([symbol, name]) => Object.freeze({ symbol, name })));
+
+const validBadge = id => Number.isSafeInteger(id) && id >= 0 && id < 10000;
+
+export function badgeInfo(id) {
+  if (!validBadge(id)) return null;
+  const shape = BADGE_SHAPES[id % BADGE_SHAPES.length];
+  const number = Math.floor(id / BADGE_SHAPES.length) + 1;
+  return { id, ...shape, number, label: `${shape.name}, repère ${number}` };
+}
+
+/** Allocation stable dans l'ordre de l'appareil ; garde chaque repère valide
+ * déjà attribué et répare les doublons importés, sans changer les identifiants. */
+export function assignProfileBadges(profiles) {
+  const used = new Set();
+  const retained = new Set();
+  for (const p of profiles) {
+    if (validBadge(p.badgeId) && !used.has(p.badgeId)) { used.add(p.badgeId); retained.add(p); }
+  }
+  let candidate = 0;
+  return profiles.map(p => {
+    if (retained.has(p)) return p;
+    while (used.has(candidate)) candidate++;
+    used.add(candidate);
+    return { ...p, badgeId: candidate++ };
+  });
+}
 
 export const AGES = Object.freeze(['4-6', '7-9', '10-12', '13-15']);
 export const UNIVERSES = Object.freeze(['jungle', 'space', 'ocean']);
@@ -57,6 +91,7 @@ export function newId(rand = systemRandom) {
 export function emptyDevice(now = Date.now()) {
   return {
     schema: SCHEMA_VERSION,
+    profileBadgesVersion: 1,
     createdAt: now,
     voice: null,
     muted: false,
@@ -82,6 +117,7 @@ export function newProfile(info = {}, now = Date.now(), rand = systemRandom) {
     createdAt: now,
     name: cleanName(info.name),
     avatar: AVATARS.includes(info.avatar) ? info.avatar : AVATARS[0],
+    badgeId: null,         // attribué par le store, unique sur cet appareil
     age,
     universe: UNIVERSES.includes(info.universe) ? info.universe : 'jungle',
     comfort: { ...DEFAULT_COMFORT },
@@ -92,6 +128,7 @@ export function newProfile(info = {}, now = Date.now(), rand = systemRandom) {
     cards: [],
     wallet: 0,            // étoiles gagnées par l'effort (jamais retirées)
     firstTimes: {},
+    support: sanitizeSupport(null),
   };
 }
 
@@ -108,6 +145,35 @@ const count = x => int(x, 0, Number.MAX_SAFE_INTEGER, 0);
 const THETA_MAX = 8;                       // au-delà, ce n'est plus un enfant : c'est un fichier abîmé
 const DAY_KEY = /^\d{4}-\d{2}-\d{2}$/;
 const DAY_SECONDS = 86400;
+
+/** Réglages locaux lus sur disque : aucun type inconnu n'atteint l'interface.
+ * Le PIN reste local et n'est conservé que sous sa forme salée attendue. */
+export function sanitizeDevice(raw, now = Date.now(), { maxStep = Number.MAX_SAFE_INTEGER } = {}) {
+  const d = isObj(raw) ? raw : {};
+  const text = (value, max) => typeof value === 'string'
+    ? value.replace(/[\u0000-\u001f\u007f]/g, '').slice(0, max) : '';
+  const order = [...new Set((Array.isArray(d.order) ? d.order : [])
+    .filter(id => typeof id === 'string' && id.length > 0 && id.length <= 128 && !/[\u0000-\u001f\u007f]/.test(id)))]
+    .slice(0, 10000);
+  const pin = isObj(d.adultPin) && typeof d.adultPin.salt === 'string' && typeof d.adultPin.hash === 'string'
+    && /^[a-f0-9]{16}$/i.test(d.adultPin.salt) && /^[a-f0-9]{64}$/i.test(d.adultPin.hash)
+    ? { salt: d.adultPin.salt, hash: d.adultPin.hash.toLowerCase() } : null;
+  const errors = (Array.isArray(d.errors) ? d.errors : []).filter(e => isObj(e) && typeof e.msg === 'string')
+    .slice(-20).map(e => ({ t: int(e.t, 0, 8.64e15, now), msg: text(e.msg, 200), where: text(e.where, 120) }));
+  return {
+    schema: SCHEMA_VERSION,
+    profileBadgesVersion: d.profileBadgesVersion === 1 ? 1 : 0,
+    createdAt: int(d.createdAt, 0, 8.64e15, now),
+    voice: typeof d.voice === 'string' ? text(d.voice, 200) : null,
+    muted: d.muted === true,
+    activeId: order.includes(d.activeId) ? d.activeId : order[0] ?? null,
+    order,
+    classStep: Number.isFinite(d.classStep) ? int(d.classStep, 0, maxStep) : null,
+    dailyMinutes: int(d.dailyMinutes, 0, 240),
+    adultPin: pin,
+    errors,
+  };
+}
 
 /** { clé: nombre } : seules les valeurs numériques sont gardées, bornées. */
 function numbers(x, lo, hi, keyOk = () => true) {
@@ -193,6 +259,7 @@ export function sanitizeProfile(raw, now = Date.now(), { maxStep = Number.MAX_SA
   return {
     ...base,
     id: raw.id,
+    badgeId: validBadge(raw.badgeId) ? raw.badgeId : null,
     createdAt: num(raw.createdAt, now),
     comfort,
     elo: eloState(raw.elo, base.elo),
@@ -202,6 +269,7 @@ export function sanitizeProfile(raw, now = Date.now(), { maxStep = Number.MAX_SA
     cards: Array.isArray(raw.cards) ? [...new Set(raw.cards.filter(c => typeof c === 'string'))] : [],
     wallet: count(raw.wallet),
     firstTimes: primitives(raw.firstTimes),
+    support: sanitizeSupport(raw.support),
     ...(isObj(raw.legacy) ? { legacy: raw.legacy } : {}),
   };
 }
@@ -260,6 +328,59 @@ export function migrateLegacy(legacy, now = Date.now()) {
   return { device, profile };
 }
 
+/** Réglages transférables seulement : le PIN et les diagnostics restent locaux. */
+function importedSettings(raw, { maxStep = Number.MAX_SAFE_INTEGER } = {}) {
+  const d = isObj(raw) ? raw : {};
+  return {
+    voice: typeof d.voice === 'string' ? d.voice.slice(0, 200) : null,
+    classStep: Number.isFinite(d.classStep) ? int(d.classStep, 0, maxStep) : null,
+    dailyMinutes: int(d.dailyMinutes, 0, 240),
+  };
+}
+
+/** Fusion conservatrice de deux copies : les compteurs ne sont jamais additionnés,
+ * car leurs historiques peuvent partager les mêmes séances. Les acquis et les
+ * cartes sont réunis ; les réglages/prénom de l'appareil courant sont conservés. */
+export function mergeProfiles(local, incoming) {
+  const chosen = mostAdvanced(local, incoming);
+  const maxValues = (a = {}, b = {}) => Object.fromEntries([...new Set([...Object.keys(a), ...Object.keys(b)])]
+    .map(k => [k, Math.max(a[k] || 0, b[k] || 0)]));
+  const a = local.path.adv || {};
+  const b = incoming.path.adv || {};
+  const modules = Object.fromEntries([...new Set([...Object.keys(a.modules || {}), ...Object.keys(b.modules || {})])]
+    .map(k => [k, { stars: Math.max(a.modules?.[k]?.stars || 0, b.modules?.[k]?.stars || 0),
+      tries: Math.max(a.modules?.[k]?.tries || 0, b.modules?.[k]?.tries || 0) }]));
+  const mem = { ...local.mem };
+  for (const [key, record] of Object.entries(incoming.mem)) {
+    if (!mem[key] || record.last > mem[key].last) mem[key] = record;
+  }
+  return {
+    ...chosen, name: local.name, avatar: local.avatar, age: local.age, universe: local.universe,
+    comfort: local.comfort, badgeId: local.badgeId, createdAt: Math.min(local.createdAt, incoming.createdAt),
+    mem,
+    cards: [...new Set([...local.cards, ...incoming.cards])],
+    wallet: Math.max(local.wallet, incoming.wallet),
+    firstTimes: { ...incoming.firstTimes, ...local.firstTimes },
+    support: mergeSupport(local.support, incoming.support),
+    elo: { ...chosen.elo, peak: Math.max(local.elo.peak || 0, incoming.elo.peak || 0) },
+    path: { ...chosen.path, open: Math.max(local.path.open, incoming.path.open),
+      stars: maxValues(local.path.stars, incoming.path.stars),
+      tries: maxValues(local.path.tries, incoming.path.tries),
+      placed: local.path.placed || incoming.path.placed,
+      ...((local.path.advanced || incoming.path.advanced) ? { advanced: true } : {}),
+      ...((local.path.adv || incoming.path.adv) ? { adv: { modules,
+        controles: { ...a.controles, ...b.controles } } } : {}),
+    },
+    stats: { ...chosen.stats, sessions: Math.max(local.stats.sessions, incoming.stats.sessions),
+      answers: Math.max(local.stats.answers, incoming.stats.answers),
+      correct: Math.max(local.stats.correct, incoming.stats.correct),
+      seconds: Math.max(local.stats.seconds, incoming.stats.seconds),
+      days: maxValues(local.stats.days, incoming.stats.days),
+      confusions: maxValues(local.stats.confusions, incoming.stats.confusions),
+    },
+  };
+}
+
 /**
  * Fichier de sauvegarde (un enfant, ou toute la classe).
  * @param {object} device
@@ -293,8 +414,12 @@ export function importBundle(data, now = Date.now(), limits = {}) {
   if (data.educa !== SCHEMA_VERSION || !Array.isArray(data.profiles)) {
     throw new Error('ce fichier ne vient pas d\'EDUCA (ou d\'une version plus récente)');
   }
+  if (data.profiles.length > 1000) throw new Error('Trop de profils dans cette sauvegarde (maximum 1000).');
   const profiles = data.profiles.map(p => sanitizeProfile(p, now, limits));
-  const device = isObj(data.device) ? data.device : {};
-  return { device: { voice: device.voice ?? null, classStep: device.classStep ?? null,
-                     dailyMinutes: num(device.dailyMinutes, 0) }, profiles };
+  const ids = new Set();
+  for (const p of profiles) {
+    if (ids.has(p.id)) throw new Error('Identifiant de profil en double dans la sauvegarde.');
+    ids.add(p.id);
+  }
+  return { device: importedSettings(data.device, limits), profiles };
 }

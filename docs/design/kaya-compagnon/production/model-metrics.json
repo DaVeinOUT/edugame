@@ -1,0 +1,22 @@
+{
+  "blender": "4.5.9 LTS",
+  "seed": 20261025,
+  "clips": [
+    "idle",
+    "greeting",
+    "attentive",
+    "speaking",
+    "helping",
+    "encouraging",
+    "celebrating",
+    "resting"
+  ],
+  "bones": 14,
+  "furVertices": 9592,
+  "furPolygons": 12525,
+  "furConnectedComponents": 1,
+  "mixedWeightFurVertices": 4560,
+  "source": "kaya-production-v1.blend",
+  "asset": "assets/kaya/kaya-production-v1.glb",
+  "bytes": 1869788
+}

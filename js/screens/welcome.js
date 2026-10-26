@@ -8,7 +8,9 @@
 
 import { h, clear } from '../ui/dom.js';
 import { kayaEl, setMood } from '../ui/kaya.js';
-import { AVATARS } from '../core/schema.js';
+import { AVATARS, assignProfileBadges, badgeInfo } from '../core/schema.js';
+import { profileBadge } from '../ui/profile-badge.js';
+import { adultUnlocked, lockAdult } from './adult.js';
 
 export const AVATAR_NAMES = {
   '🐯': 'le tigre', '🦊': 'le renard', '🐼': 'le panda', '🐨': 'le koala', '🐸': 'la grenouille', '🦁': 'le lion',
@@ -33,6 +35,11 @@ const cap = s => s.charAt(0).toUpperCase() + s.slice(1);
 export const welcome = {
   mount(view, params, ctx) {
     const { voice, sfx, store, router } = ctx;
+    const needsAdult = () => store.profiles().length > 0 && store.device().adultPin && !adultUnlocked();
+    if (needsAdult()) {
+      router.go('adult', { createProfile: true }, { replace: true });
+      return undefined;
+    }
     const pending = { avatar: null, age: null, universe: null };
     let alive = true;
     const kaya = kayaEl({ size: 'small' });
@@ -104,12 +111,19 @@ export const welcome = {
       });
       const go = h('button', { class: 'btn btn-primary btn-block', type: 'button', onclick: () => finish(input.value) }, 'C\'est parti ! ▶');
       input.addEventListener('keydown', e => { if (e.key === 'Enter') finish(input.value); });
-      body.append(input, go);
+      const preview = assignProfileBadges([...store.profiles(), { badgeId: null }]).at(-1);
+      const info = badgeInfo(preview.badgeId);
+      body.append(h('div', { class: 'profile-identity-preview' },
+        h('span', { class: 'avatar', 'aria-hidden': 'true' }, pending.avatar), profileBadge(preview),
+        h('p', { class: 'note' }, `Ton repère : ${info.label}. Retrouve-le avec ton animal.`)), input, go);
       foot.append(backTo(stepWorld));
     }
     function finish(name) {
       if (!alive) return;
+      if (needsAdult()) { router.go('adult', { createProfile: true }, { replace: true }); return; }
       const p = store.addProfile({ ...pending, name });
+      if (!p) return;
+      alive = false; // empêche une double validation avant le changement d'écran
       store.setActive(p.id);
       try { navigator.storage?.persist?.(); } catch { /* le navigateur décide */ }
       sfx.correct();
@@ -119,6 +133,6 @@ export const welcome = {
       else router.go('hub', { first: true }, { reset: true });
     }
     stepAvatar();
-    return () => { alive = false; voice.stop(); };
+    return () => { alive = false; voice.stop(); if (params.adding && store.device().adultPin) lockAdult(); };
   },
 };

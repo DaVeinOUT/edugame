@@ -1,0 +1,49 @@
+/* Local whole-body companion occupies layout space; never floats over an exercise. */
+.kaya { position: relative; }
+.kaya .kaya-visual { width: 100%; aspect-ratio: 1; position: relative; }
+.kaya button.kaya-visual { display: block; padding: 0; background: transparent; border: 0; cursor: pointer; border-radius: 24px; }
+.kaya button.kaya-visual:focus-visible { outline: 3px solid var(--brand); outline-offset: 2px; }
+.kaya .kaya-visual > svg { display: block; width: 100%; height: 100%; overflow: visible; }
+.kaya .kaya-canvas { display: block; width: 100%; height: 100%; position: absolute; inset: 0; pointer-events: none; }
+.kaya[data-renderer="3d"] .kaya-visual > svg { visibility: hidden; }
+.kaya-companion { width: 158px; aspect-ratio: auto; align-self: center; }
+.kaya-companion.small { width: 78px; }
+.kaya-controls { display: flex; justify-content: center; flex-wrap: wrap; gap: 3px; margin-top: 3px; }
+.kaya-controls button { font: inherit; font-size: .75rem; color: var(--ink, #25452c); background: var(--paper, #fffdf5); border: 1px solid currentColor; border-radius: 12px; padding: 4px 7px; cursor: pointer; min-height: 36px; }
+.kaya-controls button:focus-visible { outline: 3px solid #1d65d2; outline-offset: 3px; }
+.kaya-companion.small .kaya-controls button { font-size: .7rem; padding: 3px; }
+.kaya[data-state="hidden"] .kaya-visual { display: none; }
+.kaya .kf-body { transform-origin: 120px 240px; animation: kf-breathe 4s ease-in-out infinite; }
+.kaya .kf-eyes { transform-origin: 120px 108px; animation: kf-blink 5.3s linear infinite; }
+.kaya .kf-wave { transform-origin: 171px 168px; }
+.kaya .kf-head { transform-origin: 120px 165px; }
+.kaya .kf-mouth { display: none; }
+.kaya.is-talking .kf-mouth { display: block; animation: kf-talk .22s ease-in-out infinite alternate; transform-origin: 119px 158px; }
+.kaya.is-talking .kf-smile { display: none; }
+.kaya[data-state="greeting"] .kf-wave { animation: kf-wave .45s ease-in-out 4; }
+.kaya[data-state="celebrating"] .kf-body { animation: kf-joy .5s ease-in-out 2; }
+.kaya[data-state="helping"] .kf-head, .kaya[data-state="attentive"] .kf-head { transform: rotate(2deg); }
+.kaya[data-state="resting"] .kf-eyes { animation: none; transform: scaleY(.12); }
+.kaya[data-state="resting"] .kf-head { transform: rotate(7deg); }
+.kaya[data-state="paused"] *, .kaya[data-state="hidden"] * { animation-play-state: paused !important; }
+.kaya.kaya-still *, .kaya[data-renderer="3d"] svg * { animation: none !important; }
+@keyframes kf-breathe { 50% { transform: scaleY(1.012); } }
+@keyframes kf-blink { 0%, 92%, 97%, 100% { transform: scaleY(1); } 94%, 95% { transform: scaleY(.08); } }
+@keyframes kf-wave { 0%, 100% { transform: rotate(-105deg); } 50% { transform: rotate(-125deg); } }
+@keyframes kf-joy { 40% { transform: translateY(-6px); } }
+@keyframes kf-talk { to { transform: scaleY(.5); } }
+@media (max-width: 420px) {
+  .kaya-row .kaya.kaya-companion { width: 90px; }
+  .lesson-top .kaya.kaya-companion { width: 68px; }
+  .kaya-controls button { font-size: .7rem; padding: 3px 5px; }
+}
+@media (prefers-reduced-motion: reduce) { .kaya * { animation: none !important; transition: none !important; } }
+
+.kaya.kaya-quiet .kf-body { animation: none; }
+.kaya[data-state="encouraging"] .kf-head { transform: rotate(-3deg); }
+
+/* Accueil : une place de compagnon ; la leçon garde son format compact. */
+.screen-hub .kaya-row { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr); align-items: center; gap: 8px; }
+.screen-hub .kaya-row .kaya.kaya-companion { width: 100%; max-width: 260px; justify-self: center; }
+.screen-hub .kaya-row .bubble { min-width: 0; }
+.screen-hub .kaya-controls button { min-height: 36px; padding: 4px 8px; }

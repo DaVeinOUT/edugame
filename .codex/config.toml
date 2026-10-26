@@ -1,0 +1,4 @@
+# Réglages du dépôt uniquement ; modèles et permissions hérités de la session.
+[agents]
+enabled = true
+max_concurrent_threads_per_session = 3

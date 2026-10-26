@@ -14,6 +14,7 @@ import { review } from './srs.js';
 import { selectItems } from './select.js';
 import { shuffle, systemRandom } from './rng.js';
 import { localDay } from './time.js';
+import { recordSupport } from './support.js';
 
 export const LESSON_PLAN = Object.freeze([
   ['listen', 3], ['sound', 4], ['syllable', 3], ['read', 3], ['hearword', 2], ['build', 2], ['sentence', 1],
@@ -153,7 +154,8 @@ export function startSession(profile, now = Date.now()) {
  * @param {{ key: string, d: number, guess: number }} question
  * @param {{ outcome: 'ok'|'ko'|'help', confusion?: string }} result
  */
-export function applyAnswer(profile, question, { outcome, confusion }, now = Date.now()) {
+export function applyAnswer(profile, question, result, now = Date.now()) {
+  const { outcome, confusion } = result;
   const ok = outcome === 'ok';
   const elo = eloUpdate(profile.elo, { d: question.d, correct: ok, guess: question.guess ?? 1 / 3, help: outcome === 'help' });
   const mem = { ...profile.mem, [question.key]: review(profile.mem[question.key], outcome, now) };
@@ -161,7 +163,7 @@ export function applyAnswer(profile, question, { outcome, confusion }, now = Dat
     ? { ...profile.stats.confusions, [confusion]: (profile.stats.confusions[confusion] || 0) + 1 }
     : profile.stats.confusions;
   const stats = { ...profile.stats, answers: profile.stats.answers + 1, correct: profile.stats.correct + (ok ? 1 : 0), confusions };
-  return { ...profile, elo, mem, stats, wallet: profile.wallet + (ok ? 1 : 0) };
+  return { ...profile, elo, mem, stats, wallet: profile.wallet + (ok ? 1 : 0), support: recordSupport(profile, question, result, now) };
 }
 
 export function starsFor(accuracy) {

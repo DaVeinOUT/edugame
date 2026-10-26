@@ -122,3 +122,51 @@ test('un fichier étranger est refusé avec un message clair', () => {
   assert.throws(() => importBundle('texte', NOW), /illisible/);
   assert.throws(() => importBundle({ educa: 99, profiles: [] }, NOW), /EDUCA/);
 });
+
+test('les réglages importés sont bornés et ne réintroduisent pas le PIN', () => {
+  const back = importBundle({ educa: 2, profiles: [], device: {
+    voice: { name: 'pas un nom' }, classStep: 1e9, dailyMinutes: -10, adultPin: { hash: 'secret' },
+  } }, NOW, { maxStep: 65 });
+  assert.deepEqual(back.device, { voice: null, classStep: 65, dailyMinutes: 0 });
+  const huge = importBundle({ educa: 2, profiles: [], device: { dailyMinutes: 1e9 } }, NOW);
+  assert.equal(huge.device.dailyMinutes, 240);
+});
+
+test('un fichier avec doublons d’identifiants ou trop de profils est refusé avant import', () => {
+  const p = newProfile({ name: 'Ana' }, NOW);
+  assert.throws(() => importBundle({ educa: 2, profiles: [p, p] }, NOW), /double/);
+  assert.throws(() => importBundle({ educa: 2, profiles: new Array(1001).fill(p) }, NOW), /1000/);
+});
+
+test('64 repères ont une forme et une quantité distinctes, sans dépendre de la couleur', async () => {
+  const { assignProfileBadges, badgeInfo } = await import('../../js/core/schema.js');
+  const profiles = assignProfileBadges(Array.from({ length: 64 }, () => newProfile({ avatar: '🐯' }, NOW)));
+  const infos = profiles.map(p => badgeInfo(p.badgeId));
+  assert.equal(new Set(profiles.map(p => p.badgeId)).size, 64);
+  assert.equal(new Set(infos.map(info => `${info.symbol}:${info.number}`)).size, 64);
+  assert.ok(infos.every(info => info.number >= 1 && info.number <= 8 && info.name && info.label));
+});
+
+test('sanitizeDevice conserve un PIN valide et assainit types, liste, diagnostics et bornes', async () => {
+  const { sanitizeDevice } = await import('../../js/core/schema.js');
+  const adultPin = { salt: '0123456789abcdef', hash: 'a'.repeat(64) };
+  const input = { ...emptyDevice(NOW), adultPin, order: ['p1', 'p1', '', 4, 'p2'], activeId: 'absent',
+    muted: 'true', dailyMinutes: 1e9, classStep: 1e9, voice: { name: 'invalide' },
+    errors: [null, 'erreur', { msg: 'x'.repeat(300), t: -2, where: 'w'.repeat(150) }] };
+  const d = sanitizeDevice(input, NOW, { maxStep: 65 });
+  assert.deepEqual(d.adultPin, adultPin);
+  assert.deepEqual(d.order, ['p1', 'p2']);
+  assert.equal(d.activeId, 'p1');
+  assert.equal(d.muted, false);
+  assert.equal(d.dailyMinutes, 240);
+  assert.equal(d.classStep, 65);
+  assert.equal(d.voice, null);
+  assert.equal(d.errors.length, 1);
+  assert.equal(d.errors[0].msg.length, 200);
+  assert.equal(d.errors[0].where.length, 120);
+  assert.equal(d.errors[0].t, 0);
+  assert.deepEqual(input.order, ['p1', 'p1', '', 4, 'p2']);
+  assert.deepEqual(sanitizeDevice(emptyDevice(NOW), NOW), emptyDevice(NOW));
+  assert.equal(sanitizeDevice({ adultPin: { salt: 'bad', hash: 'a'.repeat(64) } }, NOW).adultPin, null);
+  assert.equal(sanitizeDevice({ order: Array.from({ length: 10001 }, (_, i) => `p${i}`) }, NOW).order.length, 10000);
+});

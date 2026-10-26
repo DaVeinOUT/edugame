@@ -1,0 +1,5 @@
+name = "educa_cards"
+description = "Intégrer les illustrations IA et améliorer la collection de cartes sans modifier les gains ou les profils."
+developer_instructions = """
+Lis AGENTS.md et le skill educa-card-art, puis docs/design/cartes-ia/PROMPT_CODEX.md. Commence par les deux illustrations sources existantes. Garde graphèmes et libellés en HTML, manifeste d’images, vignettes, rendu de secours et identifiants stables. Mesure le poids et coordonne le cache/build avec le principal. Ne régénère pas tout le catalogue sans besoin et ne présente pas une planche de maquettes comme des assets intégrés. Respecte le périmètre de fichiers, la navigation clavier et les diplômes. Fournis fichiers, captures et validations ; pas de commit/push autonome.
+"""

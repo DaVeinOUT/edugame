@@ -100,6 +100,35 @@ test('l\'espace des grands demande de lire des chiffres écrits en lettres', asy
   await context.close();
 });
 
+test('le secours local synthétisé garde sa couleur (s aigu, m grave) et ne saturent pas', async () => {
+  const { context, page } = await open();
+  await page.goto(url);
+  const res = await page.evaluate(async () => {
+    const { renderPhoneme } = await import('./js/services/phonemes.js');
+    const measure = async ph => {
+      const ctx = new OfflineAudioContext(1, 44100 * 2, 44100);
+      const dur = renderPhoneme(ctx, ph, 0.01);
+      const data = (await ctx.startRendering()).getChannelData(0);
+      let zc = 0; let sum = 0; let peak = 0;
+      for (let i = 1; i < data.length; i++) {
+        if ((data[i - 1] < 0) !== (data[i] < 0)) zc++;
+        sum += data[i] * data[i];
+        peak = Math.max(peak, Math.abs(data[i]));
+      }
+      const n = Math.max(1, Math.round(dur * 44100));
+      return { zcr: zc / n, rms: Math.sqrt(sum / n), peak, dur };
+    };
+    return { s: await measure('s'), ch: await measure('ch'), m: await measure('m'), p: await measure('p') };
+  });
+  assert.ok(res.s.zcr > res.ch.zcr && res.ch.zcr > res.m.zcr, `ordre aigu→grave attendu : ${JSON.stringify(res)}`);
+  for (const [ph, r] of Object.entries(res)) {
+    assert.ok(r.rms > 0.01, `${ph} trop faible`);
+    assert.ok(r.peak <= 1, `${ph} sature`);
+  }
+  assert.ok(res.p.dur < 0.6, 'un petit bruit sec reste court');
+  await context.close();
+});
+
 test('les sons des lettres enregistrés ont la bonne couleur (s aigu, ch moyen, m grave) et la bonne durée', async () => {
   const { context, page } = await open();
   await page.goto(url);
@@ -318,20 +347,31 @@ test('au clavier seul (ou au contacteur), on joue une leçon', async () => {
   assert.equal(await page.evaluate(() => document.activeElement?.textContent.includes('C\'est parti')), true, 'le bouton de départ a le focus');
   await page.keyboard.press('Enter');
   let answered = 0;
-  for (let k = 0; k < 120 && answered < 4; k++) {
-    const kind = await page.evaluate(() => {
-      const a = document.activeElement;
-      if (!a) return 'none';
-      if (a.matches('button[aria-label="Continuer"]')) return 'continue';
-      if (a.matches('.choice:not([disabled]), .gtile:not(.used)')) return 'answer';
-      return 'other';
-    });
-    if (kind === 'continue' || kind === 'answer') {
-      await page.keyboard.press('Enter');
-      if (kind === 'answer') answered = await page.$$eval('.dots i.ok, .dots i.ko', d => d.length);
-      await page.waitForTimeout(300);
-    } else {
+  const deadline = Date.now() + 90000;
+  while (answered < 4 && Date.now() < deadline) {
+    // Attendre la fin de la consigne/correction : ne pas consommer les Tab
+    // pendant une transition sans choix utilisable.
+    await page.waitForFunction(() => [...document.querySelectorAll(
+      '.choice:not([disabled]), .gtile:not(.used), button[aria-label="Continuer"]:not([hidden])'
+    )].some(el => el.getClientRects().length), null, { timeout: 20000 });
+    let kind = 'other';
+    for (let tab = 0; tab < 20; tab++) {
+      kind = await page.evaluate(() => {
+        const a = document.activeElement;
+        if (a?.matches('button[aria-label="Continuer"]:not([hidden])')) return 'continue';
+        if (a?.matches('.choice:not([disabled]), .gtile:not(.used)')) return 'answer';
+        return 'other';
+      });
+      if (kind !== 'other') break;
       await page.keyboard.press('Tab');
+    }
+    assert.notEqual(kind, 'other', 'un contrôle de la question doit être atteignable au clavier');
+    await page.keyboard.press('Enter');
+    if (kind === 'answer') {
+      await page.waitForFunction(n => document.querySelectorAll('.dots i.ok, .dots i.ko').length > n, answered);
+      answered = await page.$$eval('.dots i.ok, .dots i.ko', d => d.length);
+    } else {
+      await page.waitForSelector('button[aria-label="Continuer"]', { state: 'hidden' });
     }
   }
   assert.ok(answered >= 4, `réponses données au clavier : ${answered}`);

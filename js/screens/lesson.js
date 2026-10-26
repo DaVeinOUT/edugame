@@ -12,14 +12,15 @@
    ============================================================ */
 
 import { h, sleep } from '../ui/dom.js';
-import { kayaEl, setMood } from '../ui/kaya.js';
+import { kayaEl, setMood, companionEvent } from '../ui/kaya.js';
 import {
   planLesson, planPractice, applyAnswer, finishSession, startSession, reviewPool,
 } from '../core/session.js';
 import { selectItems } from '../core/select.js';
 import { makeQuestion } from '../core/questions.js';
 import { systemRandom } from '../core/rng.js';
-import { activeClock } from '../core/time.js';
+import { createPlayTime } from '../services/play-time.js';
+import { createSupportTrace } from '../core/support.js';
 import { planModule, finishModule, nextModule, planReview } from '../core/levels.js';
 import { display } from '../core/elo.js';
 import { runChoice } from '../activities/choice.js';
@@ -93,13 +94,13 @@ export const lesson = {
     let breakOffered = false;
     let recorded = -1;          // dernière question déjà enregistrée
     const results = [];
-    const clock = activeClock();   // temps actif : une tablette posée ne compte pas
-    const seconds = () => clock.ms() / 1000;
-    view.addEventListener('pointerdown', () => clock.tick());
-    view.addEventListener('keydown', () => clock.tick());
+    const playTime = createPlayTime({ view, ctx, profileId: p0.id });
+    const clock = playTime.clock;
+    const support = createSupportTrace();
+    const supportSession = globalThis.crypto?.randomUUID?.() || `${Date.now()}-${Math.random()}`;
 
     /* --- mise en page --- */
-    const kaya = kayaEl({ size: 'tiny' });
+    const kaya = kayaEl({ size: 'small', companion: true, quiet: true });
     const dots = h('div', { class: 'dots', 'aria-hidden': 'true' }, items.map(() => h('i')));
     const quitBtn = h('button', { class: 'icon-btn', type: 'button', 'aria-label': 'Arrêter', onclick: () => quit() }, '✕');
     const stage = h('div', { class: 'stage', 'aria-live': 'off', tabindex: '-1' });
@@ -114,7 +115,7 @@ export const lesson = {
     let helpFn = null;
     let contResolve = null;
     replayBtn.addEventListener('click', () => replayFn?.());
-    helpBtn.addEventListener('click', () => helpFn?.());
+    helpBtn.addEventListener('click', () => { companionEvent(kaya, 'help'); helpFn?.(); });
     contBtn.addEventListener('click', () => {
       contBtn.hidden = true;
       const r = contResolve;
@@ -126,6 +127,7 @@ export const lesson = {
       voice, sfx, cur, rand, kaya, stage, module,
       age: p0.age, open: p0.path.open,
       alive: () => alive,
+      noteSupport(type) { support.note(type); },
       feedback(type, text) { fb.className = `feedback ${type || ''}`.trim(); fb.textContent = text || ''; },
       setReplay(fn) { replayFn = fn; replayBtn.hidden = !fn; },
       setHelp(fn) { helpFn = fn; helpBtn.hidden = !fn; },
@@ -146,14 +148,15 @@ export const lesson = {
       if (recorded >= i) return;
       recorded = i;
       clock.tick();
-      results.push(res);
-      ctx.update(p => applyAnswer(p, q, res, Date.now()));
+      const observed = { ...res, support: support.close() };
+      results.push(observed);
+      ctx.store.updateProfile(p0.id, p => applyAnswer(p, q, observed, Date.now()));
       setDot(i, res.outcome === 'ok' ? 'ok' : 'ko');
     }
 
     async function askBreak() {
       api.setReplay(null); api.setHelp(null); api.feedback('', '');
-      setMood(kaya, 'think');
+      companionEvent(kaya, 'rest');
       const stop = h('button', { class: 'btn btn-gold', type: 'button' }, '😴 Pause');
       const go = h('button', { class: 'btn btn-primary', type: 'button' }, 'Continuer ▶');
       stage.replaceChildren(h('div', { class: 'paper prompt-card' }, h('div', { class: 'big-emoji', 'aria-hidden': 'true' }, '🧃'),
@@ -179,10 +182,14 @@ export const lesson = {
       if (!alive) return;
       for (let i = 0; i < items.length; i++) {
         if (!alive) return;
+        playTime.checkpoint();
+        if (ctx.rested()) { quit(true); return; }
+        companionEvent(kaya, 'attentive');
         setDot(i, 'now');
         api.feedback('', '');
         // Les modules des grands donnent directement leurs questions (core/levels.js).
         const q = mode === 'module' || mode === 'review' ? items[i] : makeQuestion(items[i], cur, { rand, age: api.age, open: api.open });
+        support.reset({ eventId: `${supportSession}:${i}`, screenReader: p0.comfort.screenReader });
         if (q.kind === 'adv') api.module = L.module(q.module);   // l'aide rappelle la règle du bon module
         api.onAnswer = res => { if (alive) commit(i, q, res); };
         const pending = q.kind === 'adv' ? runText(q, api)
@@ -207,12 +214,13 @@ export const lesson = {
 
     async function finish() {
       if (finished) return;
+      playTime.finish();
       finished = true;
       let report;
       ctx.update(p => {
         const out = mode === 'module'
-          ? finishModule(p, { module, results, seconds: seconds() }, cur, Date.now())
-          : finishSession(p, { kind: mode === 'review' ? 'practice' : mode, step: stepIndex, results, seconds: seconds() }, cur, Date.now());
+          ? finishModule(p, { module, results, seconds: 0 }, cur, Date.now())
+          : finishSession(p, { kind: mode === 'review' ? 'practice' : mode, step: stepIndex, results, seconds: 0 }, cur, Date.now());
         report = out.report;
         return { ...out.profile, path: { ...out.profile.path, lastKind: mode } };
       });
@@ -288,20 +296,23 @@ export const lesson = {
     }
 
     function commitPartial() {
-      if (finished || results.length < 3) return;
+      if (finished) return;
+      playTime.finish();
       finished = true;
+      if (results.length < 3) return; // le temps est déjà compté, même sans réponse
       // Séance interrompue : réponses et temps comptés, mais ni record, ni cartes, ni séance :
       // ils attendent un bilan où l'enfant verra sa promotion (sinon la cérémonie serait perdue).
       ctx.update(p => {
-        const out = finishSession(p, { kind: 'practice', results, seconds: seconds() }, cur, Date.now()).profile;
+        const out = finishSession(p, { kind: 'practice', results, seconds: 0 }, cur, Date.now()).profile;
         return { ...out, elo: { ...out.elo, peak: p.elo.peak }, cards: p.cards, stats: { ...out.stats, sessions: p.stats.sessions } };
       });
       ctx.store.flush();
     }
 
-    function quit() {
+    function quit(rest = false) {
       commitPartial();
       alive = false;
+      if (rest) { ctx.restHome(); return; }
       router.go('hub', {}, { reset: true });
       // Après le changement d'écran : sinon le nettoyage de la leçon couperait l'au revoir.
       voice.say('On s\'arrête là. Bravo pour tout ce que tu as fait !');
@@ -310,6 +321,7 @@ export const lesson = {
     run().catch(err => { if (alive) throw err; });
     return () => {
       if (alive) commitPartial();
+      playTime.finish();
       alive = false;
       voice.stop();
     };

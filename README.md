@@ -5,8 +5,9 @@
 
 EDUCA apprend à lire en français aux enfants de 4 à 12 ans qui ne savent pas encore lire (y compris les
 lecteurs plus âgés en difficulté), puis les accompagne **du CE1 à la 3e** (comprendre, orthographe,
-grammaire, conjugaison, vocabulaire). **Tout est parlé** par Kaya, un bébé jaguar : un enfant peut jouer
-sans lire un seul mot et sans clavier.
+grammaire, conjugaison, vocabulaire). Kaya, un bébé jaguar, accompagne les consignes et les activités.
+Une voix française locale installée sur l’appareil permet d’entendre toutes les consignes ; les mots
+et sons embarqués restent disponibles sans synthèse vocale. Les sous-titres et le clavier sont pris en compte.
 
 ## Ce que fait EDUCA
 
@@ -32,14 +33,18 @@ sans lire un seul mot et sans clavier.
   lettres en 3 crans, lettres muettes grisées, coloration syllabique en option, fond doux, voix lente,
   sous-titres, moins d'animations, mode lecteur d'écran. Aucun chronomètre, erreurs corrigées tout de suite
   et sans reproche.
-- **En classe** : plusieurs enfants sur une tablette (chacun touche *son* animal), étape de la classe,
+- **En classe** : plusieurs enfants sur une tablette (animal et repère forme/points), étape de la classe,
   temps de jeu maximum par jour, mode silencieux, tableau de bord par enfant et vue de la classe
   (imprimable, exportable en tableur), [guide de l'enseignant](guide.html).
 - **Motivation** : un seul gros bouton « Jouer », le chemin des 66 sons, des cartes à collectionner
   (méritées, jamais au hasard) révélées en 3D, diplômes de fin de niveau.
-- **Hors-ligne et installable** : après la première visite, tout fonctionne sans internet ; s'installe
+- **Kaya entier** : GLB local avec skin, 14 articulations et huit animations, source Blender éditable,
+  accueil agrandi et secours SVG accessible. Le candidat artistique v1 reste stylisé et lisse ; sa validation
+  visuelle finale et les mesures sur tablette sont distinctes des tests techniques.
+- **Hors-ligne et installable** : après téléchargement complet vérifié, le jeu s’ouvre sans internet ; s'installe
   comme une application sur tablette et téléphone.
-- **Accessible** : vérifié écran par écran (WCAG 2.2 AA), jouable au clavier seul ou au contacteur.
+- **Accessibilité** : parcours clavier et contrôles automatisés axe-core sur les écrans testés ;
+  les essais sur appareils physiques et avec lecteurs d’écran restent à compléter.
 
 ## Jouer
 
@@ -52,7 +57,8 @@ python3 -m http.server 8765    # puis http://localhost:8765
 
 ## Développer
 
-Aucune dépendance à l'exécution (HTML, CSS, JavaScript en modules natifs). Outils de développement :
+HTML, CSS et modules JavaScript natifs. Le compagnon utilise Three.js r180, embarqué localement
+avec sa licence MIT sous `js/vendor/three/` ; aucun CDN à l’exécution. Outils de développement :
 
 ```bash
 npm install                                        # outils de test (développement seulement)
@@ -62,6 +68,12 @@ npm run release                                    # régénère la liste hors-l
 ```
 
 La CI lance tous les tests **avant** de publier, et ne publie que l'application.
+
+Les [documents de travail](docs/README.md) regroupent l’[audit du 25 octobre 2026](docs/audits/2026-10-25/AUDIT.md),
+les [consignes d’amélioration pour Codex](docs/audits/2026-10-25/PROMPTS_CODEX.md) et la
+[proposition de cartes illustrées par IA](docs/design/cartes-ia/README.md).
+Le [message de reprise](docs/workflow/CONTINUER.md) explique comment poursuivre avec les agents et skills du dépôt,
+notamment vers [Kaya compagnon en 3D](docs/design/kaya-compagnon/README.md).
 
 ## Principes
 

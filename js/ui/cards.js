@@ -10,9 +10,10 @@
    du téléphone, et son reflet holographique glisse dessus.
    ============================================================ */
 
-import { h } from './dom.js';
+import { h, reducedMotion } from './dom.js';
 import { openOverlay } from './overlay.js';
 import { TITLES } from '../core/elo.js';
+import { CARD_ART } from '../data/card-art.js';
 
 const THEME_BY_KIND = { voyelle: 'theme-blue', longue: 'theme-teal', courte: 'theme-red', complexe: 'theme-purple', regle: 'theme-amber' };
 const AURA = { 'theme-blue': '#4a90ff', 'theme-teal': '#1adfcc', 'theme-red': '#ff5060', 'theme-purple': '#a060ff', 'theme-amber': '#ffb830', 'theme-gold': '#ffb830' };
@@ -63,7 +64,7 @@ export function catalogue(cur, levels = []) {
 function frame(card, total, art) {
   const tag = { son: 'Son', exploit: 'Exploit', titre: 'Titre', diplome: 'Diplôme' }[card.kind];
   const dots = card.kind === 'titre' || card.kind === 'diplome' ? 3 : card.kind === 'exploit' ? 2 : 1;
-  return `<div class="card ${card.theme}">
+  return `<div class="card ${card.theme}${CARD_ART[card.id] ? ' illustrated-card' : ''}">
   <div class="card-glow"></div><div class="holo"></div><div class="glare-fx"></div>
   <div class="corner-tl"></div><div class="corner-br"></div>
   <div class="card-top"><div class="cat-tag">${tag}</div><div class="card-num">${String(card.n).padStart(2, '0')}/${total}</div></div>
@@ -79,6 +80,12 @@ function frame(card, total, art) {
 
 /** HTML de la face avant (données internes uniquement : rien de saisi par l'utilisateur). */
 export function cardHtml(card, total) {
+  const image = CARD_ART[card.id];
+  if (image) {
+    const fallback = card.kind === 'son' ? `<span class="e">${card.emoji}</span>` : ART.first(AURA[card.theme]);
+    const graph = card.kind === 'son' ? `<span class="illustrated-graph">${card.show}</span>` : '';
+    return frame(card, total, `<div class="card-image-stack"><div class="image-fallback">${fallback}</div><img data-card-image src="${image.image}" width="${image.width}" height="${image.height}" alt="" decoding="async">${graph}</div>`);
+  }
   if (card.kind === 'son') {
     const long = card.show.length > 2 ? ' long' : '';
     return frame(card, total, `<div class="sound-art"><span class="g${long}">${card.show}</span><span class="e">${card.emoji}</span></div>`);
@@ -91,17 +98,35 @@ export function cardHtml(card, total) {
 /** Petite vignette pour la grille de collection. */
 export function cardThumb(card, owned, onOpen) {
   const label = card.kind === 'son' ? card.show : card.kind === 'titre' ? `${card.piece}︎` : card.kind === 'diplome' ? '🎓' : '★';
-  return h('button', {
+  const art = owned && CARD_ART[card.id];
+  const media = art ? h('span', { class: 'thumb-media' },
+    h('span', { class: 'image-fallback', 'aria-hidden': 'true' }, card.kind === 'son' ? card.emoji : '★'),
+    h('img', { 'data-card-image': true, src: art.thumbnail, width: art.thumbWidth, height: art.thumbHeight, alt: '', loading: 'lazy', decoding: 'async' })) : null;
+  const button = h('button', {
     type: 'button',
-    class: `coll-item ${owned ? card.theme : 'locked'}`,
+    class: `coll-item ${owned ? card.theme : 'locked'}${art ? ' illustrated-thumb' : ''}`,
     'aria-label': owned ? card.name : 'Carte mystère',
     onclick: () => onOpen(card, owned),
-  }, h('span', { class: 'g' }, owned ? label : '?'), h('span', { class: 'n' }, owned ? card.name : '…'));
+  }, media, (!art || card.kind === 'son') && h('span', { class: 'g' }, owned ? label : '?'), h('span', { class: 'n' }, owned ? card.name : '…'));
+  bindCardImages(button);
+  return button;
+}
+
+/** L'ancien dessin reste visible tant que le fichier n'a pas été décodé. */
+function bindCardImages(root) {
+  root.querySelectorAll('[data-card-image]').forEach(img => {
+    const update = () => img.parentElement.classList.toggle('has-card-image', img.complete && img.naturalWidth > 0);
+    img.addEventListener('load', update);
+    img.addEventListener('error', update);
+    update();
+  });
 }
 
 /* L'inclinaison suit le doigt ou le gyroscope (iOS : permission au 1er toucher). */
 function tilt(stage, wrap) {
+  if (reducedMotion()) return () => {};
   const apply = (x, y) => {
+    if (reducedMotion()) return;
     const cx = Math.min(1.15, Math.max(-0.15, x));
     const cy = Math.min(1.15, Math.max(-0.15, y));
     wrap.classList.remove('idle');
@@ -142,8 +167,9 @@ export function revealCard({ router, voice, sfx }, card, total, { isNew = true }
   const hint = h('p', { class: 'center' }, 'Touche la carte pour la retourner');
   const next = h('button', { class: 'btn btn-gold', type: 'button', hidden: true }, 'Continuer');
   const stage = h('div', { class: 'card-stage' }, h('div', { class: 'card-halo' }), h('h2', null, isNew ? 'Nouvelle carte !' : 'Ta carte'), wrap, hint, next);
+  bindCardImages(stage);
   stage.style.setProperty('--aura', AURA[card.theme] || '#7c3aed');
-  const ov = openOverlay(router, { content: stage, label: 'Carte' });
+  const ov = openOverlay(router, { content: stage, label: 'Carte', onClose: () => voice.stop() });
   const untilt = tilt(ov.el, wrap);
   voice.say(isNew ? 'Tu as gagné une carte ! Touche-la pour la retourner !' : 'Touche la carte pour la retourner !');
   let flipped = false;

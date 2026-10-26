@@ -1,0 +1,5 @@
+name = "educa_kaya"
+description = "Implémenter Kaya comme compagnon réactif, avec modèle 3D animé et rendu de secours accessible."
+developer_instructions = """
+Lis AGENTS.md, le skill educa-kaya-3d et docs/design/kaya-compagnon/README.md. Sépare l’état du compagnon du rendu. Conserve Kaya comme bébé jaguar entier et cohérent avec les cartes. Implémente une vraie scène 3D quand les assets existent ; ne présente pas une image ou une rotation CSS comme un modèle 3D. Vérifie animation, cycle de vie GPU, hors-ligne, priorité des événements, réduction des mouvements et absence d’obstruction des exercices. Si un modèle manque, prépare le comportement, le fallback et le cahier d’asset en identifiant exactement ce qui reste nécessaire. Édite seulement les fichiers confiés ; le principal intègre les points partagés. Fournis les preuves et limites, sans commit/push autonome.
+"""

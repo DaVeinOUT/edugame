@@ -9,7 +9,7 @@
 
 import { h, sleep } from '../ui/dom.js';
 import { setMood } from '../ui/kaya.js';
-import { listenButton, cheer, praise } from './common.js';
+import { listenButton, cheer, praise, noteSupport } from './common.js';
 
 /**
  * @returns {Promise<{ outcome: 'ok'|'ko'|'help' }>}
@@ -19,7 +19,7 @@ export function runBuild(q, api) {
   const word = q.word;
   const card = h('div', { class: 'paper prompt-card' },
     h('div', { class: 'big-emoji', 'aria-hidden': 'true' }, word.emoji),
-    listenButton(() => voice.say(word.text, { slowWord: true, caption: '🔊' }), 'Réécouter le mot'));
+    listenButton(() => { noteSupport(api, 'instruction-replay'); voice.say(word.text, { slowWord: true, caption: '🔊' }); }, 'Réécouter le mot'));
   const slotEls = q.slots.map(s => h('div', { class: `slot${s.mute ? ' mute' : ''}`, 'aria-hidden': 'true' }, s.mute ? s.g : ''));
   const order = q.slots.map((s, i) => (s.mute ? -1 : i)).filter(i => i >= 0);
   const tiles = q.tiles.map(t => h('button', { type: 'button', class: 'gtile', 'data-g': t, 'aria-label': t }, t));
@@ -33,13 +33,14 @@ export function runBuild(q, api) {
   const showNext = () => slotEls.forEach((el, i) => el.classList.toggle('next', i === order[pos]));
   function hint() {
     if (pos >= order.length) return;
+    noteSupport(api, 'construction-hint');
     tiles.find(b => !b.classList.contains('used') && b.dataset.g === need())?.classList.add('hint');
     voice.seq(['Le son qui vient, c\'est', { sound: word.parsed.graphemes[order[pos]].p }, '.']);
   }
   showNext();
   // Écrire le mot entendu : le sous-titre ne l'écrit pas (sinon c'est de la copie).
-  api.setReplay(() => voice.seq(q.prompt, { caption: q.caption }));
-  api.setHelp(() => { helped = true; hint(); });
+  api.setReplay(() => { noteSupport(api, 'instruction-replay'); voice.seq(q.prompt, { caption: q.caption }); });
+  api.setHelp(() => { noteSupport(api, 'explicit-help'); helped = true; hint(); });
   voice.seq(q.prompt, { caption: q.caption });
 
   return new Promise(resolve => {

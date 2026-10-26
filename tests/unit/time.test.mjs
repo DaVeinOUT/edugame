@@ -22,3 +22,20 @@ test('une horloge qui recule ne retire jamais de temps', () => {
   clock.tick(4_000);
   assert.equal(clock.ms(4_000), 0);
 });
+
+test('des relevés périodiques ne repoussent pas l’échéance d’inactivité', () => {
+  const clock = activeClock(0);
+  for (let t = 5_000; t <= 180_000; t += 5_000) clock.ms(t);
+  assert.equal(clock.ms(180_000), 60_000);
+});
+
+test('la pause exclut l’arrière-plan et les intervalles ne sont consommés qu’une fois', () => {
+  const clock = activeClock(0);
+  clock.tick(10_000);
+  clock.pause(15_000);
+  clock.resume(3_600_000);
+  assert.equal(clock.ms(3_605_000), 20_000);
+  const intervals = clock.takeIntervals(3_605_000);
+  assert.equal(intervals.reduce((sum, [a, b]) => sum + b - a, 0), 20_000);
+  assert.deepEqual(clock.takeIntervals(3_605_000), []);
+});

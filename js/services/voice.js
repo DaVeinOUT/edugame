@@ -6,13 +6,16 @@
    • enchaîne des phrases, des sons et des pauses (séquences) ;
    • affiche des SOUS-TITRES de tout ce qu'il dit (classe en mode
      silencieux, enfant malentendant, téléphone sans voix) ;
-   • joue les sons isolés des lettres (« mmm ») avec la même vraie voix
-     humaine que les mots (audio/sons/) ;
+   • joue les sons isolés des lettres (« mmm ») depuis les fichiers
+     humains embarqués, avec un secours local si un fichier manque ;
    • dit les MOTS du jeu avec une vraie voix humaine (enregistrements
      libres de Lingua Libre, audio/mots/) ; la synthèse prend le relais
      pour les mots sans enregistrement ;
    • se tait si l'enfant utilise un lecteur d'écran (pas de double voix).
    ============================================================ */
+
+import { canSynth, playPhoneme, phonemeUrl, silenceUrl } from './phonemes.js';
+import { audioContext } from './sfx.js';
 
 /* Classement des voix : naturelles d'abord, gadgets jamais. */
 const VOICE_PREFS = [
@@ -30,7 +33,7 @@ export const SOUND_TTS = Object.freeze({
   m: 'mmmm', n: 'nnnn', l: 'llll', r: 'rrrr', s: 'ssss', z: 'zzzz', f: 'ffff', v: 'vvvv',
   ch: 'chhhh', j: 'jjjj', p: 'pe', b: 'be', t: 'te', d: 'de', k: 'ke', g: 'gue',
   gn: 'gne', y: 'ye', w: 'ou',   // [w] : un [u] bref (« oua » ferait entendre [wa], absent de « kiwi »)
-  ks: 'x',                       // [ks] : « iks », le nom de la lettre (« ks » serait épelé)
+  ks: 'x',                       // dernier secours parlé si le fichier et le son pur sont indisponibles
 });
 
 const synth = typeof speechSynthesis !== 'undefined' ? speechSynthesis : null;
@@ -49,6 +52,8 @@ const st = {
   soundFiles: new Map(), soundBase: 'audio/sons/', recordings: new Map(),
   wordFiles: new Map(), wordBase: 'audio/mots/',
   captionFns: new Set(), live: null, audio: null,
+  playbackFns: new Set(), speaking: false, cancelUtterance: null,
+  phonemeController: null,
 };
 
 /* Confidentialité : une voix « en ligne » (ex. Google français sur
@@ -65,24 +70,29 @@ function rank(v) {
 
 function frenchVoices() {
   if (!synth) return [];
-  return synth.getVoices().filter(v => v.lang && v.lang.toLowerCase().startsWith('fr'));
+  return synth.getVoices().filter(v => v.localService === true && v.lang && v.lang.toLowerCase().startsWith('fr'));
 }
 
 function pickVoice() {
   if (!synth) return;
-  const all = synth.getVoices();
-  if (!all.length) return;
   const fr = frenchVoices().sort((a, b) => rank(a) - rank(b));
   st.voice = (st.preferred && fr.find(v => v.name === st.preferred)) || fr[0] || null;
-  st.localVoice = fr.find(v => v.localService) || st.voice;
+  st.localVoice = st.voice;
   st.status = fr.length ? 'ok' : 'novoice';
+}
+
+function playback(speaking) {
+  if (st.speaking === speaking) return;
+  st.speaking = speaking;
+  st.playbackFns.forEach(fn => { try { fn(speaking); } catch { /* rendu facultatif */ } });
 }
 
 function caption(text) {
   st.captionFns.forEach(fn => { try { fn(text); } catch { /* ignoré */ } });
   if (st.screenReader && st.live && text) {
+    const generation = st.gen;
     st.live.textContent = '';
-    setTimeout(() => { st.live.textContent = text; }, 30);
+    setTimeout(() => { if (generation === st.gen) st.live.textContent = text; }, 30);
   }
 }
 
@@ -92,12 +102,12 @@ const wait = ms => new Promise(r => setTimeout(r, ms));
 const estimate = (text, rate) => 900 + (text.length * 75) / rate;
 
 function utter(text, { rate, pitch = 1.05, highlight = null }, retried = false) {
+  if (!synth || !st.voice || st.muted || st.screenReader) return Promise.resolve();
+  const generation = st.gen;
   return new Promise(resolve => {
     const u = new SpeechSynthesisUtterance(text);
     u.lang = 'fr-FR';
-    const v = st.voice && !st.voice.localService && typeof navigator !== 'undefined' && !navigator.onLine
-      ? st.localVoice : st.voice;
-    if (v) u.voice = v;
+    u.voice = st.voice;
     u.rate = rate;
     u.pitch = pitch;
     let done = false;
@@ -106,17 +116,22 @@ function utter(text, { rate, pitch = 1.05, highlight = null }, retried = false) 
       done = true;
       clearTimeout(guard);
       highlight?.classList.remove('speaking');
+      if (st.cancelUtterance === finish) { st.cancelUtterance = null; playback(false); }
       resolve();
     };
     const guard = setTimeout(finish, estimate(text, rate) + 2500);
-    u.onstart = () => { st.unlocked = true; st.pending = null; highlight?.classList.add('speaking'); };
+    st.cancelUtterance = finish;
+    u.onstart = () => { if (done || generation !== st.gen) return; st.unlocked = true; st.pending = null; playback(true); highlight?.classList.add('speaking'); };
     u.onend = finish;
     u.onerror = e => {
+      if (done || generation !== st.gen) return;
       // Chrome avale parfois sa file : on retente une fois, sauf annulation voulue.
       if (!retried && e?.error !== 'canceled' && e?.error !== 'interrupted' && e?.error !== 'not-allowed') {
         done = true;
         clearTimeout(guard);
-        setTimeout(() => utter(text, { rate, pitch, highlight }, true).then(resolve), 120);
+        playback(false);
+        if (st.cancelUtterance === finish) st.cancelUtterance = null;
+        setTimeout(() => generation === st.gen ? utter(text, { rate, pitch, highlight }, true).then(resolve) : resolve(), 120);
         return;
       }
       if (e?.error === 'not-allowed') st.pending = text;   // pas encore de geste : rejoué au 1er toucher
@@ -148,9 +163,9 @@ async function say(text, opts = {}) {
     opts.highlight?.classList.add('speaking');
     const ok = await playFile(`${st.wordBase}${file}.mp3`, { rate: st.slow ? WORD_SLOW_RATE : WORD_RATE });
     opts.highlight?.classList.remove('speaking');
-    if (ok !== false || myGen !== st.gen) return;   // fini ou coupé ; seule une vraie erreur passe à la synthèse
+    if (ok !== false || myGen !== st.gen) return; // fin ou annulation ; seule une erreur autorise le secours
   }
-  if (!synth) {
+  if (!synth || !st.voice) {
     await wait(Math.min(2600, estimate(text, rate) * 0.6));
     return;
   }
@@ -160,19 +175,19 @@ async function say(text, opts = {}) {
   await utter(text, { rate, highlight: opts.highlight || null });
 }
 
-/* UN seul lecteur audio pour tous les enregistrements (mots et sons) : débloqué au premier
-   toucher, il peut ensuite jouer sans geste — l'iPhone refuse un lecteur neuf lancé hors
-   d'un toucher. Un fichier audio sonne aussi en mode silencieux d'iPhone (le Web Audio, non). */
+/* UN seul lecteur audio pour tout (voix humaine, voyelles, sons fabriqués) : débloqué au
+   premier toucher, il peut ensuite jouer sans geste — l'iPhone refuse un lecteur neuf
+   lancé hors d'un toucher. */
 let pendingEnd = null;
 function player() {
   if (!st.player) st.player = new Audio();
   return st.player;
 }
 
-/** Joue un fichier : true (fini), false (illisible ou refusé), null (coupé : remplacé ou arrêté). */
+/** true : fin, false : erreur, null : annulation/remplacement. */
 function playFile(url, { rate = 1 } = {}) {
   return new Promise(resolve => {
-    pendingEnd?.(null);   // une nouvelle lecture remplace la précédente
+    pendingEnd?.(null);   // une nouvelle lecture remplace la précédente sans déclencher un secours
     try {
       const a = player();
       a.src = url;
@@ -182,19 +197,22 @@ function playFile(url, { rate = 1 } = {}) {
       st.audio = a;
       let done = false;
       let guard = null;
-      const finish = result => {   // une seule fin : terminé, erreur, garde, ou coupé
+      const finish = ok => {   // une seule fin : terminé, erreur, garde, ou remplacé / arrêté
         if (done) return;
         done = true;
         clearTimeout(guard);
         a.onended = null;
         a.onerror = null;
+        a.onplaying = null;
+        playback(false);
         if (pendingEnd === finish) pendingEnd = null;
-        resolve(result);
+        resolve(ok);
       };
       guard = setTimeout(() => finish(true), 4000);
       pendingEnd = finish;
       a.onended = () => finish(true);
       a.onerror = () => finish(false);
+      a.onplaying = () => { if (!done) playback(true); };
       a.play().catch(() => finish(false));
     } catch {
       resolve(false);
@@ -203,8 +221,7 @@ function playFile(url, { rate = 1 } = {}) {
 }
 
 /**
- * Fait entendre un son isolé (phonème) : enregistrement si disponible, sinon appui parlé.
- * Comme say(), il coupe d'abord ce qui se dit (sauf dans une séquence).
+ * Fait entendre un son isolé : enregistrement, son pur local, puis voix locale.
  * @param {string} ph identifiant de phonème (« m », « ch », « on »…)
  * @param {{ interrupt?: boolean, noCaption?: boolean, caption?: string }} [opts]
  */
@@ -213,17 +230,38 @@ async function sound(ph, { interrupt = true, noCaption = false, caption: shown }
   const myGen = st.gen;
   if (!noCaption) caption(shown ?? `« ${ph} »`);
   if (st.muted || st.screenReader) { await wait(500); return; }
-  // 1. la voix de l'adulte (enregistrée sur cet appareil) ; 2. le son du jeu (voix humaine)
+  // 1. la voix de l'adulte (enregistrée sur cet appareil) ; 2. un fichier du jeu
   const url = st.recordings.get(ph) || (st.soundFiles.has(ph) ? `${st.soundBase}${st.soundFiles.get(ph)}.mp3` : null);
   if (url) {
     const ok = await playFile(url);
-    if (ok !== false || myGen !== st.gen) return;   // fini ou coupé ; seule une vraie erreur passe à la synthèse
+    if (ok !== false || myGen !== st.gen) return;
   }
-  // 3. fichier illisible : la synthèse vocale (syllabe d'appui pour une consonne)
+  // 3. consonne : son pur fabriqué (jamais « me » pour [m]), joué comme un fichier par le lecteur
+  //    commun (sonne aussi en mode silencieux d'iPhone) ; sinon Web Audio direct.
+  if (canSynth(ph)) {
+    const synthUrl = await phonemeUrl(ph).catch(() => null);
+    if (myGen !== st.gen) return;
+    if (synthUrl) {
+      const played = await playFile(synthUrl);
+      if (played !== false || myGen !== st.gen) return;
+    }
+    const ctx = audioContext();
+    if (ctx) {
+      const controller = new AbortController();
+      st.phonemeController?.abort();
+      st.phonemeController = controller;
+      playback(true);
+      try { await playPhoneme(ctx, ph, { signal: controller.signal }); }
+      finally { if (st.phonemeController === controller) { st.phonemeController = null; playback(false); } }
+      return;
+    }
+  }
+  // 4. voyelles : la synthèse vocale les dit correctement
   const fallback = SOUND_TTS[ph];
-  if (!fallback || !synth) return;
-  if (interrupt) await wait(90);   // bug Chrome : speak() juste après cancel() peut disparaître
-  if (myGen === st.gen) await utter(fallback, { rate: 0.7 });
+  if (fallback && synth && st.voice) {
+    if (interrupt) await wait(90); // Chrome : speak juste après cancel peut disparaître
+    if (myGen === st.gen) await utter(fallback, { rate: 0.7 });
+  }
 }
 
 /**
@@ -264,23 +302,15 @@ export function captionOf(parts) {
 /** Coupe tout : synthèse, fichier en cours, séquences. */
 function stop() {
   st.gen++;
+  st.pending = null;
+  st.cancelUtterance?.();
+  st.phonemeController?.abort();
+  st.phonemeController = null;
+  playback(false);
   try { synth?.cancel(); } catch { /* rien */ }
   try { st.audio?.pause(); } catch { /* rien */ }
   pendingEnd?.(null);
   st.audio = null;
-}
-
-/** Un dixième de seconde de silence (WAV 16 bits mono, échantillons à zéro). */
-function silenceUrl() {
-  const rate = 8000;
-  const n = 800;
-  const v = new DataView(new ArrayBuffer(44 + n * 2));
-  const text = (at, s) => [...s].forEach((c, i) => v.setUint8(at + i, c.charCodeAt(0)));
-  text(0, 'RIFF'); v.setUint32(4, 36 + n * 2, true); text(8, 'WAVE'); text(12, 'fmt ');
-  v.setUint32(16, 16, true); v.setUint16(20, 1, true); v.setUint16(22, 1, true);
-  v.setUint32(24, rate, true); v.setUint32(28, rate * 2, true); v.setUint16(32, 2, true); v.setUint16(34, 16, true);
-  text(36, 'data'); v.setUint32(40, n * 2, true);
-  return URL.createObjectURL(new Blob([v.buffer], { type: 'audio/wav' }));
 }
 
 /** Les mobiles bloquent le son avant le premier geste : on rejoue alors la dernière phrase. */
@@ -335,7 +365,7 @@ export const voice = {
   },
   configure({ muted, screenReader, slow, preferred } = {}) {
     if (muted !== undefined) { st.muted = !!muted; if (st.muted) stop(); }
-    if (screenReader !== undefined) st.screenReader = !!screenReader;
+    if (screenReader !== undefined) { st.screenReader = !!screenReader; if (st.screenReader) stop(); }
     if (slow !== undefined) st.slow = !!slow;
     if (preferred !== undefined) { st.preferred = preferred; pickVoice(); }
   },
@@ -351,10 +381,15 @@ export const voice = {
   },
   hasWord: text => st.wordFiles.has(String(text).trim().toLowerCase()),
   /** Sons purs enregistrés par l'adulte (Map phonème → URL). */
-  setRecordings(map) { st.recordings = map instanceof Map ? map : new Map(); },
+  setRecordings(map) {
+    const next = map instanceof Map ? map : new Map();
+    for (const url of st.recordings.values()) if (![...next.values()].includes(url)) URL.revokeObjectURL(url);
+    st.recordings = next;
+  },
   hasRecording: ph => st.recordings.has(ph),
   say, seq, sound, stop,
   onCaption(fn) { st.captionFns.add(fn); return () => st.captionFns.delete(fn); },
+  onPlayback(fn) { st.playbackFns.add(fn); fn(st.speaking); return () => st.playbackFns.delete(fn); },
   get status() { return st.status; },
   get muted() { return st.muted; },
   /** Voix proposées à l'adulte (sans les voix gadgets). */

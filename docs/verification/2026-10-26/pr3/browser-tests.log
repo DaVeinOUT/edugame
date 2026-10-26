@@ -1,0 +1,57 @@
+
+> educa@2.0.0-dev test:e2e
+> node --test --test-concurrency=1 "tests/e2e/**/*.test.mjs"
+
+✔ écrans de l'enfant, monde clair : aucune violation WCAG 2.2 AA grave (28071.536916ms)
+✔ monde sombre (« l'espace ») : contrastes conformes partout (18162.695666ms)
+✔ espace des grands : la porte et tous les onglets, monde clair et monde sombre (30166.964667ms)
+✔ niveaux des grands : chaque type d'exercice, la correction et le bilan (18421.466458ms)
+✔ vue de la classe : accessible, et le tableur exporté est lisible (5216.73725ms)
+✔ pages publiques (guide de l'enseignant, confidentialité) : accessibles (2160.582459ms)
+✔ la bibliothèque des sons embarqués se décode après installation et coupure du réseau (2712.0065ms)
+✔ un MP3 manquant conserve le son pur local sous CSP, puis stop coupe audio et bouche (822.209792ms)
+✔ navigation pendant une carte : la fermeture ne coupe pas la nouvelle consigne (1583.0055ms)
+✔ cartes illustrées et diplômes : ancien profil, rechargement, textes et compteur préservés (1964.44625ms)
+✔ modale : Tab et Maj+Tab restent dans la carte, Échap et retour restaurent le focus (949.19975ms)
+✔ fichier absent et réduction des mouvements : secours lisible et retournement utilisable (747.809958ms)
+✔ après installation complète, les deux illustrations sont consultables sans réseau (2149.972416ms)
+✔ Kaya : vrai maillage WebGL dans le parcours, une seule scène et réactions aux réponses (6054.143ms)
+✔ Kaya : réduction système/profil et masquage arrêtent les boucles, le clavier reste utilisable (5563.000458ms)
+✔ Kaya : modèle/module absent, WebGL refusé et contexte perdu conservent le jeu et le secours entier (4850.217958ms)
+✔ Kaya : le vrai salut anime un os et le repos réduit neutralise le fondu (2293.995209ms)
+✔ Kaya : masquer pendant le chargement annule la création GPU et permet une reprise (1536.236958ms)
+✔ deux onglets : une seule session écrit, puis la reprise relit la réponse sauvegardée (4375.950084ms)
+✔ pagehide sans visibilité : les dernières secondes sont sauvées avant libération du verrou (3501.329667ms)
+✔ une panne de sauvegarde en cours de leçon reste visible et récupère la réponse sur disque (7087.1315ms)
+✔ effacement complet : les sons IndexedDB et les profils disparaissent après rechargement (2608.436709ms)
+✔ diagnostic hors ligne : un fichier manquant invalide le statut prêt (1113.997541ms)
+✔ une mise à jour ne recharge pas la leçon si la sauvegarde échoue (3937.660458ms)
+✔ création protégée : le formulaire autorisé depuis les données adulte aboutit puis reverrouille (7059.526416ms)
+✔ un enfant crée son profil sans lire et arrive à l'accueil (6580.222417ms)
+✔ une leçon complète mène au bilan et enregistre la progression (13278.249125ms)
+✔ l'espace des grands demande de lire des chiffres écrits en lettres (6902.556209ms)
+✔ le secours local synthétisé garde sa couleur (s aigu, m grave) et ne saturent pas (2908.130167ms)
+✔ les sons des lettres enregistrés ont la bonne couleur (s aigu, ch moyen, m grave) et la bonne durée (336.54225ms)
+✔ dès 10 ans, un test de positionnement situe l'enfant sur le chemin (9181.294875ms)
+✔ après une première visite, le jeu marche sans internet (1442.011125ms)
+✔ la voix enregistrée par l'adulte (blob:) est bien jouée malgré la CSP (5402.204416ms)
+✔ un grand déjà lecteur joue un module des niveaux CE1 → 3e (16517.274333ms)
+✔ les mots du jeu sont dits par une vraie voix humaine (fichier enregistré) (5606.293375ms)
+✔ les révisions des niveaux reprennent un module déjà travaillé (7626.439834ms)
+✔ au clavier seul (ou au contacteur), on joue une leçon (6312.048958ms)
+✔ mode lecteur d'écran : Kaya se tait et ses phrases vont au lecteur d'écran (2068.631ms)
+✔ l'adulte choisit un code : il est ensuite demandé à chaque entrée (7734.233958ms)
+✔ les sons des consonnes passent par le lecteur audio commun (ils sonnent aussi en mode silencieux d'iPhone) (8665.02675ms)
+✔ retoucher « réécouter » pendant un son ne fait jamais parler la synthèse par-dessus (8051.691708ms)
+✔ les écoutes optionnelles et la réécoute sont tracées sans transformer une réponse juste en aide (3204.600375ms)
+✔ l’aide explicite qui lit le mot garde son résultat guidé et sa nature audio (456.230166ms)
+✔ le guidage automatique après deux erreurs de construction est observé sans réécrire le résultat (820.286333ms)
+✔ ancien profil : audio demandé et guidage restent distincts après réponse, rechargement et consultation adulte (6386.814458ms)
+ℹ tests 45
+ℹ suites 0
+ℹ pass 45
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 289890.404042

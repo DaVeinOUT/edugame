@@ -14,7 +14,7 @@ import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const ROOT = fileURLToPath(new URL('..', import.meta.url));
-const ENTRIES = ['index.html', 'confidentialite.html', 'guide.html', 'manifest.json', 'css', 'js', 'fonts', 'icons', 'audio'];
+const ENTRIES = ['index.html', 'confidentialite.html', 'guide.html', 'manifest.json', 'css', 'js', 'fonts', 'icons', 'audio', 'assets'];
 /* Licences et notes : utiles dans le dépôt, inutiles pour jouer hors-ligne. */
 const SKIP = /(^|\/)\.|(^|\/)licenses\/|LICENSE|README|\.(txt|md)$/;
 const BEGIN = '/* <release> — généré par scripts/release.mjs, ne pas éditer à la main */';
