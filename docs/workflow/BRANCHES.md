@@ -1,4 +1,32 @@
-# Livraison et nettoyage des branches — 25 octobre 2026
+# Livraison et nettoyage des branches
+
+## État relu le 26 octobre 2026
+
+**main est la seule branche GitHub restante**, conserve son rôle principal et
+`origin/HEAD` pointe vers `origin/main`. PR3 a été intégrée sélectivement aux
+protections de main, vérifiée **154/154 unités et 45/45 navigateur**, puis
+fusionnée via GitHub : tête `c3ca38190178d752cc91bb9db276a0d070c91908`,
+merge `1f15f7efac2b46aab58c7536de01dd3a0f7c16ed`. Son état fermé/fusionné a été
+relu avec le connecteur. [Preuves](../verification/2026-10-26/pr3/INTEGRATION.md).
+
+Avant suppression, `merge-base --is-ancestor c3ca381 main` a réussi et
+`rev-list --left-right --count main...origin/fix/consonnes-voix-humaine` donnait
+**1 / 0** : aucun commit propre restant. `ls-remote` a confirmé la même tête
+distante. Suppression normale distante, retrait du worktree propre et
+`git branch -d` local ont réussi. Aucun forçage, reset ou travail perdu.
+`fetch --prune`, `remote set-head -a`, `remote prune --dry-run` et inventaire
+`ls-remote --heads` effectués : aucune autre référence obsolète.
+
+| Branche | Décision actuelle |
+| --- | --- |
+| main | Conservée, principale, livraison intégrée |
+| fix/consonnes-voix-humaine | Supprimée après fusion PR3 et preuve d’intégration complète |
+| preview/v11 | Déjà supprimée le 25 octobre, sans commit propre |
+
+PR1/PR2 restent fusionnées ; aucun nouveau travail de ces branches n’est perdu.
+Les détails ci-dessous constituent l’historique du nettoyage précédent.
+
+## Historique du 25 octobre 2026
 
 La branche principale GitHub reste **main** (métadonnée relue après nettoyage), et `origin/HEAD` pointe vers `origin/main`. La livraison vérifiée comporte `1fb925f` (application, ressources et tests) et `07557e2` (preuves et reprise), poussés normalement sur main sans force.
 

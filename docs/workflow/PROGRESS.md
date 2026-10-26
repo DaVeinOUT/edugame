@@ -2,7 +2,7 @@
 
 ## 26 octobre 2026 — consonnes humaines intégrées et vérifiées
 
-PR3 est intégrée à la base main `81db985` dans un worktree distinct, sans
+PR3 a été intégrée à la base main `81db985` dans un worktree distinct, sans
 écraser le travail Kaya mené en parallèle. Ses 24 MP3, le manifeste et leur
 provenance sont conservés. Les protections de voix locale, d’annulation,
 de lecture réelle et de sauvegarde restent présentes ; le synthétiseur de
@@ -17,10 +17,17 @@ arrêt de la bouche vérifiés. [Preuves et limites](../verification/2026-10-26/
 Ces résultats remplacent les anciens 97/21 pour cette intégration. L’écoute
 humaine des phonèmes sur matériel physique reste à faire.
 
-Prochaine action : fusionner cette tête vérifiée via PR3, vérifier son inclusion
-dans main, puis supprimer sa branche sans force. L’itération artistique 2 de
-Kaya et son menu accessible avancent séparément ; aucun résultat final de ce
-second lot n’est annoncé ici. L’état du 25 octobre ci-dessous est historique.
+La tête vérifiée `c3ca381` a été poussée normalement, puis **PR3 fusionnée via
+GitHub** dans main : `1f15f7e`. Son état fusionné et l’ascendance de la tête ont
+été relus. La branche distante `fix/consonnes-voix-humaine`, le worktree propre
+et sa branche locale ont été supprimés sans force ; `fetch --prune` effectué.
+Seule main reste locale/distante et principale. [Détail](BRANCHES.md).
+
+Prochaine action : terminer la retouche des paupières de Kaya v2 depuis la
+source Blender, puis comparer v1/v2 dans le jeu et tester l’ensemble intégré.
+Le menu accessible et la correction d’un fondu interrompu sont implémentés ;
+aucun résultat final du second lot n’est annoncé ici. L’état du 25 octobre
+ci-dessous est historique.
 
 ## Dernier état vérifié — 25 octobre 2026
 

@@ -3,7 +3,13 @@
 Source de la PR : `bd7f27820b35caf07364d91843bc30409df4499f`.
 Base main préservée : `81db9854287b09d2af387bba639a254ecbe24e60`.
 Travail réalisé dans le worktree séparé `/tmp/educa-pr3-integration`, avec fusion
-préparée par l’agent principal. Ce document ne certifie pas une fusion GitHub.
+préparée par l’agent principal.
+
+Après la revue indépendante et les vérifications ci-dessous, la tête intégrée
+`c3ca38190178d752cc91bb9db276a0d070c91908` a été poussée, puis PR3 fusionnée
+via GitHub : `1f15f7efac2b46aab58c7536de01dd3a0f7c16ed`. État fusionné et
+ascendance vérifiés avant suppression normale de la branche distante/locale.
+Le worktree propre a été retiré. [Inventaire final des branches](../../../workflow/BRANCHES.md).
 
 ## Apports repris
 
