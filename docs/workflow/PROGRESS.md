@@ -1,5 +1,52 @@
 # État de reprise — EDUCA
 
+## 26 octobre 2026 — Kaya, itération artistique 2 intégrée
+
+**Deuxième lot implémenté et vérifié sur le main contenant PR3.** Retouche du
+`.blend` v1 existant : regard plus ambré et moins saillant, contours moins noirs,
+museau/menton/nez rapprochés, rosettes adoucies, pelage plus mat, paupières
+reprises et fermeture avec fine ligne. Les huit animations et les 14 joints
+restent présents ; sourire ajouté. Un saut de pose lors de transitions rapides
+a été reproduit puis corrigé : fondu de 280 ms depuis les poids courants.
+L’accueil regroupe les commandes dans « Options de Kaya », accessible au clavier
+avec Échap et restitution du focus. La leçon garde son affichage compact.
+
+- GLB v2 : **2 013 720 octets**, **39 216 triangles**, 21 478 sommets pondérés,
+  deux images embarquées, aucune URI distante. SHA `042dc1f4…79b4aa0c`.
+- V1 conservée intacte : GLB déplacé sous `docs/design/kaya-compagnon/production/`
+  près de sa source. Source, sauvegarde et preuves restent hors du site/précache.
+- Source v2 éditable et textures empaquetées ; `build.sh` exporte la source
+  éditée. Réexport et retouche v1→v2 dans un dossier isolé exécutés avec Blender
+  4.5.9 : géométrie, comptes et SHA identiques lors de ces essais, sans modifier
+  les sources livrées. [Procédure](../design/kaya-compagnon/production/v2/README.md).
+- `npm test` : **156/156** ; Brave `npm run test:e2e` : **46/46**, aucun ignoré.
+  Relance ciblée Kaya après renforcement des assertions de paupières également
+  documentée dans le journal dédié. Cache **educa-20de197a2b, 405 fichiers**, à jour.
+- Assemblage et contrôles hors ligne Chromium 155/SwiftShader et WebKit desktop
+  27.2/Apple GPU : vrai GLB au bon SHA, réponse persistée, deux cartes et
+  35 fichiers de sons, Range206 ; aucune erreur JS/console.
+- Huit comparaisons réelles face/trois quarts mobile/desktop : mêmes lumière,
+  caméra, pose idle, Box3 et échelle ; hash de chaque réponse GLB vérifié.
+  Vidéo de sept réactions et douze échantillons de transitions, actions réelles
+  et démonstrations techniques distinguées. Revue indépendante code/source/images.
+
+[Avant/après dans le jeu](../verification/2026-10-26/kaya-v2/comparison/index.html),
+[vidéo](../verification/2026-10-26/kaya-v2/runtime/animations-parcours.webm),
+[validation détaillée](../verification/2026-10-26/kaya-v2/VALIDATION.md).
+
+**Qualité artistique finale encore ouverte.** Amélioration visible mais mesurée ;
+yeux ouverts encore graphiques, pelage stylisé et posture assise différente de
+la fiche quadrupède. Le prototype fonctionnel et cette itération ne constituent
+pas une finition finale acceptée. Aucun essai physique téléphone/tablette,
+mesure d’énergie, validation VoiceOver/TalkBack ou écoute humaine des phonèmes
+n’a été réalisé dans ce lot.
+
+Prochaine action exacte : comparer les captures v2 à la fiche, affiner les yeux
+ouverts et décider le travail de silhouette/rig ; conserver une nouvelle source
+avant retouche. Effectuer les essais matériels listés dans la validation avec
+un iPhone, un Android et la tablette cible. Les 81 autres illustrations et la
+validation pédagogique restent hors des résultats acquis de ce lot.
+
 ## 26 octobre 2026 — consonnes humaines intégrées et vérifiées
 
 PR3 a été intégrée à la base main `81db985` dans un worktree distinct, sans
@@ -23,11 +70,8 @@ GitHub** dans main : `1f15f7e`. Son état fusionné et l’ascendance de la têt
 et sa branche locale ont été supprimés sans force ; `fetch --prune` effectué.
 Seule main reste locale/distante et principale. [Détail](BRANCHES.md).
 
-Prochaine action : terminer la retouche des paupières de Kaya v2 depuis la
-source Blender, puis comparer v1/v2 dans le jeu et tester l’ensemble intégré.
-Le menu accessible et la correction d’un fondu interrompu sont implémentés ;
-aucun résultat final du second lot n’est annoncé ici. L’état du 25 octobre
-ci-dessous est historique.
+L’itération artistique 2 de Kaya a ensuite été intégrée et vérifiée : voir le
+dernier lot ci-dessus. L’état du 25 octobre ci-dessous est historique.
 
 ## Dernier état vérifié — 25 octobre 2026
 

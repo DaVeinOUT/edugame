@@ -107,6 +107,7 @@ test('Kaya : réduction système/profil et masquage arrêtent les boucles, le cl
       await page.waitForSelector('.kaya[data-renderer="3d"] canvas');
       await page.waitForFunction(() => window.__pendingFrames() === 0);
       assert.equal(await page.$eval('.kaya .kf-body', el => getComputedStyle(el).animationName), 'none');
+      await page.locator('.kaya-options summary').focus(); await page.keyboard.press('Enter');
       await page.getByRole('button', { name: 'Masquer Kaya', exact: true }).focus(); await page.keyboard.press('Enter');
       assert.equal(await page.getAttribute('[data-kaya-companion]', 'data-state'), 'hidden');
       assert.equal(await page.locator('.kaya-visual').first().isVisible(), false);
@@ -149,13 +150,16 @@ test('Kaya : le vrai salut anime un os et le repos réduit neutralise le fondu',
     assert.equal(Object.keys(first.bones).length, 14);
     const paw = Object.keys(first.bones).find(name => /upperarm.*R/.test(name));
     assert.ok(paw); assert.notDeepEqual(first.bones[paw], second.bones[paw], 'la patte du skin change réellement de pose');
+    await page.locator('.kaya-options summary').click();
     await page.getByRole('button', { name: 'Repos', exact: true }).click();
     await page.emulateMedia({ reducedMotion: 'reduce' });
     await page.waitForFunction(() => window.__pendingFrames() === 0);
     const rest = await page.$eval('[data-kaya-canvas]', c => c._kayaInspect());
     assert.equal(rest.clip, 'resting'); assert.equal(rest.weights.resting, 1);
     for (const [name, weight] of Object.entries(rest.weights)) if (name !== 'resting') assert.equal(weight, 0);
-    assert.ok(Object.values(rest.morphs).filter(m => m.Blink > .8).length >= 2, 'les deux paupières utilisent leur pose de repos');
+    const lids = Object.entries(rest.morphs).filter(([name]) => /^Eyelid_[LR]$/.test(name));
+    assert.equal(lids.length, 2);
+    assert.ok(lids.every(([, morph]) => morph.Blink > .8), 'les deux paupières utilisent leur pose de repos');
   } finally { await context.close(); }
 });
 
@@ -163,6 +167,7 @@ test('Kaya : masquer pendant le chargement annule la création GPU et permet une
   const { page, context, modelStarted, releaseModel } = await hub({ delay: true });
   try {
     await modelStarted;
+    await page.locator('.kaya-options summary').click();
     await page.getByRole('button', { name: 'Masquer Kaya', exact: true }).click();
     releaseModel();
     await page.waitForTimeout(250);
@@ -171,4 +176,29 @@ test('Kaya : masquer pendant le chargement annule la création GPU et permet une
     await page.getByRole('button', { name: 'Afficher Kaya', exact: true }).click();
     await page.waitForSelector('[data-model="gltf"]');
   } finally { releaseModel(); await context.close(); }
+});
+
+test('Kaya : options repliées, navigation clavier et retour du focus par Échap', async () => {
+  const { page, context } = await hub({ reduced: true });
+  try {
+    await page.waitForSelector('[data-model="gltf"]');
+    const summary = page.locator('.kaya-options summary');
+    assert.equal(await page.getByRole('button', { name: 'Repos', exact: true }).isVisible(), false);
+    await summary.focus(); await page.keyboard.press('Space');
+    await page.keyboard.press('Tab');
+    assert.equal(await page.getByRole('button', { name: 'Masquer Kaya', exact: true }).evaluate(el => el === document.activeElement), true);
+    await page.keyboard.press('Tab'); await page.keyboard.press('Enter');
+    assert.equal(await page.getByRole('button', { name: 'Calmer les gestes' }).getAttribute('aria-pressed'), 'true');
+    await page.keyboard.press('Tab'); await page.keyboard.press('Enter');
+    assert.equal(await page.getAttribute('[data-kaya-companion]', 'data-state'), 'resting');
+    await page.keyboard.press('Escape');
+    assert.equal(await summary.evaluate(el => el === document.activeElement && !el.parentElement.open), true);
+    await page.keyboard.press('Enter');
+    await page.getByRole('button', { name: 'Réveiller Kaya', exact: true }).click();
+    assert.notEqual(await page.getAttribute('[data-kaya-companion]', 'data-state'), 'resting');
+    await page.keyboard.press('Escape');
+    await page.click('.btn-play'); await page.click('text=C\'est parti');
+    assert.equal(await page.locator('.kaya-options').count(), 0, 'les exercices gardent leur commande compacte');
+    assert.equal(await page.getByRole('button', { name: 'Masquer Kaya', exact: true }).isVisible(), true);
+  } finally { await context.close(); }
 });

@@ -8,7 +8,8 @@ export function createKayaAnimator(root, clips) {
     const index = obj.morphTargetDictionary?.Talk;
     if (index !== undefined) mouths.push([obj, index]);
   });
-  let active = null, name = '', lastTime = null;
+  let active = null, name = '', lastTime = null, transition = null;
+  const weightOf = action => action.enabled && action.isScheduled() ? action.getEffectiveWeight() : 0;
   return {
     update(snapshot, seconds, motion) {
       const wanted = actions.has(snapshot.state) ? snapshot.state : 'idle';
@@ -16,17 +17,38 @@ export function createKayaAnimator(root, clips) {
       if (!next) throw new Error('Kaya idle clip missing');
       if (next !== active) {
         const previous = active;
-        next.reset(); next.enabled = true; next.setEffectiveWeight(1); next.setEffectiveTimeScale(1);
+        const from = new Map([...actions.values()].map(action => [action, weightOf(action)]));
+        // Keep the time of a clip already contributing to an interrupted blend.
+        if (!from.get(next)) next.reset();
+        next.enabled = true; next.setEffectiveTimeScale(1);
         next.setLoop(ONCE.has(wanted) ? T.LoopOnce : T.LoopRepeat, Infinity);
         next.clampWhenFinished = ONCE.has(wanted); next.play();
-        if (previous && motion) next.crossFadeFrom(previous, .28, false);
-        else previous?.stop();
+        for (const action of actions.values()) { action.stopFading(); action.stopWarping(); }
+        if (previous && motion) transition = { from, elapsed: 0 };
+        else {
+          transition = null;
+          for (const action of actions.values()) if (action !== next) action.stop();
+          next.setEffectiveWeight(1);
+        }
         active = next; name = wanted;
       }
       const dt = lastTime === null ? 0 : Math.max(0, Math.min(.08, seconds - lastTime));
       lastTime = seconds;
-      if (motion) { active.paused = false; mixer.update(dt); }
+      if (motion) {
+        if (transition) {
+          transition.elapsed += dt;
+          const t = Math.min(1, transition.elapsed / .28);
+          const eased = t * t * (3 - 2 * t);
+          for (const action of actions.values()) {
+            action.setEffectiveWeight((transition.from.get(action) || 0) * (1 - eased) + (action === active ? eased : 0));
+            if (t === 1 && action !== active) action.stop();
+          }
+          if (t === 1) transition = null;
+        }
+        active.paused = false; mixer.update(dt);
+      }
       else {
+        transition = null;
         for (const action of actions.values()) if (action !== active) action.stop();
         active.stopFading(); active.stopWarping(); active.enabled = true;
         active.setEffectiveWeight(1); active.paused = false; active.time = 0;

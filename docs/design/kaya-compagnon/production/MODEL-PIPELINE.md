@@ -1,5 +1,24 @@
 # Kaya : source sculptable, rig et export local
 
+## Itération courante — v2, 26 octobre 2026
+
+Le jeu charge désormais `assets/kaya/kaya-production-v2.glb`, retouché à partir
+du `.blend` v1 existant. [Procédure et limites v2](v2/README.md).
+Le `.blend` v1 et son GLB sont archivés ici, hors du site et du précache.
+Les détails de construction v1 ci-dessous restent un historique ; leur
+générateur ne doit pas remplacer les sources retouchées.
+
+La commande courante **exporte la source v2 éditée**, sans la régénérer :
+
+```sh
+BLENDER_PATH='/Volumes/Blender/Blender.app/Contents/MacOS/Blender' sh scripts/kaya/build.sh
+```
+
+Un chemin de sortie facultatif permet de vérifier une réexportation sans
+remplacer le GLB du jeu : `sh scripts/kaya/build.sh /tmp/kaya-reexport.glb`.
+Le validateur est exécuté sur cette sortie. Pour refaire la première retouche
+v1→v2 dans un dossier isolé, utiliser `iterate_v2.py` comme décrit dans README v2.
+
 ## Statut artistique
 
 Ce lot construit un **candidat de modèle de production**, différent du prototype
@@ -30,12 +49,12 @@ Blender reste un logiciel sous sa propre licence GPL. La géométrie et la peint
 originales créées par le script restent des assets EDUCA sous MIT ; Blender n’est
 pas redistribué avec l’application.
 
-## Reproduction
+## Historique : construction initiale v1
 
 Depuis la racine du dépôt, avec ce binaire ou un `BLENDER_PATH` équivalent :
 
 ```sh
-BLENDER_PATH='/Volumes/Blender/Blender.app/Contents/MacOS/Blender' sh scripts/kaya/build.sh --render
+'/Volumes/Blender/Blender.app/Contents/MacOS/Blender' --background --python scripts/kaya/build_model.py -- --root /tmp/educa-kaya-v1-reconstruction --render
 ```
 
 Le script ne télécharge rien et n’installe aucune dépendance. Il utilise bpy et
@@ -59,7 +78,7 @@ de hash identique à chaque reconstruction.
 - `model-metrics.json` : version et comptes mesurés lors de la construction.
 - `preview-three-quarter.png` : rendu de travail Blender ; les captures du parcours
   réel et l’acceptation artistique relèvent de l’intégration principale.
-- `assets/kaya/kaya-production-v1.glb` : seul modèle consommable par le jeu.
+- `kaya-production-v1.glb` : modèle précédent archivé, exclu du jeu courant.
 
 La source peut être sculptée et repeinte dans Blender. Conserver une nouvelle
 version avant toute retouche manuelle : relancer le générateur remplace les
@@ -71,8 +90,8 @@ il réactive les huit pistes NLA pour l’export, y compris celles muettes à
 l’ouverture de la source :
 
 ```sh
-'/Volumes/Blender/Blender.app/Contents/MacOS/Blender' --background --python scripts/kaya/export_blend.py -- --source docs/design/kaya-compagnon/production/kaya-edited-v2.blend --output assets/kaya/kaya-edited-v2.glb
-python3 scripts/kaya/validate_glb.py assets/kaya/kaya-edited-v2.glb
+'/Volumes/Blender/Blender.app/Contents/MacOS/Blender' --background --python scripts/kaya/export_blend.py -- --source docs/design/kaya-compagnon/production/v2/kaya-production-v2.blend --output /tmp/kaya-edited-v2.glb
+python3 scripts/kaya/validate_glb.py /tmp/kaya-edited-v2.glb
 ```
 
 Cette voie a aussi été exécutée sur la source v1 vers un fichier temporaire et
@@ -120,7 +139,7 @@ Le secours SVG et l’arrêt du rendu restent indispensables.
 ## Vérification des exports
 
 ```sh
-python3 scripts/kaya/validate_glb.py assets/kaya/kaya-production-v1.glb
+python3 scripts/kaya/validate_glb.py assets/kaya/kaya-production-v2.glb
 ```
 
 Ce vérificateur standard-library contrôle l’en-tête GLB, les données finies,
@@ -139,7 +158,7 @@ Les PNG sous `animation-proof/` proviennent de pistes du rig, pas d’images IA.
 Ils ne prouvent ni le rendu du jeu ni les performances matérielles. Les preuves
 du jeu, du hors ligne et du cycle de vie sont consignées dans PROGRESS.md.
 
-## Mesures du candidat final de ce lot
+## Mesures historiques du candidat v1
 
 `validate_glb.py` a été exécuté avec succès sur le GLB figé :
 

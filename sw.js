@@ -10,14 +10,14 @@
    ============================================================ */
 
 /* <release> — généré par scripts/release.mjs, ne pas éditer à la main */
-const CACHE_NAME = 'educa-22be3a4534';
+const CACHE_NAME = 'educa-20de197a2b';
 const ASSETS = [
   './',
   './assets/cards/r_first-160.webp',
   './assets/cards/r_first-640.webp',
   './assets/cards/son-m-160.webp',
   './assets/cards/son-m-640.webp',
-  './assets/kaya/kaya-production-v1.glb',
+  './assets/kaya/kaya-production-v2.glb',
   './audio/mots/a-2.mp3',
   './audio/mots/a.mp3',
   './audio/mots/abeille.mp3',

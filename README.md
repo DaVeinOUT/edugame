@@ -39,8 +39,9 @@ et sons embarqués restent disponibles sans synthèse vocale. Les sous-titres et
 - **Motivation** : un seul gros bouton « Jouer », le chemin des 66 sons, des cartes à collectionner
   (méritées, jamais au hasard) révélées en 3D, diplômes de fin de niveau.
 - **Kaya entier** : GLB local avec skin, 14 articulations et huit animations, source Blender éditable,
-  accueil agrandi et secours SVG accessible. Le candidat artistique v1 reste stylisé et lisse ; sa validation
-  visuelle finale et les mesures sur tablette sont distinctes des tests techniques.
+  accueil agrandi, options regroupées et secours SVG accessible. L’[itération artistique v2](docs/design/kaya-compagnon/production/v2/README.md)
+  affine le regard, le museau et les paupières ; sa validation visuelle finale et les mesures sur tablette
+  restent distinctes des tests techniques. La version précédente est archivée hors du jeu.
 - **Hors-ligne et installable** : après téléchargement complet vérifié, le jeu s’ouvre sans internet ; s'installe
   comme une application sur tablette et téléphone.
 - **Accessibilité** : parcours clavier et contrôles automatisés axe-core sur les écrans testés ;

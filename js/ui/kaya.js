@@ -48,7 +48,22 @@ export function kayaEl({ size = '', mood = '', companion = size === '' || size =
       motion.setAttribute('aria-pressed', String(motionLimited));
       el.classList.toggle('kaya-still', motionLimited); paint(el);
     });
-    el.append(h('div', { class: 'kaya-controls' }, toggle, quiet ? null : motion, quiet ? null : rest));
+    const controls = h('div', { class: 'kaya-controls' });
+    if (quiet) controls.append(toggle);
+    else {
+      // Native disclosure: Tab visits ordinary buttons, without a partial ARIA menu.
+      const summary = h('summary', {}, 'Options de Kaya');
+      const options = h('details', { class: 'kaya-options' }, summary,
+        h('div', { class: 'kaya-options-actions' }, toggle, motion, rest));
+      options.addEventListener('keydown', event => {
+        if (event.key === 'Escape' && options.open) {
+          event.preventDefault(); event.stopPropagation();
+          options.open = false; summary.focus();
+        }
+      });
+      controls.append(options);
+    }
+    el.append(controls);
     if (visualHidden) el._kayaController.send('hide', now());
     el.classList.toggle('kaya-still', motionLimited);
   }

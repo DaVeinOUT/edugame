@@ -1,0 +1,31 @@
+{
+  "sourceOpened": "docs/design/kaya-compagnon/production/kaya-production-v1.blend",
+  "sourceSHA256": "c87a1498a8852b64745e2b52bcc5c42fc08a122374a974d80af43e4d130f5d07",
+  "blender": "4.5.9 LTS",
+  "mainFurVerticesBefore": 9592,
+  "mainFurVerticesAfter": 9592,
+  "mainFurPolygonsBefore": 12525,
+  "mainFurPolygonsAfter": 12525,
+  "maxMainSculptDelta": 0.019855391047152712,
+  "joints": 14,
+  "clips": [
+    "idle",
+    "greeting",
+    "attentive",
+    "speaking",
+    "helping",
+    "encouraging",
+    "celebrating",
+    "resting"
+  ],
+  "atlas": [
+    1024,
+    1024
+  ],
+  "normalTile": [
+    128,
+    128
+  ],
+  "bytes": 2013720,
+  "assetSHA256": "042dc1f4ed484c0f3fc9b565b2004903f6d4cd8bce011e967bfd0e9d79b4aa0c"
+}

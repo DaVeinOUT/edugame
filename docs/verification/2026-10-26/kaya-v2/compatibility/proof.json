@@ -1,0 +1,1920 @@
+{
+  "modelPath": "assets/kaya/kaya-production-v2.glb",
+  "startedAt": "2026-10-26T02:36:07.655Z",
+  "engines": [
+    {
+      "name": "chromium",
+      "executable": "/Applications/Brave Browser.app/Contents/MacOS/Brave Browser",
+      "status": "passed",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "receivedModels": [
+        {
+          "phase": "online-hub",
+          "url": "http://127.0.0.1:58544/assets/kaya/kaya-production-v2.glb",
+          "status": 200,
+          "bytes": 2013720,
+          "sha256": "042dc1f4ed484c0f3fc9b565b2004903f6d4cd8bce011e967bfd0e9d79b4aa0c",
+          "fromServiceWorker": false
+        },
+        {
+          "phase": "online-lesson",
+          "url": "http://127.0.0.1:58544/assets/kaya/kaya-production-v2.glb",
+          "status": 200,
+          "bytes": 2013720,
+          "sha256": "042dc1f4ed484c0f3fc9b565b2004903f6d4cd8bce011e967bfd0e9d79b4aa0c",
+          "fromServiceWorker": true
+        },
+        {
+          "phase": "online-lesson",
+          "url": "http://127.0.0.1:58544/assets/kaya/kaya-production-v2.glb",
+          "status": 200,
+          "bytes": 2013720,
+          "sha256": "042dc1f4ed484c0f3fc9b565b2004903f6d4cd8bce011e967bfd0e9d79b4aa0c",
+          "fromServiceWorker": true
+        },
+        {
+          "phase": "offline-hub",
+          "url": "http://127.0.0.1:58544/assets/kaya/kaya-production-v2.glb",
+          "status": 200,
+          "bytes": 2013720,
+          "sha256": "042dc1f4ed484c0f3fc9b565b2004903f6d4cd8bce011e967bfd0e9d79b4aa0c",
+          "fromServiceWorker": true
+        },
+        {
+          "phase": "offline-model-verification",
+          "url": "http://127.0.0.1:58544/assets/kaya/kaya-production-v2.glb",
+          "status": 200,
+          "bytes": 2013720,
+          "sha256": "042dc1f4ed484c0f3fc9b565b2004903f6d4cd8bce011e967bfd0e9d79b4aa0c",
+          "fromServiceWorker": true
+        }
+      ],
+      "version": "155.0.8059.40",
+      "hub": {
+        "renderer": "3d",
+        "dataset": {
+          "engine": "three.js r180",
+          "kayaCanvas": "",
+          "model": "gltf",
+          "clips": "idle greeting attentive speaking helping encouraging celebrating resting",
+          "bones": "14",
+          "clip": "attentive",
+          "triangles": "39216"
+        },
+        "webgl": "WebGL 2.0 (OpenGL ES 3.0 Chromium)",
+        "driver": {
+          "vendor": "Google Inc. (Google)",
+          "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (LLVM 10.0.0) (0x0000C0DE)), SwiftShader driver)"
+        },
+        "pixel": [
+          189,
+          171,
+          126,
+          255
+        ],
+        "rig": {
+          "clip": "attentive",
+          "weights": {
+            "idle": 0.24620200319069832,
+            "greeting": 0.75133582851871,
+            "attentive": 0.0024621682905916773,
+            "speaking": 0,
+            "helping": 0,
+            "encouraging": 0,
+            "celebrating": 0,
+            "resting": 0
+          },
+          "bones": {
+            "root": [
+              0,
+              0,
+              0,
+              1
+            ],
+            "spine": [
+              0,
+              0,
+              0,
+              1
+            ],
+            "head": [
+              0.008063183647882496,
+              0.011633877057506986,
+              0.0000938154710996076,
+              0.9998998204041063
+            ],
+            "jaw": [
+              0.8608345995547142,
+              5.2194230939190984e-14,
+              -2.111807465722721e-12,
+              0.5088848477632606
+            ],
+            "upperarmL": [
+              0.9555668571225955,
+              -0.056335019068311454,
+              -0.05633499299127845,
+              0.2838040094151081
+            ],
+            "pawL": [
+              0.10529604937072845,
+              0.06564056647553433,
+              -0.045150803711767565,
+              0.9912444012169095
+            ],
+            "upperarmR": [
+              0.9199500920915961,
+              0.14924886341002672,
+              0.04195457556780077,
+              0.3600783231638672
+            ],
+            "pawR": [
+              -0.11809234278892904,
+              -0.028864379201300992,
+              0.04848140914789944,
+              0.991398304999045
+            ],
+            "hindpawL": [
+              0.8495575785636902,
+              -0.3022553324699402,
+              -0.3022553026676178,
+              0.30908796191215515
+            ],
+            "hindpawR": [
+              0.8495575785636902,
+              0.3022553324699402,
+              0.3022553026676178,
+              0.30908796191215515
+            ],
+            "tail0": [
+              -0.5022780637673365,
+              -0.4281391989633701,
+              -0.4435859164462818,
+              0.606337432881858
+            ],
+            "tail1": [
+              0.2929037119592978,
+              0.25595705725607243,
+              0.057503070076535844,
+              0.9194491814630374
+            ],
+            "tail2": [
+              0.2619758732446352,
+              0.2890961013686069,
+              0.13990486267210162,
+              0.9100652259106945
+            ],
+            "tail3": [
+              0.07437091421708636,
+              0.36383732198011115,
+              0.26331371226359973,
+              0.8903691878078231
+            ]
+          },
+          "morphs": {
+            "Amber_iris_L": {
+              "Blink": 1.1102230246251565e-16
+            },
+            "Amber_iris_R": {
+              "Blink": 1.1102230246251565e-16
+            },
+            "Closure_crease_L": {
+              "Blink": 1.1102230246251565e-16
+            },
+            "Closure_crease_R": {
+              "Blink": 1.1102230246251565e-16
+            },
+            "Eye_ivory_L": {
+              "Blink": 1.1102230246251565e-16
+            },
+            "Eye_ivory_R": {
+              "Blink": 1.1102230246251565e-16
+            },
+            "Eyelid_L": {
+              "Blink": 1.1102230246251565e-16
+            },
+            "Eyelid_R": {
+              "Blink": 1.1102230246251565e-16
+            },
+            "Iris_rim_L": {
+              "Blink": 1.1102230246251565e-16
+            },
+            "Iris_rim_R": {
+              "Blink": 1.1102230246251565e-16
+            },
+            "Large_eye_glint_L": {
+              "Blink": 1.1102230246251565e-16
+            },
+            "Large_eye_glint_R": {
+              "Blink": 1.1102230246251565e-16
+            },
+            "Lower_eyelid_L": {
+              "Blink": 1.1102230246251565e-16
+            },
+            "Lower_eyelid_R": {
+              "Blink": 1.1102230246251565e-16
+            },
+            "Pupil_L": {
+              "Blink": 1.1102230246251565e-16
+            },
+            "Pupil_R": {
+              "Blink": 1.1102230246251565e-16
+            },
+            "Small_eye_glint_L": {
+              "Blink": 1.1102230246251565e-16
+            },
+            "Small_eye_glint_R": {
+              "Blink": 1.1102230246251565e-16
+            },
+            "Smile_interior": {
+              "Talk": 0,
+              "Smile": 0.019525624269090523
+            }
+          },
+          "framing": {
+            "bounds": {
+              "min": [
+                -0.8592367172241211,
+                0.002756985075063512,
+                -0.5291702095296398
+              ],
+              "max": [
+                1.1230994962472765,
+                2.661575551872553,
+                0.8820048259546766
+              ],
+              "size": [
+                1.9823362134713975,
+                2.6588185667974895,
+                1.4111750354843164
+              ]
+            },
+            "scale": 0.9966832762086089,
+            "view": "companion",
+            "camera": [
+              0.45,
+              0.12,
+              5.4
+            ],
+            "fov": 31,
+            "exposure": 1.1
+          }
+        },
+        "trigger": "technical attentive refresh for pixel read; no evaluated answer"
+      },
+      "lesson": {
+        "renderer": "3d",
+        "dataset": {
+          "engine": "three.js r180",
+          "kayaCanvas": "",
+          "model": "gltf",
+          "clips": "idle greeting attentive speaking helping encouraging celebrating resting",
+          "bones": "14",
+          "clip": "attentive",
+          "triangles": "39216"
+        },
+        "webgl": "WebGL 2.0 (OpenGL ES 3.0 Chromium)",
+        "driver": {
+          "vendor": "Google Inc. (Google)",
+          "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (LLVM 10.0.0) (0x0000C0DE)), SwiftShader driver)"
+        },
+        "pixel": [
+          212,
+          197,
+          159,
+          255
+        ],
+        "rig": {
+          "clip": "attentive",
+          "weights": {
+            "idle": 0,
+            "greeting": 0,
+            "attentive": 1,
+            "speaking": 0,
+            "helping": 0,
+            "encouraging": 0,
+            "celebrating": 0,
+            "resting": 0
+          },
+          "bones": {
+            "root": [
+              0,
+              0,
+              0,
+              1
+            ],
+            "spine": [
+              0,
+              0,
+              0,
+              1
+            ],
+            "head": [
+              0.010671856323594313,
+              0.004057333619748608,
+              0.000021896803349658553,
+              0.9999348362851825
+            ],
+            "jaw": [
+              0.8608345985412598,
+              0,
+              0,
+              0.508884847164154
+            ],
+            "upperarmL": [
+              0.9555668234825134,
+              -0.05633501708507538,
+              -0.05633499100804329,
+              0.2838039994239807
+            ],
+            "pawL": [
+              0.1052960529923439,
+              0.06564056873321533,
+              -0.04515080526471138,
+              0.9912444353103638
+            ],
+            "upperarmR": [
+              0.9555668234825134,
+              0.05633501708507538,
+              0.05633499100804329,
+              0.2838039994239807
+            ],
+            "pawR": [
+              0.1052960529923439,
+              -0.06564056873321533,
+              0.04515080526471138,
+              0.9912444353103638
+            ],
+            "hindpawL": [
+              0.8495575785636902,
+              -0.3022553324699402,
+              -0.3022553026676178,
+              0.30908796191215515
+            ],
+            "hindpawR": [
+              0.8495575785636902,
+              0.3022553324699402,
+              0.3022553026676178,
+              0.30908796191215515
+            ],
+            "tail0": [
+              -0.5053818821029282,
+              -0.43238808408459584,
+              -0.4400465353152755,
+              0.6033148032505646
+            ],
+            "tail1": [
+              0.2932061907868779,
+              0.2510497854076803,
+              0.055940120675145054,
+              0.9208012103234882
+            ],
+            "tail2": [
+              0.2624067263444196,
+              0.2862839619842292,
+              0.13909505488860724,
+              0.9109537780049707
+            ],
+            "tail3": [
+              0.07446685495186571,
+              0.36351283330770046,
+              0.26328658986613446,
+              0.8905017040390393
+            ]
+          },
+          "morphs": {
+            "Amber_iris_L": {
+              "Blink": 0
+            },
+            "Amber_iris_R": {
+              "Blink": 0
+            },
+            "Closure_crease_L": {
+              "Blink": 0
+            },
+            "Closure_crease_R": {
+              "Blink": 0
+            },
+            "Eye_ivory_L": {
+              "Blink": 0
+            },
+            "Eye_ivory_R": {
+              "Blink": 0
+            },
+            "Eyelid_L": {
+              "Blink": 0
+            },
+            "Eyelid_R": {
+              "Blink": 0
+            },
+            "Iris_rim_L": {
+              "Blink": 0
+            },
+            "Iris_rim_R": {
+              "Blink": 0
+            },
+            "Large_eye_glint_L": {
+              "Blink": 0
+            },
+            "Large_eye_glint_R": {
+              "Blink": 0
+            },
+            "Lower_eyelid_L": {
+              "Blink": 0
+            },
+            "Lower_eyelid_R": {
+              "Blink": 0
+            },
+            "Pupil_L": {
+              "Blink": 0
+            },
+            "Pupil_R": {
+              "Blink": 0
+            },
+            "Small_eye_glint_L": {
+              "Blink": 0
+            },
+            "Small_eye_glint_R": {
+              "Blink": 0
+            },
+            "Smile_interior": {
+              "Talk": 0,
+              "Smile": 0.009274065017510836
+            }
+          },
+          "framing": {
+            "bounds": {
+              "min": [
+                -0.8592367172241211,
+                0.002756985075063512,
+                -0.5291702095296398
+              ],
+              "max": [
+                1.1230994962472765,
+                2.661575551872553,
+                0.8820048259546766
+              ],
+              "size": [
+                1.9823362134713975,
+                2.6588185667974895,
+                1.4111750354843164
+              ]
+            },
+            "scale": 0.9966832762086089,
+            "view": "companion",
+            "camera": [
+              0.45,
+              0.12,
+              5.4
+            ],
+            "fov": 31,
+            "exposure": 1.1
+          }
+        },
+        "trigger": "technical attentive refresh for pixel read; no evaluated answer",
+        "overlap": false
+      },
+      "answers": 1,
+      "downloadComplete": true,
+      "offlineHub": {
+        "renderer": "3d",
+        "dataset": {
+          "engine": "three.js r180",
+          "kayaCanvas": "",
+          "model": "gltf",
+          "clips": "idle greeting attentive speaking helping encouraging celebrating resting",
+          "bones": "14",
+          "clip": "attentive",
+          "triangles": "39216"
+        },
+        "webgl": "WebGL 2.0 (OpenGL ES 3.0 Chromium)",
+        "driver": {
+          "vendor": "Google Inc. (Google)",
+          "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (LLVM 10.0.0) (0x0000C0DE)), SwiftShader driver)"
+        },
+        "pixel": [
+          190,
+          171,
+          127,
+          255
+        ],
+        "rig": {
+          "clip": "attentive",
+          "weights": {
+            "idle": 0.2647353634868393,
+            "greeting": 0.7348996211383054,
+            "attentive": 0.00036501537485539033,
+            "speaking": 0,
+            "helping": 0,
+            "encouraging": 0,
+            "celebrating": 0,
+            "resting": 0
+          },
+          "bones": {
+            "root": [
+              0,
+              0,
+              0,
+              1
+            ],
+            "spine": [
+              0,
+              0,
+              0,
+              1
+            ],
+            "head": [
+              0.008063659581600468,
+              0.004172714269729576,
+              0.000033648731228045156,
+              0.9999587815092909
+            ],
+            "jaw": [
+              0.8608345995951706,
+              5.612325862570078e-14,
+              -2.2707781000648475e-12,
+              0.5088848477871765
+            ],
+            "upperarmL": [
+              0.9555668234825134,
+              -0.05633501708507538,
+              -0.05633499100804329,
+              0.2838039994239807
+            ],
+            "pawL": [
+              0.1052960529923439,
+              0.06564056873321533,
+              -0.04515080526471138,
+              0.9912444353103638
+            ],
+            "upperarmR": [
+              0.9414766298079866,
+              0.09776175667269249,
+              0.047591447736977044,
+              0.31906025271627986
+            ],
+            "pawR": [
+              0.0039082340425471256,
+              -0.031114524074335827,
+              0.04807955171986127,
+              0.9983511353012087
+            ],
+            "hindpawL": [
+              0.8495575785636902,
+              -0.3022553324699402,
+              -0.3022553026676178,
+              0.30908796191215515
+            ],
+            "hindpawR": [
+              0.8495575785636902,
+              0.3022553324699402,
+              0.3022553026676178,
+              0.30908796191215515
+            ],
+            "tail0": [
+              -0.5043792880715544,
+              -0.4310142000869434,
+              -0.4411953073371485,
+              0.6042970931586695
+            ],
+            "tail1": [
+              0.2931027739311742,
+              0.25274401148309666,
+              0.05647964777153508,
+              0.9203375895219488
+            ],
+            "tail2": [
+              0.2622457363742103,
+              0.2873367515813219,
+              0.13939828284196318,
+              0.9106222446181761
+            ],
+            "tail3": [
+              0.07438307464893032,
+              0.36379618808926106,
+              0.26331027894182607,
+              0.8903859829226357
+            ]
+          },
+          "morphs": {
+            "Amber_iris_L": {
+              "Blink": 0
+            },
+            "Amber_iris_R": {
+              "Blink": 0
+            },
+            "Closure_crease_L": {
+              "Blink": 0
+            },
+            "Closure_crease_R": {
+              "Blink": 0
+            },
+            "Eye_ivory_L": {
+              "Blink": 0
+            },
+            "Eye_ivory_R": {
+              "Blink": 0
+            },
+            "Eyelid_L": {
+              "Blink": 0
+            },
+            "Eyelid_R": {
+              "Blink": 0
+            },
+            "Iris_rim_L": {
+              "Blink": 0
+            },
+            "Iris_rim_R": {
+              "Blink": 0
+            },
+            "Large_eye_glint_L": {
+              "Blink": 0
+            },
+            "Large_eye_glint_R": {
+              "Blink": 0
+            },
+            "Lower_eyelid_L": {
+              "Blink": 0
+            },
+            "Lower_eyelid_R": {
+              "Blink": 0
+            },
+            "Pupil_L": {
+              "Blink": 0
+            },
+            "Pupil_R": {
+              "Blink": 0
+            },
+            "Small_eye_glint_L": {
+              "Blink": 0
+            },
+            "Small_eye_glint_R": {
+              "Blink": 0
+            },
+            "Smile_interior": {
+              "Talk": 0,
+              "Smile": 0.01246236914182452
+            }
+          },
+          "framing": {
+            "bounds": {
+              "min": [
+                -0.8592367172241211,
+                0.002756985075063512,
+                -0.5291702095296398
+              ],
+              "max": [
+                1.1230994962472765,
+                2.661575551872553,
+                0.8820048259546766
+              ],
+              "size": [
+                1.9823362134713975,
+                2.6588185667974895,
+                1.4111750354843164
+              ]
+            },
+            "scale": 0.9966832762086089,
+            "view": "companion",
+            "camera": [
+              0.45,
+              0.12,
+              5.4
+            ],
+            "fov": 31,
+            "exposure": 1.1
+          }
+        },
+        "trigger": "technical attentive refresh for pixel read; no evaluated answer"
+      },
+      "offlineAsset": {
+        "status": 200,
+        "bytes": 2013720,
+        "sha256": "042dc1f4ed484c0f3fc9b565b2004903f6d4cd8bce011e967bfd0e9d79b4aa0c"
+      },
+      "cards": [
+        {
+          "src": "assets/cards/son-m-640.webp",
+          "naturalWidth": 640
+        },
+        {
+          "src": "assets/cards/r_first-640.webp",
+          "naturalWidth": 640
+        }
+      ],
+      "audio": {
+        "decoded": [
+          {
+            "file": "a",
+            "seconds": 0.41891156462585033
+          },
+          {
+            "file": "i",
+            "seconds": 0.30662131519274377
+          },
+          {
+            "file": "o",
+            "seconds": 0.4357369614512472
+          },
+          {
+            "file": "u",
+            "seconds": 0.2899546485260771
+          },
+          {
+            "file": "ou",
+            "seconds": 0.29002267573696144
+          },
+          {
+            "file": "e-aigu",
+            "seconds": 0.3546485260770975
+          },
+          {
+            "file": "e-grave",
+            "seconds": 0.31151927437641724
+          },
+          {
+            "file": "on",
+            "seconds": 0.3491609977324263
+          },
+          {
+            "file": "an",
+            "seconds": 0.6038548752834467
+          },
+          {
+            "file": "in",
+            "seconds": 0.39653061224489794
+          },
+          {
+            "file": "oi",
+            "seconds": 0.5007482993197279
+          },
+          {
+            "file": "m",
+            "seconds": 0.5999773242630385
+          },
+          {
+            "file": "n",
+            "seconds": 0.5999773242630385
+          },
+          {
+            "file": "gn",
+            "seconds": 0.5999773242630385
+          },
+          {
+            "file": "l",
+            "seconds": 0.5999773242630385
+          },
+          {
+            "file": "r",
+            "seconds": 0.5999773242630385
+          },
+          {
+            "file": "s",
+            "seconds": 0.5999773242630385
+          },
+          {
+            "file": "z",
+            "seconds": 0.5999773242630385
+          },
+          {
+            "file": "f",
+            "seconds": 0.5999773242630385
+          },
+          {
+            "file": "v",
+            "seconds": 0.5999773242630385
+          },
+          {
+            "file": "ch",
+            "seconds": 0.5999773242630385
+          },
+          {
+            "file": "j",
+            "seconds": 0.5999773242630385
+          },
+          {
+            "file": "p",
+            "seconds": 0.12498866213151927
+          },
+          {
+            "file": "b",
+            "seconds": 0.17997732426303856
+          },
+          {
+            "file": "t",
+            "seconds": 0.15997732426303854
+          },
+          {
+            "file": "d",
+            "seconds": 0.17997732426303856
+          },
+          {
+            "file": "k",
+            "seconds": 0.19498866213151927
+          },
+          {
+            "file": "g",
+            "seconds": 0.17997732426303856
+          },
+          {
+            "file": "y",
+            "seconds": 0.22
+          },
+          {
+            "file": "ks",
+            "seconds": 0.22498866213151927
+          },
+          {
+            "file": "e",
+            "seconds": 0.23723356009070296
+          },
+          {
+            "file": "eu",
+            "seconds": 0.31394557823129254
+          },
+          {
+            "file": "ui",
+            "seconds": 0.31743764172335603
+          },
+          {
+            "file": "oin",
+            "seconds": 0.38206349206349205
+          },
+          {
+            "file": "ien",
+            "seconds": 0.3189569160997732
+          }
+        ],
+        "range": {
+          "status": 206,
+          "bytes": 2
+        }
+      }
+    },
+    {
+      "name": "webkit",
+      "executable": "/Users/davidsondorelus/Library/Caches/ms-playwright/webkit-2370/pw_run.sh",
+      "status": "passed",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "receivedModels": [
+        {
+          "phase": "online-hub",
+          "url": "http://127.0.0.1:58544/assets/kaya/kaya-production-v2.glb",
+          "status": 200,
+          "bytes": 2013720,
+          "sha256": "042dc1f4ed484c0f3fc9b565b2004903f6d4cd8bce011e967bfd0e9d79b4aa0c",
+          "fromServiceWorker": true
+        },
+        {
+          "phase": "online-lesson",
+          "url": "http://127.0.0.1:58544/assets/kaya/kaya-production-v2.glb",
+          "status": 200,
+          "bytes": 2013720,
+          "sha256": "042dc1f4ed484c0f3fc9b565b2004903f6d4cd8bce011e967bfd0e9d79b4aa0c",
+          "fromServiceWorker": true
+        },
+        {
+          "phase": "online-lesson",
+          "url": "http://127.0.0.1:58544/assets/kaya/kaya-production-v2.glb",
+          "status": 200,
+          "bytes": 2013720,
+          "sha256": "042dc1f4ed484c0f3fc9b565b2004903f6d4cd8bce011e967bfd0e9d79b4aa0c",
+          "fromServiceWorker": true
+        },
+        {
+          "phase": "offline-hub",
+          "url": "http://127.0.0.1:58544/assets/kaya/kaya-production-v2.glb",
+          "status": 200,
+          "bytes": 2013720,
+          "sha256": "042dc1f4ed484c0f3fc9b565b2004903f6d4cd8bce011e967bfd0e9d79b4aa0c",
+          "fromServiceWorker": true
+        },
+        {
+          "phase": "offline-model-verification",
+          "url": "http://127.0.0.1:58544/assets/kaya/kaya-production-v2.glb",
+          "status": 200,
+          "bytes": 2013720,
+          "sha256": "042dc1f4ed484c0f3fc9b565b2004903f6d4cd8bce011e967bfd0e9d79b4aa0c",
+          "fromServiceWorker": true
+        }
+      ],
+      "version": "27.2",
+      "hub": {
+        "renderer": "3d",
+        "dataset": {
+          "engine": "three.js r180",
+          "kayaCanvas": "",
+          "model": "gltf",
+          "clips": "idle greeting attentive speaking helping encouraging celebrating resting",
+          "bones": "14",
+          "clip": "attentive",
+          "triangles": "39216"
+        },
+        "webgl": "WebGL 2.0",
+        "driver": {
+          "vendor": "Apple Inc.",
+          "renderer": "Apple GPU"
+        },
+        "pixel": [
+          196,
+          179,
+          136,
+          255
+        ],
+        "rig": {
+          "clip": "attentive",
+          "weights": {
+            "idle": 0,
+            "greeting": 0.997597667638484,
+            "attentive": 0.0024023323615160385,
+            "speaking": 0,
+            "helping": 0,
+            "encouraging": 0,
+            "celebrating": 0,
+            "resting": 0
+          },
+          "bones": {
+            "root": [
+              0,
+              0,
+              0,
+              1
+            ],
+            "spine": [
+              0,
+              0,
+              0,
+              1
+            ],
+            "head": [
+              0.008063729875971662,
+              0.0004296768283097707,
+              0.0000034649100163871504,
+              0.9999674137348102
+            ],
+            "jaw": [
+              0.8608345985412598,
+              0,
+              0,
+              0.508884847164154
+            ],
+            "upperarmL": [
+              0.9555668234825134,
+              -0.05633501708507538,
+              -0.05633499100804329,
+              0.2838039994239807
+            ],
+            "pawL": [
+              0.1052960529923439,
+              0.06564056873321533,
+              -0.04515080526471138,
+              0.9912444353103638
+            ],
+            "upperarmR": [
+              0.9516964337344335,
+              0.06862255421779889,
+              0.05324544811557042,
+              0.29449922691537267
+            ],
+            "pawR": [
+              0.0752419396964415,
+              -0.058526811960381536,
+              0.044339588931880745,
+              0.9944583088172864
+            ],
+            "hindpawL": [
+              0.8495575785636902,
+              -0.3022553324699402,
+              -0.3022553026676178,
+              0.30908796191215515
+            ],
+            "hindpawR": [
+              0.8495575785636902,
+              0.3022553324699402,
+              0.3022553026676178,
+              0.30908796191215515
+            ],
+            "tail0": [
+              -0.5066596693850194,
+              -0.4341410730988563,
+              -0.4385746598926235,
+              0.6020545810904555
+            ],
+            "tail1": [
+              0.29335090187319507,
+              0.24865085747091667,
+              0.055176326372779715,
+              0.9214518979416025
+            ],
+            "tail2": [
+              0.2626808930335003,
+              0.2844841281654621,
+              0.13857649142389405,
+              0.9115174730992242
+            ],
+            "tail3": [
+              0.07475865607410792,
+              0.362525484942066,
+              0.2632039070111441,
+              0.8909041106221633
+            ]
+          },
+          "morphs": {
+            "Amber_iris_L": {
+              "Blink": 0
+            },
+            "Amber_iris_R": {
+              "Blink": 0
+            },
+            "Closure_crease_L": {
+              "Blink": 0
+            },
+            "Closure_crease_R": {
+              "Blink": 0
+            },
+            "Eye_ivory_L": {
+              "Blink": 0
+            },
+            "Eye_ivory_R": {
+              "Blink": 0
+            },
+            "Eyelid_L": {
+              "Blink": 0
+            },
+            "Eyelid_R": {
+              "Blink": 0
+            },
+            "Iris_rim_L": {
+              "Blink": 0
+            },
+            "Iris_rim_R": {
+              "Blink": 0
+            },
+            "Large_eye_glint_L": {
+              "Blink": 0
+            },
+            "Large_eye_glint_R": {
+              "Blink": 0
+            },
+            "Lower_eyelid_L": {
+              "Blink": 0
+            },
+            "Lower_eyelid_R": {
+              "Blink": 0
+            },
+            "Pupil_L": {
+              "Blink": 0
+            },
+            "Pupil_R": {
+              "Blink": 0
+            },
+            "Small_eye_glint_L": {
+              "Blink": 0
+            },
+            "Small_eye_glint_R": {
+              "Blink": 0
+            },
+            "Smile_interior": {
+              "Talk": 0,
+              "Smile": 0.0053564191770966475
+            }
+          },
+          "framing": {
+            "bounds": {
+              "min": [
+                -0.8592367172241211,
+                0.002756985075063512,
+                -0.5291702095296398
+              ],
+              "max": [
+                1.1230994962472765,
+                2.661575551872553,
+                0.8820048259546766
+              ],
+              "size": [
+                1.9823362134713975,
+                2.6588185667974895,
+                1.4111750354843164
+              ]
+            },
+            "scale": 0.9966832762086089,
+            "view": "companion",
+            "camera": [
+              0.45,
+              0.12,
+              5.4
+            ],
+            "fov": 31,
+            "exposure": 1.1
+          }
+        },
+        "trigger": "technical attentive refresh for pixel read; no evaluated answer"
+      },
+      "lesson": {
+        "renderer": "3d",
+        "dataset": {
+          "engine": "three.js r180",
+          "kayaCanvas": "",
+          "model": "gltf",
+          "clips": "idle greeting attentive speaking helping encouraging celebrating resting",
+          "bones": "14",
+          "clip": "attentive",
+          "triangles": "39216"
+        },
+        "webgl": "WebGL 2.0",
+        "driver": {
+          "vendor": "Apple Inc.",
+          "renderer": "Apple GPU"
+        },
+        "pixel": [
+          211,
+          196,
+          158,
+          255
+        ],
+        "rig": {
+          "clip": "attentive",
+          "weights": {
+            "idle": 0,
+            "greeting": 0,
+            "attentive": 1,
+            "speaking": 0,
+            "helping": 0,
+            "encouraging": 0,
+            "celebrating": 0,
+            "resting": 0
+          },
+          "bones": {
+            "root": [
+              0,
+              0,
+              0,
+              1
+            ],
+            "spine": [
+              0,
+              0,
+              0,
+              1
+            ],
+            "head": [
+              0.012897132518541295,
+              0.007519506740813306,
+              0.000024182567045345086,
+              0.9998886012472578
+            ],
+            "jaw": [
+              0.8608345985412598,
+              0,
+              0,
+              0.508884847164154
+            ],
+            "upperarmL": [
+              0.9555668234825134,
+              -0.05633501708507538,
+              -0.05633499100804329,
+              0.2838039994239807
+            ],
+            "pawL": [
+              0.1052960529923439,
+              0.06564056873321533,
+              -0.04515080526471138,
+              0.9912444353103638
+            ],
+            "upperarmR": [
+              0.9555668234825134,
+              0.05633501708507538,
+              0.05633499100804329,
+              0.2838039994239807
+            ],
+            "pawR": [
+              0.1052960529923439,
+              -0.06564056873321533,
+              0.04515080526471138,
+              0.9912444353103638
+            ],
+            "hindpawL": [
+              0.8495575785636902,
+              -0.3022553324699402,
+              -0.3022553026676178,
+              0.30908796191215515
+            ],
+            "hindpawR": [
+              0.8495575785636902,
+              0.3022553324699402,
+              0.3022553026676178,
+              0.30908796191215515
+            ],
+            "tail0": [
+              -0.5028748948486016,
+              -0.4289551876498699,
+              -0.44290926542203274,
+              0.6057604006025997
+            ],
+            "tail1": [
+              0.2929426110908603,
+              0.25533400228383096,
+              0.05730458286469002,
+              0.9196223928911228
+            ],
+            "tail2": [
+              0.26197878293847604,
+              0.2890767147004629,
+              0.13989923918909059,
+              0.9100714228526685
+            ],
+            "tail3": [
+              0.07418135957139844,
+              0.3644780908407901,
+              0.2633671562355045,
+              0.8901070655857165
+            ]
+          },
+          "morphs": {
+            "Amber_iris_L": {
+              "Blink": 0
+            },
+            "Amber_iris_R": {
+              "Blink": 0
+            },
+            "Closure_crease_L": {
+              "Blink": 0
+            },
+            "Closure_crease_R": {
+              "Blink": 0
+            },
+            "Eye_ivory_L": {
+              "Blink": 0
+            },
+            "Eye_ivory_R": {
+              "Blink": 0
+            },
+            "Eyelid_L": {
+              "Blink": 0
+            },
+            "Eyelid_R": {
+              "Blink": 0
+            },
+            "Iris_rim_L": {
+              "Blink": 0
+            },
+            "Iris_rim_R": {
+              "Blink": 0
+            },
+            "Large_eye_glint_L": {
+              "Blink": 0
+            },
+            "Large_eye_glint_R": {
+              "Blink": 0
+            },
+            "Lower_eyelid_L": {
+              "Blink": 0
+            },
+            "Lower_eyelid_R": {
+              "Blink": 0
+            },
+            "Pupil_L": {
+              "Blink": 0
+            },
+            "Pupil_R": {
+              "Blink": 0
+            },
+            "Small_eye_glint_L": {
+              "Blink": 0
+            },
+            "Small_eye_glint_R": {
+              "Blink": 0
+            },
+            "Smile_interior": {
+              "Talk": 0,
+              "Smile": 0.01718769438665695
+            }
+          },
+          "framing": {
+            "bounds": {
+              "min": [
+                -0.8592367172241211,
+                0.002756985075063512,
+                -0.5291702095296398
+              ],
+              "max": [
+                1.1230994962472765,
+                2.661575551872553,
+                0.8820048259546766
+              ],
+              "size": [
+                1.9823362134713975,
+                2.6588185667974895,
+                1.4111750354843164
+              ]
+            },
+            "scale": 0.9966832762086089,
+            "view": "companion",
+            "camera": [
+              0.45,
+              0.12,
+              5.4
+            ],
+            "fov": 31,
+            "exposure": 1.1
+          }
+        },
+        "trigger": "technical attentive refresh for pixel read; no evaluated answer",
+        "overlap": false
+      },
+      "answers": 1,
+      "downloadComplete": true,
+      "offlineHub": {
+        "renderer": "3d",
+        "dataset": {
+          "engine": "three.js r180",
+          "kayaCanvas": "",
+          "model": "gltf",
+          "clips": "idle greeting attentive speaking helping encouraging celebrating resting",
+          "bones": "14",
+          "clip": "attentive",
+          "triangles": "39216"
+        },
+        "webgl": "WebGL 2.0",
+        "driver": {
+          "vendor": "Apple Inc.",
+          "renderer": "Apple GPU"
+        },
+        "pixel": [
+          195,
+          177,
+          135,
+          255
+        ],
+        "rig": {
+          "clip": "attentive",
+          "weights": {
+            "idle": 0,
+            "greeting": 0.9916977951895044,
+            "attentive": 0.00830220481049558,
+            "speaking": 0,
+            "helping": 0,
+            "encouraging": 0,
+            "celebrating": 0,
+            "resting": 0
+          },
+          "bones": {
+            "root": [
+              0,
+              0,
+              0,
+              1
+            ],
+            "spine": [
+              0,
+              0,
+              0,
+              1
+            ],
+            "head": [
+              0.008063728697237132,
+              0.0006800018266426212,
+              0.000005483528375772462,
+              0.9999672718526197
+            ],
+            "jaw": [
+              0.8608345985412598,
+              0,
+              0,
+              0.508884847164154
+            ],
+            "upperarmL": [
+              0.9555668234825134,
+              -0.05633501708507538,
+              -0.05633499100804329,
+              0.2838039994239807
+            ],
+            "pawL": [
+              0.1052960529923439,
+              0.06564056873321533,
+              -0.04515080526471138,
+              0.9912444353103638
+            ],
+            "upperarmR": [
+              0.9502820211300209,
+              0.07291303841819118,
+              0.052253932910261106,
+              0.29819007749437054
+            ],
+            "pawR": [
+              0.06472136355373538,
+              -0.05510944772552614,
+              0.04437331310595113,
+              0.9953919611177039
+            ],
+            "hindpawL": [
+              0.8495575785636902,
+              -0.3022553324699402,
+              -0.3022553026676178,
+              0.30908796191215515
+            ],
+            "hindpawR": [
+              0.8495575785636902,
+              0.3022553324699402,
+              0.3022553026676178,
+              0.30908796191215515
+            ],
+            "tail0": [
+              -0.5061906480499656,
+              -0.43349737637452695,
+              -0.4391158973192756,
+              0.6025182423072851
+            ],
+            "tail1": [
+              0.29329839562609794,
+              0.24952535738590112,
+              0.05545473830646428,
+              0.9212154690331686
+            ],
+            "tail2": [
+              0.2625820402274505,
+              0.2851339226125761,
+              0.13876374167364697,
+              0.9113144112530008
+            ],
+            "tail3": [
+              0.07465629378921963,
+              0.36287192201174767,
+              0.2632329547252632,
+              0.8907630616706284
+            ]
+          },
+          "morphs": {
+            "Amber_iris_L": {
+              "Blink": 0
+            },
+            "Amber_iris_R": {
+              "Blink": 0
+            },
+            "Closure_crease_L": {
+              "Blink": 0
+            },
+            "Closure_crease_R": {
+              "Blink": 0
+            },
+            "Eye_ivory_L": {
+              "Blink": 0
+            },
+            "Eye_ivory_R": {
+              "Blink": 0
+            },
+            "Eyelid_L": {
+              "Blink": 0
+            },
+            "Eyelid_R": {
+              "Blink": 0
+            },
+            "Iris_rim_L": {
+              "Blink": 0
+            },
+            "Iris_rim_R": {
+              "Blink": 0
+            },
+            "Large_eye_glint_L": {
+              "Blink": 0
+            },
+            "Large_eye_glint_R": {
+              "Blink": 0
+            },
+            "Lower_eyelid_L": {
+              "Blink": 0
+            },
+            "Lower_eyelid_R": {
+              "Blink": 0
+            },
+            "Pupil_L": {
+              "Blink": 0
+            },
+            "Pupil_R": {
+              "Blink": 0
+            },
+            "Small_eye_glint_L": {
+              "Blink": 0
+            },
+            "Small_eye_glint_R": {
+              "Blink": 0
+            },
+            "Smile_interior": {
+              "Talk": 0,
+              "Smile": 0.006797796609873394
+            }
+          },
+          "framing": {
+            "bounds": {
+              "min": [
+                -0.8592367172241211,
+                0.002756985075063512,
+                -0.5291702095296398
+              ],
+              "max": [
+                1.1230994962472765,
+                2.661575551872553,
+                0.8820048259546766
+              ],
+              "size": [
+                1.9823362134713975,
+                2.6588185667974895,
+                1.4111750354843164
+              ]
+            },
+            "scale": 0.9966832762086089,
+            "view": "companion",
+            "camera": [
+              0.45,
+              0.12,
+              5.4
+            ],
+            "fov": 31,
+            "exposure": 1.1
+          }
+        },
+        "trigger": "technical attentive refresh for pixel read; no evaluated answer"
+      },
+      "offlineAsset": {
+        "status": 200,
+        "bytes": 2013720,
+        "sha256": "042dc1f4ed484c0f3fc9b565b2004903f6d4cd8bce011e967bfd0e9d79b4aa0c"
+      },
+      "cards": [
+        {
+          "src": "assets/cards/son-m-640.webp",
+          "naturalWidth": 640
+        },
+        {
+          "src": "assets/cards/r_first-640.webp",
+          "naturalWidth": 640
+        }
+      ],
+      "audio": {
+        "decoded": [
+          {
+            "file": "a",
+            "seconds": 0.48
+          },
+          {
+            "file": "i",
+            "seconds": 0.36
+          },
+          {
+            "file": "o",
+            "seconds": 0.5039909297052154
+          },
+          {
+            "file": "u",
+            "seconds": 0.36
+          },
+          {
+            "file": "ou",
+            "seconds": 0.36
+          },
+          {
+            "file": "e-aigu",
+            "seconds": 0.40798185941043086
+          },
+          {
+            "file": "e-grave",
+            "seconds": 0.36
+          },
+          {
+            "file": "on",
+            "seconds": 0.40798185941043086
+          },
+          {
+            "file": "an",
+            "seconds": 0.6719954648526077
+          },
+          {
+            "file": "in",
+            "seconds": 0.45598639455782314
+          },
+          {
+            "file": "oi",
+            "seconds": 0.5519954648526078
+          },
+          {
+            "file": "m",
+            "seconds": 0.6479818594104308
+          },
+          {
+            "file": "n",
+            "seconds": 0.6479818594104308
+          },
+          {
+            "file": "gn",
+            "seconds": 0.6479818594104308
+          },
+          {
+            "file": "l",
+            "seconds": 0.6479818594104308
+          },
+          {
+            "file": "r",
+            "seconds": 0.6479818594104308
+          },
+          {
+            "file": "s",
+            "seconds": 0.6479818594104308
+          },
+          {
+            "file": "z",
+            "seconds": 0.6479818594104308
+          },
+          {
+            "file": "f",
+            "seconds": 0.6479818594104308
+          },
+          {
+            "file": "v",
+            "seconds": 0.6479818594104308
+          },
+          {
+            "file": "ch",
+            "seconds": 0.6479818594104308
+          },
+          {
+            "file": "j",
+            "seconds": 0.6479818594104308
+          },
+          {
+            "file": "p",
+            "seconds": 0.1919954648526077
+          },
+          {
+            "file": "b",
+            "seconds": 0.24
+          },
+          {
+            "file": "t",
+            "seconds": 0.21598639455782312
+          },
+          {
+            "file": "d",
+            "seconds": 0.24
+          },
+          {
+            "file": "k",
+            "seconds": 0.2639909297052154
+          },
+          {
+            "file": "g",
+            "seconds": 0.24
+          },
+          {
+            "file": "y",
+            "seconds": 0.28798185941043086
+          },
+          {
+            "file": "ks",
+            "seconds": 0.28798185941043086
+          },
+          {
+            "file": "e",
+            "seconds": 0.28798185941043086
+          },
+          {
+            "file": "eu",
+            "seconds": 0.3839909297052154
+          },
+          {
+            "file": "ui",
+            "seconds": 0.3839909297052154
+          },
+          {
+            "file": "oin",
+            "seconds": 0.4319954648526077
+          },
+          {
+            "file": "ien",
+            "seconds": 0.3839909297052154
+          }
+        ],
+        "range": {
+          "status": 206,
+          "bytes": 2
+        }
+      }
+    }
+  ],
+  "limits": "Desktop headless engines and a 390×844 viewport. No physical phone/tablet, energy measurement or human audio validation.",
+  "sourceHash": "042dc1f4ed484c0f3fc9b565b2004903f6d4cd8bce011e967bfd0e9d79b4aa0c",
+  "modelBytes": 2013720,
+  "assembledSite": "/var/folders/hd/gtbd4sbn6xx9pq6q9slgj3300000gn/T/educa-built-runtime-XiCS7I",
+  "assembledAssets": [
+    {
+      "path": "assets/kaya/kaya-production-v2.glb",
+      "bytes": 2013720,
+      "sha256": "042dc1f4ed484c0f3fc9b565b2004903f6d4cd8bce011e967bfd0e9d79b4aa0c"
+    },
+    {
+      "path": "assets/cards/son-m-640.webp",
+      "bytes": 132674,
+      "sha256": "ce988a5d127273bb6cb14bd14c1e20ec73f06eb9d953e0df6a707ebdcca6dbc1"
+    },
+    {
+      "path": "assets/cards/son-m-160.webp",
+      "bytes": 16158,
+      "sha256": "0f40824b14d0b4bdef5c6500dab8bba7d93fbeb38f5ed513388a08ff59171eed"
+    },
+    {
+      "path": "assets/cards/r_first-640.webp",
+      "bytes": 122636,
+      "sha256": "885cac14004abe7dea66d87f09f39c2799be13219c23682b73b66bc1fc35590b"
+    },
+    {
+      "path": "assets/cards/r_first-160.webp",
+      "bytes": 15450,
+      "sha256": "429dbd124082b2f29edc240f4434df21e1bc38ab34da6c7105bde9451835d6bd"
+    },
+    {
+      "path": "audio/sons/a.mp3",
+      "bytes": 2112,
+      "sha256": "e9ddc0ba5dcec5dc2fd5625b0edf86df988bd6e4707fc788ff7ac956d2b2f456"
+    },
+    {
+      "path": "audio/sons/i.mp3",
+      "bytes": 1632,
+      "sha256": "7a80e0da936f83e6401d35a6cde84da817d9b3187aab09d7b5e0533a0b114173"
+    },
+    {
+      "path": "audio/sons/o.mp3",
+      "bytes": 2208,
+      "sha256": "1c3f0de50562e3fcd12f3529f4bc297d649c58e46d7a7099875accd492102fe3"
+    },
+    {
+      "path": "audio/sons/u.mp3",
+      "bytes": 1632,
+      "sha256": "4fe8e5f1a820f8fd30e56bf1801058d358de5374bd993f03a81422f45a1c9a9c"
+    },
+    {
+      "path": "audio/sons/ou.mp3",
+      "bytes": 1632,
+      "sha256": "e43530182a3fc0afa629eafd6e061fec3f6b1d77894a27989ff312b4f36f86dc"
+    },
+    {
+      "path": "audio/sons/e-aigu.mp3",
+      "bytes": 1824,
+      "sha256": "aeec647e28ca9f4c217a0f9243c81d83df908a22bfa173cd7cf90bff90ffbbc6"
+    },
+    {
+      "path": "audio/sons/e-grave.mp3",
+      "bytes": 1632,
+      "sha256": "0bfc95899d92fd181bb16feb2b01569e685d9d048b9bd305cb004e061e1915f7"
+    },
+    {
+      "path": "audio/sons/on.mp3",
+      "bytes": 1824,
+      "sha256": "fadc2d3936c122db979faf40ee4a18be4b877f8a0c663a02ff8cc942a18513cd"
+    },
+    {
+      "path": "audio/sons/an.mp3",
+      "bytes": 2880,
+      "sha256": "6159d389d515eab8066ada37577eab48153dbda7e6f16f3ff20171ac4aefd446"
+    },
+    {
+      "path": "audio/sons/in.mp3",
+      "bytes": 2016,
+      "sha256": "eb3fb180c4871d2ed2afbc5e60351b76a23ba2d290b3e93fba9657ca17cb975d"
+    },
+    {
+      "path": "audio/sons/oi.mp3",
+      "bytes": 2400,
+      "sha256": "595ae3b8b486d46992f7d7d1b06b40fa62a21968db6c0c1bfe8aeb5824ea4608"
+    },
+    {
+      "path": "audio/sons/m.mp3",
+      "bytes": 4080,
+      "sha256": "5e6ca519018e7dc698938f78ba9ec55f1a7c9f11eae74fd8bdc8a0c34615bb28"
+    },
+    {
+      "path": "audio/sons/n.mp3",
+      "bytes": 4080,
+      "sha256": "1c82bd6e59cee5fc7a95ed6a1d9daaadc3f6336c884b6d7eb72795a6a950f888"
+    },
+    {
+      "path": "audio/sons/gn.mp3",
+      "bytes": 4080,
+      "sha256": "f7f3445e9a8544ebef610a19346fe54f9af8f464562e117bb40ff3f99e06bc6c"
+    },
+    {
+      "path": "audio/sons/l.mp3",
+      "bytes": 4080,
+      "sha256": "2826b3cf75f2c3099007d830b81eaa69cc606a05aaf27fe696ae6aa98e2ee719"
+    },
+    {
+      "path": "audio/sons/r.mp3",
+      "bytes": 4080,
+      "sha256": "1da2418c00683086f8a4b79e1f9d747c3c6cf9b3cf7fad1237f6f7f0634e01fe"
+    },
+    {
+      "path": "audio/sons/s.mp3",
+      "bytes": 4080,
+      "sha256": "d837e3a120907445e7da3639802a0f5133d4bf98ee9a0c7d88d001d255c679ea"
+    },
+    {
+      "path": "audio/sons/z.mp3",
+      "bytes": 4080,
+      "sha256": "fbb5d8f61bd2861a821f6755bb5e8f4c9e9c84c53f3f7931c03bf67f0c790b1b"
+    },
+    {
+      "path": "audio/sons/f.mp3",
+      "bytes": 4080,
+      "sha256": "6ef7ae3301b112201543f3f25ff66b569bcd26e76f27c8c851ef4867cf4aaf21"
+    },
+    {
+      "path": "audio/sons/v.mp3",
+      "bytes": 4080,
+      "sha256": "09d227ab029968e0b47d7cd865d485e5f3ad631c69eca878b6a28436db3d5755"
+    },
+    {
+      "path": "audio/sons/ch.mp3",
+      "bytes": 4080,
+      "sha256": "c7f37a18ba6e489638b21fa764ed5b246e8e3c0256f18999c7fcf5c63497540d"
+    },
+    {
+      "path": "audio/sons/j.mp3",
+      "bytes": 4080,
+      "sha256": "ff0dbdf481c2d630375b4662199654d83acd0f923b15eaf5f1526b6d5769092d"
+    },
+    {
+      "path": "audio/sons/p.mp3",
+      "bytes": 1344,
+      "sha256": "669b006e4551f1bb4223c4deeeda4e09707b94a000a218ff2dbd46e93e42835a"
+    },
+    {
+      "path": "audio/sons/b.mp3",
+      "bytes": 1632,
+      "sha256": "76980ea2446a36206c657d5ae8686294e2e0271ef31155e62d5d4dec4f589273"
+    },
+    {
+      "path": "audio/sons/t.mp3",
+      "bytes": 1488,
+      "sha256": "2b3d52a61f11ad46a05f0b6f852cb0556a99ea7fd350eee37c8e882ff4901cbc"
+    },
+    {
+      "path": "audio/sons/d.mp3",
+      "bytes": 1632,
+      "sha256": "2ef13bf94f1db67c39a1bfce508997703d71e25174425fd95b303eaaada23e86"
+    },
+    {
+      "path": "audio/sons/k.mp3",
+      "bytes": 1776,
+      "sha256": "7f85cc4a9d9ba91d80f6bc6157620b80342b9f524e1bb6cd3cb0832969d936ad"
+    },
+    {
+      "path": "audio/sons/g.mp3",
+      "bytes": 1632,
+      "sha256": "1272a4ea9a5da67dae3b0875ca13a065cda2bd85742e46db4445482762259e17"
+    },
+    {
+      "path": "audio/sons/y.mp3",
+      "bytes": 1920,
+      "sha256": "e2a1714a8d2cddf33dd0ba621095cb31db80441efda366ef3cd62e32145b8422"
+    },
+    {
+      "path": "audio/sons/ks.mp3",
+      "bytes": 1920,
+      "sha256": "b84eaeb1f6937827d5b8e91cd0b696b4b1d51a794f2e43bcfa8f75fee6baeab3"
+    },
+    {
+      "path": "audio/sons/e.mp3",
+      "bytes": 1344,
+      "sha256": "82bc83f76f5c8c7afb789acf9317b7fd2816a7a85f16e91ef36b469b0c384a7e"
+    },
+    {
+      "path": "audio/sons/eu.mp3",
+      "bytes": 1728,
+      "sha256": "b78e486010e40eefb681e36e941d63144d6fce352dec347902fe9e24e330b1c0"
+    },
+    {
+      "path": "audio/sons/ui.mp3",
+      "bytes": 1728,
+      "sha256": "c4ece920a7e0de206d1f77a5f121283da35c50474c819a493e538a8a0bd0717b"
+    },
+    {
+      "path": "audio/sons/oin.mp3",
+      "bytes": 1920,
+      "sha256": "15b3621574d756f9cdba88b9a6b55db96b7d5358a6b16997fc64dd1a61d25c40"
+    },
+    {
+      "path": "audio/sons/ien.mp3",
+      "bytes": 1728,
+      "sha256": "14077dce8d67b8979bff6adaa022bc84ee19718391c3cee8b4730c85fcc2e7ef"
+    }
+  ],
+  "packaging": {
+    "docsExcluded": true,
+    "editableSourcesExcluded": true,
+    "archivedModelsExcluded": true,
+    "cards": 4,
+    "soundFiles": 35,
+    "servedFiles": 416
+  },
+  "finishedAt": "2026-10-26T02:36:48.128Z",
+  "complete": true
+}

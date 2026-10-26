@@ -4,7 +4,7 @@ import { createHash } from 'node:crypto';
 import { resolve } from 'node:path';
 import { chromium } from 'playwright-core';
 import { startServer } from '../../tests/e2e/server.mjs';
-const out = resolve(process.argv[2] || 'docs/verification/2026-10-25/kaya-production');
+const out = resolve(process.argv[2] || 'docs/verification/2026-10-26/kaya-v2/runtime');
 await mkdir(out, { recursive: true });
 const { server, url } = await startServer();
 const browser = await chromium.launch({ executablePath: process.env.CHROMIUM_PATH || undefined,
@@ -44,9 +44,25 @@ try {
     }, event);
     await capture(name, `événement explicite ${event} pour démontrer le clip, sans réponse évaluée`);
   }
+  await page.locator('.kaya-options summary').click();
   await page.getByRole('button', { name: 'Repos', exact: true }).click();
   await capture('repos', 'bouton réel Repos');
   await page.getByRole('button', { name: 'Réveiller Kaya', exact: true }).click();
+  // Rapid real controls reproduce the interrupted blend case, sampled in the running game.
+  const transitions = [];
+  const sample = async trigger => {
+    const rig = await page.$eval('[data-kaya-canvas]', c => c._kayaInspect());
+    const total = Object.values(rig.weights).reduce((sum, weight) => sum + weight, 0);
+    if (Math.abs(total - 1) > .0001) throw new Error(`Unnormalised animation blend: ${total}`);
+    transitions.push({ trigger, secondsSincePage: (Date.now() - startedAt) / 1000, rig });
+  };
+  await page.getByRole('button', { name: 'Saluer Kaya', exact: true }).click();
+  await page.waitForTimeout(100); await sample('salut avant interruption');
+  await page.getByRole('button', { name: 'Repos', exact: true }).click();
+  for (let i = 0; i < 3; i++) { await page.waitForTimeout(45); await sample('fondu vers repos'); }
+  await page.getByRole('button', { name: 'Réveiller Kaya', exact: true }).click();
+  for (let i = 0; i < 8; i++) { await page.waitForTimeout(45); await sample('fondu interrompu vers réveil'); }
+  await page.locator('.kaya-options summary').click();
   // Actual lesson navigation, with compact companion in the reserved top bar.
   await page.evaluate(() => { const d = JSON.parse(localStorage.getItem('educa2:device')); d.muted = false; localStorage.setItem('educa2:device', JSON.stringify(d)); });
   await page.reload(); await page.waitForSelector('[data-model="gltf"]');
@@ -58,9 +74,9 @@ try {
   await video.saveAs(`${out}/animations-parcours.webm`);
   const originalVideo = await video.path();
   if (originalVideo !== `${out}/animations-parcours.webm`) await rm(originalVideo);
-  const assetHash = createHash('sha256').update(await readFile(new URL('../../assets/kaya/kaya-production-v1.glb', import.meta.url))).digest('hex');
+  const assetHash = createHash('sha256').update(await readFile(new URL('../../assets/kaya/kaya-production-v2.glb', import.meta.url))).digest('hex');
   await writeFile(`${out}/proof.json`, JSON.stringify({ assetHash, viewport: '390×844', browser: await browser.version(),
-    timeline, errors, note: 'Les réactions techniques et les actions réelles sont distinguées dans timeline.' }, null, 2));
+    timeline, transitions, errors, note: 'Les réactions techniques et les actions réelles sont distinguées dans timeline. Transitions échantillonnées après contrôles réels.' }, null, 2));
   if (errors.length) throw new Error(errors.join('\n'));
   console.log(`Captures et vidéo écrites dans ${out}`);
 } finally { await browser.close(); server.close(); }

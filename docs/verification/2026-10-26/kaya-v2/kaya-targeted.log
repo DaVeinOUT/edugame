@@ -1,0 +1,14 @@
+✔ Kaya : vrai maillage WebGL dans le parcours, une seule scène et réactions aux réponses (8393.821917ms)
+✔ Kaya : réduction système/profil et masquage arrêtent les boucles, le clavier reste utilisable (1589.928ms)
+✔ Kaya : modèle/module absent, WebGL refusé et contexte perdu conservent le jeu et le secours entier (5187.471125ms)
+✔ Kaya : le vrai salut anime un os et le repos réduit neutralise le fondu (1591.615459ms)
+✔ Kaya : masquer pendant le chargement annule la création GPU et permet une reprise (1599.070542ms)
+✔ Kaya : options repliées, navigation clavier et retour du focus par Échap (1221.083334ms)
+ℹ tests 6
+ℹ suites 0
+ℹ pass 6
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 20156.746834

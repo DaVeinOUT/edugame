@@ -1,0 +1,120 @@
+INFO Draco mesh compression is available, use library at /Volumes/Blender/Blender.app/Contents/Resources/4.5/scripts/addons_core/io_scene_gltf2/libextern_draco.dylib
+03:31:09 | INFO: Starting glTF 2.0 export
+03:31:09 | INFO: Extracting primitive: Sphere.038
+03:31:09 | INFO: Primitives created: 1
+03:31:09 | INFO: Extracting primitive: Sphere.047
+03:31:09 | INFO: Primitives created: 1
+03:31:09 | INFO: Extracting primitive: Kaya v2 closure crease L
+03:31:09 | INFO: Primitives created: 1
+03:31:09 | INFO: Extracting primitive: Kaya v2 closure crease R
+03:31:09 | INFO: Primitives created: 1
+03:31:09 | INFO: Extracting primitive: Sphere.033
+03:31:09 | INFO: Primitives created: 1
+03:31:09 | INFO: Extracting primitive: Sphere.042
+03:31:09 | INFO: Primitives created: 1
+03:31:09 | INFO: Extracting primitive: Sphere.035
+03:31:09 | INFO: Primitives created: 1
+03:31:09 | INFO: Extracting primitive: Sphere.044
+03:31:09 | INFO: Primitives created: 1
+03:31:09 | INFO: Extracting primitive: Sphere.036
+03:31:09 | INFO: Primitives created: 1
+03:31:09 | INFO: Extracting primitive: Sphere.045
+03:31:09 | INFO: Primitives created: 1
+03:31:09 | INFO: Extracting primitive: Kaya v2 refined upper lid L
+03:31:09 | INFO: Primitives created: 1
+03:31:09 | INFO: Extracting primitive: Kaya v2 refined upper lid R
+03:31:09 | INFO: Primitives created: 1
+03:31:09 | INFO: Extracting primitive: Sphere.034
+03:31:09 | INFO: Primitives created: 1
+03:31:09 | INFO: Extracting primitive: Sphere.043
+03:31:09 | INFO: Primitives created: 1
+03:31:09 | INFO: Extracting primitive: Sphere.037
+03:31:09 | INFO: Primitives created: 1
+03:31:09 | INFO: Extracting primitive: Sphere.046
+03:31:09 | INFO: Primitives created: 1
+03:31:09 | INFO: Extracting primitive: Sphere
+03:31:09 | WARNING: The active Vertex Color will not be exported, as it is not used in the node tree of the material
+03:31:09 | INFO: Primitives created: 1
+03:31:09 | INFO: Extracting primitive: Sphere.040
+03:31:09 | INFO: Primitives created: 1
+03:31:09 | INFO: Extracting primitive: Sphere.049
+03:31:09 | INFO: Primitives created: 1
+03:31:09 | INFO: Extracting primitive: Kaya v2 refined lower lid L
+03:31:09 | INFO: Primitives created: 1
+03:31:09 | INFO: Extracting primitive: Kaya v2 refined lower lid R
+03:31:09 | INFO: Primitives created: 1
+03:31:09 | INFO: Extracting primitive: Sphere.054
+03:31:09 | INFO: Primitives created: 1
+03:31:09 | INFO: Extracting primitive: Sphere.055
+03:31:09 | INFO: Primitives created: 1
+03:31:09 | INFO: Extracting primitive: Sphere.056
+03:31:09 | INFO: Primitives created: 1
+03:31:09 | INFO: Extracting primitive: Sphere.057
+03:31:09 | INFO: Primitives created: 1
+03:31:09 | INFO: Extracting primitive: Sphere.058
+03:31:09 | INFO: Primitives created: 1
+03:31:09 | INFO: Extracting primitive: Sphere.059
+03:31:09 | INFO: Primitives created: 1
+03:31:09 | INFO: Extracting primitive: Sphere.052
+03:31:09 | INFO: Primitives created: 1
+03:31:09 | INFO: Extracting primitive: Sphere.039
+03:31:09 | INFO: Primitives created: 1
+03:31:09 | INFO: Extracting primitive: Sphere.048
+03:31:09 | INFO: Primitives created: 1
+03:31:09 | INFO: Extracting primitive: Sphere.032
+03:31:09 | INFO: Primitives created: 1
+03:31:09 | INFO: Extracting primitive: Sphere.051
+03:31:09 | INFO: Primitives created: 1
+03:31:09 | INFO: Extracting primitive: Sphere.041
+03:31:09 | INFO: Primitives created: 1
+03:31:09 | INFO: Extracting primitive: Sphere.050
+03:31:09 | INFO: Primitives created: 1
+03:31:09 | INFO: Extracting primitive: Smile surface
+03:31:09 | INFO: Primitives created: 1
+03:31:09 | INFO: Extracting primitive: Soft brow L
+03:31:09 | INFO: Primitives created: 1
+03:31:09 | INFO: Extracting primitive: Soft brow R
+03:31:09 | INFO: Primitives created: 1
+03:31:09 | INFO: Extracting primitive: Sphere.053
+03:31:09 | INFO: Primitives created: 1
+03:31:09 | INFO: Extracting primitive: Tail sculpt curve
+03:31:09 | INFO: Primitives created: 1
+03:31:09 | INFO: Extracting primitive: Whisker
+03:31:09 | INFO: Primitives created: 1
+03:31:09 | INFO: Extracting primitive: Whisker.001
+03:31:09 | INFO: Primitives created: 1
+03:31:09 | INFO: Extracting primitive: Whisker.002
+03:31:09 | INFO: Primitives created: 1
+03:31:09 | INFO: Extracting primitive: Whisker.003
+03:31:09 | INFO: Primitives created: 1
+03:31:09 | INFO: Extracting primitive: Whisker.004
+03:31:09 | INFO: Primitives created: 1
+03:31:09 | INFO: Extracting primitive: Whisker.005
+03:31:09 | INFO: Primitives created: 1
+03:31:35 | INFO: Finished glTF 2.0 export in 25.959187030792236 s
+
+KAYA_EDITED_EXPORT /private/tmp/educa-kaya-v2-wrapper-export.glb
+Blender 4.5.9 LTS (hash 8bf95cbd38d1 built 2026-04-21 01:30:46)
+Read blend: "/Users/davidsondorelus/edugame/docs/design/kaya-compagnon/production/v2/kaya-production-v2.blend"
+
+Blender quit
+{
+  "file": "/tmp/educa-kaya-v2-wrapper-export.glb",
+  "bytes": 2013720,
+  "skins": 1,
+  "joints": 14,
+  "triangles": 39216,
+  "exportedVertices": 21478,
+  "weightedVertices": 21478,
+  "clipsSeconds": {
+    "idle": 4.0,
+    "greeting": 2.4000000953674316,
+    "attentive": 3.0,
+    "speaking": 2.0,
+    "helping": 3.200000047683716,
+    "encouraging": 2.4000000953674316,
+    "celebrating": 2.4000000953674316,
+    "resting": 4.0
+  },
+  "embeddedImages": 2
+}

@@ -3,7 +3,7 @@ import * as T from '../vendor/three/three.module.js';
 import { GLTFLoader } from '../vendor/three/GLTFLoader.js';
 import { createKayaAnimator } from './kaya-animation.js';
 
-const MODEL_URL = new URL('../../assets/kaya/kaya-production-v1.glb', import.meta.url);
+const MODEL_URL = new URL('../../assets/kaya/kaya-production-v2.glb', import.meta.url);
 
 function disposeScene(scene) {
   const geometries = new Set(), materials = new Set(), textures = new Set(), skeletons = new Set();
@@ -84,15 +84,26 @@ export async function createKaya3D(host, onFailure, { signal } = {}) {
   const size = box.getSize(new T.Vector3());
   const center = box.getCenter(new T.Vector3());
   const scale = 2.65 / Math.max(size.y, size.x, .1);
+  const framing = { bounds: { min: box.min.toArray(), max: box.max.toArray(), size: size.toArray() }, scale };
   gltf.scene.scale.setScalar(scale);
   gltf.scene.position.copy(center.multiplyScalar(-scale));
   const camera = new T.PerspectiveCamera(31, 1, .1, 20);
   camera.position.set(.45, .12, 5.4); camera.lookAt(0, .05, 0);
+  // Opt-in review angles, shared by both archived and current assets in the proof harness.
+  // Only these local camera presets are accepted; no asset URL or remote resource is configurable.
+  const reviewView = new URLSearchParams(location.search).get('kaya-view');
+  if (reviewView === 'front') camera.position.set(0, .12, 5.4);
+  if (reviewView === 'three-quarter') camera.position.set(3.05, .12, 4.46);
+  camera.lookAt(0, .05, 0);
+  framing.view = ['front', 'three-quarter'].includes(reviewView) ? reviewView : 'companion';
+  framing.camera = camera.position.toArray();
+  framing.fov = camera.fov;
+  framing.exposure = renderer.toneMappingExposure;
   scene.add(new T.HemisphereLight(0xfff6e7, 0x7d755e, 2.0));
   const key = new T.DirectionalLight(0xfff0d6, 2.6); key.position.set(-3, 5, 4); scene.add(key);
   const fill = new T.DirectionalLight(0xffffff, 1.0); fill.position.set(3, 2, -1); scene.add(fill);
   const animator = createKayaAnimator(gltf.scene, gltf.animations);
-  canvas._kayaInspect = () => animator.inspect();
+  canvas._kayaInspect = () => ({ ...animator.inspect(), framing });
   let destroyed = false;
   const onLost = event => { event.preventDefault(); if (!destroyed) onFailure(); };
   canvas.addEventListener('webglcontextlost', onLost);

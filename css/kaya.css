@@ -11,6 +11,10 @@
 .kaya-controls { display: flex; justify-content: center; flex-wrap: wrap; gap: 3px; margin-top: 3px; }
 .kaya-controls button { font: inherit; font-size: .75rem; color: var(--ink, #25452c); background: var(--paper, #fffdf5); border: 1px solid currentColor; border-radius: 12px; padding: 4px 7px; cursor: pointer; min-height: 36px; }
 .kaya-controls button:focus-visible { outline: 3px solid #1d65d2; outline-offset: 3px; }
+.kaya-options { max-width: 100%; text-align: center; }
+.kaya-options summary { font-size: .75rem; padding: 7px 9px; min-height: 36px; border: 1px solid currentColor; border-radius: 12px; cursor: pointer; color: var(--ink, #25452c); background: var(--paper, #fffdf5); }
+.kaya-options summary:focus-visible { outline: 3px solid #1d65d2; outline-offset: 3px; }
+.kaya-options-actions { display: flex; flex-direction: column; gap: 5px; padding-top: 6px; }
 .kaya-companion.small .kaya-controls button { font-size: .7rem; padding: 3px; }
 .kaya[data-state="hidden"] .kaya-visual { display: none; }
 .kaya .kf-body { transform-origin: 120px 240px; animation: kf-breathe 4s ease-in-out infinite; }
